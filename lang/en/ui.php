@@ -2,9 +2,10 @@
 
 return [
     'nav' => [
-        'dashboard' => 'Dashboard',
-        'clients' => 'Clients',
-        'calendar' => 'Calendar',
+        'nav.dashboard' => 'Dashboard',
+        'nav.clients' => 'Clients',
+        'nav.calendar' => 'Calendar',
+        'nav.messages' => 'Messages',
         'settings' => 'Settings',
         'users' => 'Users',
         'review' => 'Pending Review',

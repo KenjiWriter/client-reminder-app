@@ -82,6 +82,7 @@ const selectedSlot = ref<string | null>(null);
 
 const openRescheduleDialog = (appointment: Appointment) => {
     selectedAppointment.value = appointment;
+    selectedSlot.value = null;
     isRescheduleDialogOpen.value = true;
     fetchAvailability();
 };
@@ -278,53 +279,9 @@ const slotsByDate = computed(() => {
 
                                 <!-- Reschedule Button -->
                                 <div v-if="appointment.can_reschedule" class="pt-2">
-                                    <Dialog v-model:open="isRescheduleDialogOpen">
-                                        <DialogTrigger asChild>
-                                            <Button variant="outline" size="sm" @click="openRescheduleDialog(appointment)">
-                                                {{ t('public.reschedule.button') }}
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent class="max-w-md">
-                                            <DialogHeader>
-                                                <DialogTitle>{{ t('public.reschedule.title') }}</DialogTitle>
-                                                <DialogDescription>
-                                                    {{ t('public.reschedule.description') }}
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            
-                                            <div class="py-4 space-y-6">
-                                                <div v-if="isLoadingAvailability" class="flex flex-col items-center justify-center py-8 space-y-4">
-                                                    <Loader2 class="h-8 w-8 animate-spin text-primary" />
-                                                </div>
-                                                <div v-else class="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
-                                                    <div v-for="(slots, date) in slotsByDate" :key="date" class="space-y-3">
-                                                        <h4 class="font-medium sticky top-0 bg-background py-1">{{ formatDate(date) }}</h4>
-                                                        <div class="grid grid-cols-4 gap-2">
-                                                            <Button
-                                                                v-for="slot in slots"
-                                                                :key="slot.start"
-                                                                size="sm"
-                                                                :variant="selectedSlot === slot.start ? 'default' : 'outline'"
-                                                                class="w-full"
-                                                                @click="selectedSlot = slot.start"
-                                                            >
-                                                                {{ slot.display }}
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <DialogFooter>
-                                                <Button variant="ghost" @click="isRescheduleDialogOpen = false">
-                                                    {{ t('public.reschedule.cancel') }}
-                                                </Button>
-                                                <Button @click="submitReschedule" :disabled="!selectedSlot">
-                                                    {{ t('public.reschedule.submit') }}
-                                                </Button>
-                                            </DialogFooter>
-                                        </DialogContent>
-                                    </Dialog>
+                                    <Button variant="outline" size="sm" @click="openRescheduleDialog(appointment)">
+                                        {{ t('public.reschedule.button') }}
+                                    </Button>
                                     
                                     <Button 
                                         variant="ghost" 
@@ -350,4 +307,47 @@ const slotsByDate = computed(() => {
             </div>
         </div>
     </div>
+
+    <Dialog v-model:open="isRescheduleDialogOpen">
+        <DialogContent class="max-w-md">
+            <DialogHeader>
+                <DialogTitle>{{ t('public.reschedule.title') }}</DialogTitle>
+                <DialogDescription>
+                    {{ t('public.reschedule.description') }}
+                </DialogDescription>
+            </DialogHeader>
+            
+            <div class="py-4 space-y-6">
+                <div v-if="isLoadingAvailability" class="flex flex-col items-center justify-center py-8 space-y-4">
+                    <Loader2 class="h-8 w-8 animate-spin text-primary" />
+                </div>
+                <div v-else class="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+                    <div v-for="(slots, date) in slotsByDate" :key="date" class="space-y-3">
+                        <h4 class="font-medium sticky top-0 bg-background py-1">{{ formatDate(date) }}</h4>
+                        <div class="grid grid-cols-4 gap-2">
+                            <Button
+                                v-for="slot in slots"
+                                :key="slot.start"
+                                size="sm"
+                                :variant="selectedSlot === slot.start ? 'default' : 'outline'"
+                                class="w-full"
+                                @click="selectedSlot = slot.start"
+                            >
+                                {{ slot.display }}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <DialogFooter>
+                <Button variant="ghost" @click="isRescheduleDialogOpen = false">
+                    {{ t('public.reschedule.cancel') }}
+                </Button>
+                <Button @click="submitReschedule" :disabled="!selectedSlot">
+                    {{ t('public.reschedule.submit') }}
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>

@@ -2,9 +2,10 @@
 
 return [
     'nav' => [
-        'dashboard' => 'Panel główny',
-        'clients' => 'Klienci',
-        'calendar' => 'Kalendarz',
+        'nav.dashboard' => 'Panel główny',
+        'nav.calendar' => 'Kalendarz',
+        'nav.messages' => 'Wiadomości',
+        'nav.clients' => 'Klienci',
         'settings' => 'Ustawienia',
         'users' => 'Użytkownicy',
         'review' => 'Oczekujące',
