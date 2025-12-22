@@ -47,7 +47,10 @@ class HandleInertiaRequests extends Middleware
             ],
             'locale' => app()->getLocale(),
             'locales' => ['pl', 'en'],
-            'translations' => __('ui'),
+            'translations' => array_merge(
+                __('ui'),
+                ['landing' => __('landing')]
+            ),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'pendingApprovalsCount' => \App\Models\Appointment::where('status', \App\Models\Appointment::STATUS_PENDING_APPROVAL)
                 ->whereNotNull('requested_starts_at')

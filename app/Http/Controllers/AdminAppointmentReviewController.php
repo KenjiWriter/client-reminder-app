@@ -53,4 +53,20 @@ class AdminAppointmentReviewController extends Controller
 
         return redirect()->back()->with('message', 'Request rejected and alternative time proposed.');
     }
+    public function availability(Request $request)
+    {
+        $request->validate([
+            'from' => 'required|date',
+            'to' => 'required|date',
+            'duration' => 'required|integer|min:5',
+        ]);
+
+        $slots = $this->availability->getAvailableSlots(
+            Carbon::parse($request->from),
+            Carbon::parse($request->to),
+            (int) $request->duration
+        );
+
+        return response()->json($slots);
+    }
 }

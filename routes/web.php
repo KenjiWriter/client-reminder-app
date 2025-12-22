@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
 Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('home');
+Route::post('/consultation', [\App\Http\Controllers\LandingController::class, 'store'])->name('consultation.store');
 
 // Locale switcher
 Route::post('/locale', function(\Illuminate\Http\Request $request) {
@@ -53,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('admin/appointments')->name('admin.appointments.')->group(function () {
         Route::get('/review', [\App\Http\Controllers\AdminAppointmentReviewController::class, 'index'])->name('review.index');
+        Route::get('/availability', [\App\Http\Controllers\AdminAppointmentReviewController::class, 'availability'])->name('availability');
         Route::patch('/{appointment}/approve', [\App\Http\Controllers\AdminAppointmentReviewController::class, 'approve'])->name('approve');
         Route::patch('/{appointment}/reject-with-suggestion', [\App\Http\Controllers\AdminAppointmentReviewController::class, 'rejectWithSuggestion'])->name('reject-with-suggestion');
     });

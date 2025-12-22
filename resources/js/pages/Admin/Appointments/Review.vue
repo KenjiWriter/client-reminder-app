@@ -60,7 +60,7 @@ const fetchAvailability = async () => {
     
     isLoadingAvailability.value = true;
     try {
-        const response = await axios.get(route('public.client.availability', 'admin'), {
+        const response = await axios.get(route('admin.appointments.availability'), {
             params: {
                 from: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
                 to: format(addDays(new Date(), 14), 'yyyy-MM-dd'),

@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'hero_title' => 'Naturalne Piękno',
+    'hero_subtitle' => 'Odkryj moc facemodelingu i masażu Kobido. Odmładzanie bez skalpela.',
+    'cta_button' => 'Zapisz się na konsultację',
+    'features_title' => 'Dlaczego Facemodeling?',
+    'feature_1_title' => 'Naturalny Lifting',
+    'feature_1_desc' => 'Bezinwazyjna alternatywa dla medycyny estetycznej, przywracająca młody wygląd.',
+    'feature_2_title' => 'Redukcja Napięć',
+    'feature_2_desc' => 'Głęboki relaks dla mięśni twarzy i szyi, likwidujący stres i bruksizm.',
+    'feature_3_title' => 'Poprawa Owalu',
+    'feature_3_desc' => 'Modelowanie i przywrócenie młodzieńczego konturu twarzy bez igieł.',
+    'form_title' => 'Zapisz się na konsultację',
+    'form_subtitle' => 'Zostaw namiar, oddzwonimy i dobierzemy dogodny termin.',
+    'form_name' => 'Imię i nazwisko',
+    'form_phone' => 'Telefon',
+    'form_email' => 'Email (opcjonalnie)',
+    'form_note' => 'Wiadomość / Preferowana godzina',
+    'form_submit' => 'Wyślij zgłoszenie',
+    'form_sending' => 'Wysyłanie...',
+    'form_success_title' => 'Dziękujemy!',
+    'form_success_message' => 'Twój formularz został wysłany. Skontaktujemy się wkrótce.',
+    'footer_rights' => 'Wszelkie prawa zastrzeżone.',
+];

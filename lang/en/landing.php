@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'hero_title' => 'Natural Beauty',
+    'hero_subtitle' => 'Discover the power of facemodeling and Kobido massage. Rejuvenation without scalpel.',
+    'cta_button' => 'Book a Consultation',
+    'features_title' => 'Why Facemodeling?',
+    'feature_1_title' => 'Natural Lifting',
+    'feature_1_desc' => 'Non-invasive alternative to aesthetic medicine, restoring youthful look.',
+    'feature_2_title' => 'Tension Reduction',
+    'feature_2_desc' => 'Deep relaxation for face and neck muscles, eliminating stress and bruxism.',
+    'feature_3_title' => 'Contour Improvement',
+    'feature_3_desc' => 'Modeling and restoring youthful face contour without needles.',
+    'form_title' => 'Book a Consultation',
+    'form_subtitle' => 'Leave your details, we will call you back to schedule.',
+    'form_name' => 'Full Name',
+    'form_phone' => 'Phone',
+    'form_email' => 'Email (optional)',
+    'form_note' => 'Message / Preferred Time',
+    'form_submit' => 'Submit Request',
+    'form_sending' => 'Sending...',
+    'form_success_title' => 'Thank you!',
+    'form_success_message' => 'Your form has been sent. We will contact you shortly.',
+    'footer_rights' => 'All rights reserved.',
+];
