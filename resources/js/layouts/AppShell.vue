@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
-import { Home, Calendar, Users, Settings, Mail } from 'lucide-vue-next';
+import { Link, usePage, router } from '@inertiajs/vue3';
+import { Home, Calendar, Users, Settings, Mail, Globe } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface User {
     name: string;
@@ -46,6 +47,13 @@ const firstName = computed(() => user.value?.name.split(' ')[0] || 'User');
 const isActive = (href: string) => {
     if (href === '#') return false;
     return currentUrl.value.startsWith(href);
+};
+
+const switchLocale = (locale: string) => {
+    router.post(route('locale.switch'), { locale }, {
+        preserveState: false,
+        preserveScroll: true,
+    });
 };
 </script>
 
@@ -105,6 +113,18 @@ const isActive = (href: string) => {
                 </div>
 
                 <div class="flex items-center gap-4">
+                    <!-- Language Switcher -->
+                    <Select :model-value="page.props.locale" @update:model-value="switchLocale">
+                        <SelectTrigger class="w-[80px] h-8">
+                            <Globe class="mr-1 h-3.5 w-3.5" />
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="pl">PL</SelectItem>
+                            <SelectItem value="en">EN</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    
                     <span class="text-sm text-muted-foreground">Hi, {{ firstName }} 👋</span>
                     <div class="relative h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                         <span class="text-sm font-medium text-primary">{{ userInitials }}</span>
