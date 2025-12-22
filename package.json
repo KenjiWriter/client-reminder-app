@@ -30,6 +30,7 @@
         "vue-tsc": "^2.2.4"
     },
     "dependencies": {
+        "@headlessui/vue": "^1.7.23",
         "@inertiajs/vue3": "^2.1.0",
         "@tanstack/vue-table": "^8.21.3",
         "@vue/compiler-sfc": "^3.5.26",
