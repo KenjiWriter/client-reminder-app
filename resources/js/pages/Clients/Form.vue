@@ -1,0 +1,84 @@
+<script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
+import { Head, useForm, Link } from '@inertiajs/vue3';
+import { Button } from '@/components/ui/button';
+import Input from '@/components/ui/input/Input.vue';
+import Label from '@/components/ui/label/Label.vue';
+
+const props = defineProps<{
+    client?: {
+        id: number;
+        full_name: string;
+        email: string | null;
+        phone_e164: string;
+    };
+}>;
+
+const isEditing = !!props.client;
+
+const form = useForm({
+    full_name: props.client?.full_name || '',
+    email: props.client?.email || '',
+    phone: props.client?.phone_e164 || '',
+});
+
+const submit = () => {
+    if (isEditing) {
+        form.put(route('clients.update', props.client!.id));
+    } else {
+        form.post(route('clients.store'));
+    }
+};
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Clients',
+        href: '/clients',
+    },
+    {
+        title: isEditing ? 'Edit Client' : 'Add Client',
+        href: '',
+    },
+];
+</script>
+
+<template>
+    <Head :title="isEditing ? 'Edit Client' : 'Add Client'" />
+
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="max-w-2xl mx-auto p-4 w-full">
+            <h1 class="text-2xl font-bold mb-6">{{ isEditing ? 'Edit Client' : 'Add Client' }}</h1>
+
+            <form @submit.prevent="submit" class="space-y-4">
+                <div class="grid gap-2">
+                    <Label for="full_name">Full Name</Label>
+                    <Input id="full_name" v-model="form.full_name" required placeholder="John Doe" />
+                    <div v-if="form.errors.full_name" class="text-sm text-red-500">{{ form.errors.full_name }}</div>
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="email">Email (Optional)</Label>
+                    <Input id="email" type="email" v-model="form.email" placeholder="john@example.com" />
+                    <div v-if="form.errors.email" class="text-sm text-red-500">{{ form.errors.email }}</div>
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="phone">Phone Number</Label>
+                    <Input id="phone" v-model="form.phone" required placeholder="+48 123 456 789" />
+                    <p class="text-xs text-muted-foreground">Formats accepted: 123456789, +48123456789</p>
+                    <div v-if="form.errors.phone" class="text-sm text-red-500">{{ form.errors.phone }}</div>
+                </div>
+
+                <div class="flex justify-end gap-4 pt-4">
+                    <Link :href="route('clients.index')">
+                        <Button variant="outline" type="button">Cancel</Button>
+                    </Link>
+                    <Button type="submit" :disabled="form.processing">
+                        {{ isEditing ? 'Update Client' : 'Create Client' }}
+                    </Button>
+                </div>
+            </form>
+        </div>
+    </AppLayout>
+</template>
