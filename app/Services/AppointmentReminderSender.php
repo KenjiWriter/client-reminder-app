@@ -75,19 +75,12 @@ class AppointmentReminderSender
         $startsAt = $appointment->starts_at->timezone($timezone);
 
         $publicUrl = config('app.url').'/c/'.$appointment->client->public_uid;
-        $footerNote = Setting::get('sms_footer_note', '');
 
-        $message = "Hi {$appointment->client->full_name}!\n\n";
-        $message .= "Reminder: You have an appointment on {$startsAt->format('l, F j')} at {$startsAt->format('g:i A')}.\n\n";
-        $message .= "View your appointments: {$publicUrl}\n";
-
-        if ($footerNote) {
-            $message .= "\n{$footerNote}\n";
-        }
-
-        $message .= "\nTo stop reminders, visit the link above.";
-
-        return $message;
+        return trans('sms.appointment_reminder', [
+            'date' => $startsAt->locale('pl')->translatedFormat('j F Y'),
+            'time' => $startsAt->format('H:i'),
+            'link' => $publicUrl,
+        ], 'pl');
     }
 
     protected function getGuardError(Appointment $appointment): ?string

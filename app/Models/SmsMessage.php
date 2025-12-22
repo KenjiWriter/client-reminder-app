@@ -8,6 +8,10 @@ class SmsMessage extends Model
 {
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'sent_at' => 'datetime',
+    ];
+
     protected static function booted(): void
     {
         static::created(fn() => \App\Services\DashboardCache::clear());
