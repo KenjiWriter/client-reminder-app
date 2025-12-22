@@ -33,6 +33,10 @@ class Appointment extends Model
                 $appointment->last_rescheduled_at = now();
             }
         });
+
+        static::created(fn() => \App\Services\DashboardCache::clear());
+        static::updated(fn() => \App\Services\DashboardCache::clear());
+        static::deleted(fn() => \App\Services\DashboardCache::clear());
     }
 
     public function client()

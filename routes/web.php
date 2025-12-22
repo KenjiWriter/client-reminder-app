@@ -25,9 +25,8 @@ Route::get('/c/{publicUid}', [\App\Http\Controllers\PublicClientController::clas
 Route::post('/c/{publicUid}/opt-out', [\App\Http\Controllers\PublicClientController::class, 'toggleOptOut'])
     ->name('public.client.toggle-opt-out');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('clients', \App\Http\Controllers\ClientController::class);

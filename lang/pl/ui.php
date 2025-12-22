@@ -63,6 +63,32 @@ return [
         'sendReminder' => 'Wyślij przypomnienie',
     ],
     
+    'dashboard' => [
+        'title' => 'Panel główny',
+        'filters' => [
+            'range' => 'Zakres',
+            '7d' => 'Ostatnie 7 dni',
+            '30d' => 'Ostatnie 30 dni',
+            '90d' => 'Ostatnie 90 dni',
+            'mtd' => 'Bieżący miesiąc',
+            'custom' => 'Własny zakres',
+        ],
+        'stats' => [
+            'totalClients' => 'Wszyscy klienci',
+            'totalAppointments' => 'Wszystkie wizyty',
+            'newClients' => 'Nowi klienci',
+            'smsSent' => 'Wysłane SMS',
+            'reschedules' => 'Przełożone wizyty',
+            'inPeriod' => 'w okresie',
+        ],
+        'charts' => [
+            'appointmentsPerDay' => 'Wizyty dziennie',
+            'smsSentPerDay' => 'Wysłane SMS dziennie',
+            'newClientsPerDay' => 'Nowi klienci dziennie',
+            'reschedulesPerDay' => 'Przełożone wizyty dziennie',
+        ],
+    ],
+    
     'public' => [
         'title' => 'Wizyty dla {name}',
         'hello' => 'Witaj, {name}!',

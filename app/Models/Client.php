@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DashboardCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -22,6 +23,10 @@ class Client extends Model
 
         static::creating(function ($client) {
             $client->public_uid = $client->public_uid ?? (string) Str::ulid();
+        });
+
+        static::created(function () {
+            DashboardCache::clear();
         });
     }
 

@@ -10,8 +10,10 @@ test('it tracks reschedules when starts_at changes', function () {
     $client = Client::factory()->create();
     $appointment = Appointment::factory()->create([
         'client_id' => $client->id,
-        'starts_at' => now()->addDay(),
+        'starts_at' => now()->addDay()->startOfSecond(),
     ]);
+    
+    $appointment->refresh();
 
     expect($appointment->rescheduled_count)->toBe(0);
     expect($appointment->first_rescheduled_at)->toBeNull();
@@ -24,7 +26,7 @@ test('it tracks reschedules when starts_at changes', function () {
     expect($appointment->rescheduled_count)->toBe(0);
 
     // Change starts_at - SHOULD trigger reschedule
-    $newTime = now()->addDays(2);
+    $newTime = now()->addDays(2)->startOfSecond();
     $appointment->update(['starts_at' => $newTime]);
     $appointment->refresh();
 
@@ -35,7 +37,7 @@ test('it tracks reschedules when starts_at changes', function () {
 
     // Change starts_at again
     sleep(1); // Ensure timestamp difference
-    $anotherTime = now()->addDays(3);
+    $anotherTime = now()->addDays(3)->startOfSecond();
     $appointment->update(['starts_at' => $anotherTime]);
     $appointment->refresh();
 
