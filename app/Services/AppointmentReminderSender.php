@@ -15,13 +15,6 @@ class AppointmentReminderSender
         protected SmsProvider $smsProvider
     ) {}
 
-    /**
-     * Send a reminder for the given appointment.
-     *
-     * @param Appointment $appointment
-     * @param bool $force Bypass standard guards (already sent, opt-out, past date)
-     * @return SmsResult
-     */
     public function send(Appointment $appointment, bool $force = false): SmsResult
     {
         if (!$force) {
@@ -31,52 +24,77 @@ class AppointmentReminderSender
             }
         }
 
-        // Validate client and phone number as a baseline even for forced sends
+        return $this->sendReminder($appointment, $force);
+    }
+
+    public function sendReminder(Appointment $appointment, bool $force = false): SmsResult
+    {
+        return $this->sendInternal($appointment, 'appointment_reminder', function($appt) {
+            // Mark as sent logic only for periodic reminders
+            if (is_null($appt->reminder_sent_at)) {
+                Appointment::where('id', $appt->id)->whereNull('reminder_sent_at')->update(['reminder_sent_at' => now()]);
+            }
+        }, function($appt) {
+            Appointment::where('id', $appt->id)->update(['reminder_sent_at' => null]);
+        }, [], $force);
+    }
+
+    public function sendApproval(Appointment $appointment): SmsResult
+    {
+        return $this->sendInternal($appointment, 'request_approved');
+    }
+
+    public function sendSuggestion(Appointment $appointment): SmsResult
+    {
+        return $this->sendInternal($appointment, 'suggestion_proposed', null, null, [
+            'starts_at' => $appointment->suggested_starts_at
+        ]);
+    }
+
+    protected function sendInternal(
+        Appointment $appointment, 
+        string $template, 
+        ?callable $beforeSend = null, 
+        ?callable $onFailure = null,
+        array $overrides = [],
+        bool $force = false
+    ): SmsResult {
         if (!$appointment->client || !$appointment->client->phone_e164) {
             return SmsResult::failure('Client has no phone number or client record is missing.');
         }
 
-        // Idempotency check: Only mark as sent if not already sent or if forced
-        // For forced sends, we don't overwrite reminder_sent_at if it exists
-        $shouldMarkSent = is_null($appointment->reminder_sent_at);
-
-        if ($shouldMarkSent) {
-            Appointment::where('id', $appointment->id)
-                ->whereNull('reminder_sent_at')
-                ->update(['reminder_sent_at' => now()]);
+        if (!$force && $appointment->client->sms_opt_out) {
+            return SmsResult::failure('Client has opted out of SMS reminders.');
         }
 
+        if ($beforeSend) $beforeSend($appointment);
+
         try {
-            $message = $this->composeMessage($appointment);
+            $message = $this->composeMessage($appointment, $template, $overrides);
             $result = $this->smsProvider->send($appointment->client->phone_e164, $message);
 
             $this->logMessage($appointment, $message, $result);
 
-            if (!$result->success && $shouldMarkSent) {
-                // Rollback if we were the ones marking it as sent
-                Appointment::where('id', $appointment->id)->update(['reminder_sent_at' => null]);
+            if (!$result->success && $onFailure) {
+                $onFailure($appointment);
             }
 
             return $result;
         } catch (\Exception $e) {
-            if ($shouldMarkSent) {
-                Appointment::where('id', $appointment->id)->update(['reminder_sent_at' => null]);
-            }
-
+            if ($onFailure) $onFailure($appointment);
             $this->logException($appointment, isset($message) ? $message : null, $e);
-            
             return SmsResult::failure('Internal error: ' . $e->getMessage());
         }
     }
 
-    public function composeMessage(Appointment $appointment): string
+    public function composeMessage(Appointment $appointment, string $template = 'appointment_reminder', array $overrides = []): string
     {
         $timezone = Setting::get('timezone', config('app.timezone', 'UTC'));
-        $startsAt = $appointment->starts_at->timezone($timezone);
+        $startsAt = ($overrides['starts_at'] ?? $appointment->starts_at)->timezone($timezone);
 
         $publicUrl = config('app.url').'/c/'.$appointment->client->public_uid;
 
-        return trans('sms.appointment_reminder', [
+        return trans("sms.{$template}", [
             'date' => $startsAt->locale('pl')->translatedFormat('j F Y'),
             'time' => $startsAt->format('H:i'),
             'link' => $publicUrl,

@@ -9,6 +9,7 @@ import {
 import { urlIsActive } from '@/lib/utils';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
+import { Badge } from '@/components/ui/badge';
 
 defineProps<{
     items: NavItem[];
@@ -30,6 +31,13 @@ const page = usePage();
                     <Link :href="item.href">
                         <component :is="item.icon" />
                         <span>{{ item.title }}</span>
+                        <Badge 
+                            v-if="item.badge" 
+                            variant="default"
+                            class="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary p-0 text-[10px] text-primary-foreground"
+                        >
+                            {{ item.badge }}
+                        </Badge>
                     </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>

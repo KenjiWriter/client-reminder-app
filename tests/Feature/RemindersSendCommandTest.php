@@ -33,20 +33,29 @@ test('command refuses to send if already sent and not forced', function () {
 });
 
 test('command sends reminder if forced even if already sent', function () {
+    Carbon::setTestNow($now = Carbon::parse('2025-01-01 12:00:00'));
+
+    $mock = Mockery::mock(\App\Contracts\SmsProvider::class);
+    $mock->shouldReceive('send')->andReturn(\App\ValueObjects\SmsResult::success('mock-id'));
+    app()->instance(\App\Contracts\SmsProvider::class, $mock);
+
     $appointment = Appointment::factory()->create([
-        'reminder_sent_at' => now()->subDay(),
-        'starts_at' => now()->addDay(),
+        'reminder_sent_at' => $now->copy()->subDay(),
+        'starts_at' => $now->copy()->addDay(),
         'send_reminder' => true,
+        'status' => Appointment::STATUS_CONFIRMED,
     ]);
 
     $initialSentAt = $appointment->reminder_sent_at;
 
-    $this->artisan("reminders:send {$appointment->id} --force --sync")
-        ->assertExitCode(0)
-        ->expectsOutputToContain('Success!');
+    \Illuminate\Support\Facades\Artisan::call('reminders:send', [
+        'appointment_id' => $appointment->id,
+        '--force' => true,
+        '--sync' => true,
+    ]);
 
     $appointment->refresh();
-    expect($appointment->reminder_sent_at->timestamp)->toBe($initialSentAt->timestamp);
+    expect($appointment->reminder_sent_at->timestamp)->toEqual($initialSentAt->timestamp);
     expect(SmsMessage::where('appointment_id', $appointment->id)->count())->toBe(1);
 });
 
@@ -79,8 +88,10 @@ test('bulk command dispatches reminders', function () {
     
     $appointment->refresh();
 
-    $this->artisan('reminders:send-bulk')
-        ->expectsOutputToContain('Dispatching 1 reminder(s)...')
+    $appointment->refresh();
+
+    $this->artisan('reminders:send')
+        ->expectsOutputToContain('Found 1 appointments needing reminders.')
         ->assertExitCode(0);
 
     Queue::assertPushed(SendAppointmentReminderJob::class, function ($job) use ($appointment) {

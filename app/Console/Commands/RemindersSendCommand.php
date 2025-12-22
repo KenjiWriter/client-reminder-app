@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Jobs\SendAppointmentReminderJob;
 use App\Services\AppointmentReminderSender;
 use Illuminate\Console\Command;
+use Carbon\Carbon;
 
 class RemindersSendCommand extends Command
 {
@@ -15,14 +16,7 @@ class RemindersSendCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'reminders:send {appointment_id} {--force} {--sync}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Manually send an appointment reminder SMS';
+    protected $signature = 'reminders:send {appointment_id?} {--force} {--sync}';
 
     /**
      * Execute the console command.
@@ -30,6 +24,16 @@ class RemindersSendCommand extends Command
     public function handle(AppointmentReminderSender $sender): int
     {
         $appointmentId = $this->argument('appointment_id');
+
+        if ($appointmentId) {
+            return $this->handleIndividual($appointmentId, $sender);
+        }
+
+        return $this->handleBulk($sender);
+    }
+
+    protected function handleIndividual(string $appointmentId, AppointmentReminderSender $sender): int
+    {
         $force = $this->option('force');
         $sync = $this->option('sync');
 
@@ -45,8 +49,12 @@ class RemindersSendCommand extends Command
 
         $this->info("Appointment Summary:");
         $this->line("- Client: {$appointment->client->full_name}");
-        $this->line("- Phone:  {$appointment->client->phone_e164}");
+        $this->line("- Status: {$appointment->status}");
         $this->line("- Start:  {$startsAt->format('Y-m-d H:i')} ({$timezone})");
+
+        if ($appointment->status !== Appointment::STATUS_CONFIRMED && !$force) {
+            $this->warn("Warning: Appointment is not confirmed (status: {$appointment->status}). Reminder might be skipped unless --force is used.");
+        }
 
         if ($sync) {
             $this->comment("Sending immediately...");
@@ -65,6 +73,39 @@ class RemindersSendCommand extends Command
         SendAppointmentReminderJob::dispatch($appointment->id, $force);
         $this->info("Job dispatched successfully.");
 
+        return 0;
+    }
+
+    protected function handleBulk(AppointmentReminderSender $sender): int
+    {
+        $reminderHours = (int) Setting::get('reminder_hours', 24);
+        $now = Carbon::now();
+        $windowEnd = $now->copy()->addMinutes(10); // Check 10-minute window
+
+        // Adjust target time based on business setting
+        // We look for appointments starting in (reminderHours) from now.
+        $targetStart = $now->copy()->addHours($reminderHours);
+        $targetEnd = $windowEnd->copy()->addHours($reminderHours);
+
+        $appointments = Appointment::where('send_reminder', true)
+            ->where('status', Appointment::STATUS_CONFIRMED)
+            ->whereNull('reminder_sent_at')
+            ->whereBetween('starts_at', [$targetStart, $targetEnd])
+            ->get();
+
+        if ($appointments->isEmpty()) {
+            $this->info("No reminders to send for the window: {$targetStart->format('H:i')} - {$targetEnd->format('H:i')}");
+            return 0;
+        }
+
+        $this->info("Found {$appointments->count()} appointments needing reminders.");
+
+        foreach ($appointments as $appointment) {
+            $this->line("- Dispatching reminder for Appointment #{$appointment->id} (Client ID: {$appointment->client_id})");
+            SendAppointmentReminderJob::dispatch($appointment->id);
+        }
+
+        $this->info("All reminder jobs dispatched.");
         return 0;
     }
 }

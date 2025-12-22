@@ -12,12 +12,20 @@ class Appointment extends Model
 
     protected $guarded = ['id'];
 
+    const STATUS_CONFIRMED = 'confirmed';
+    const STATUS_PENDING_APPROVAL = 'pending_approval';
+    const STATUS_CANCELED = 'canceled';
+
     protected $casts = [
         'starts_at' => 'datetime',
         'send_reminder' => 'boolean',
         'reminder_sent_at' => 'datetime',
         'first_rescheduled_at' => 'datetime',
         'last_rescheduled_at' => 'datetime',
+        'requested_starts_at' => 'datetime',
+        'requested_at' => 'datetime',
+        'suggested_starts_at' => 'datetime',
+        'suggestion_created_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -31,6 +39,7 @@ class Appointment extends Model
                 }
                 
                 $appointment->last_rescheduled_at = now();
+                $appointment->reminder_sent_at = null;
             }
         });
 

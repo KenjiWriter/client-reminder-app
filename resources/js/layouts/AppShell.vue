@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
-import { Home, Calendar, Users, Settings, Mail, Globe } from 'lucide-vue-next';
+import { Home, Calendar, Users, Settings, Mail, Globe, ClipboardCheck } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from '@/composables/useTranslation';
@@ -15,23 +15,37 @@ interface PageProps {
     auth: {
         user: User;
     };
+    name: string;
+    quote: { message: string; author: string };
+    locale: string;
+    locales: string[];
+    translations: Record<string, string>;
+    sidebarOpen: boolean;
+    pendingApprovalsCount: number;
 }
 
 interface NavItem {
     name: string;
     href: string;
     icon: any;
+    badge?: number;
 }
 
 const { t } = useTranslation();
 
-const navItems: NavItem[] = [
+const navItems = computed<NavItem[]>(() => [
     { name: 'nav.dashboard', href: route('dashboard'), icon: Home },
-    { name: 'nav.calendar', href: route('calendar.index'), icon: Calendar },
+    { 
+        name: 'nav.review', 
+        href: route('admin.appointments.review.index'), 
+        icon: ClipboardCheck, 
+        badge: (page.props as any).pendingApprovalsCount 
+    },
     { name: 'nav.clients', href: route('clients.index'), icon: Users },
     { name: 'nav.messages', href: route('messages.index'), icon: Mail },
+    { name: 'nav.calendar', href: route('calendar.index'), icon: Calendar },
     { name: 'nav.settings', href: route('settings.index'), icon: Settings },
-];
+]);
 
 const page = usePage<PageProps>();
 const currentUrl = computed(() => page.url);
@@ -89,6 +103,9 @@ const switchLocale = (locale: string) => {
                 >
                     <component :is="item.icon" class="h-5 w-5" />
                     <span>{{ t(item.name) }}</span>
+                    <span v-if="item.badge && item.badge > 0" class="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground font-bold">
+                        {{ item.badge }}
+                    </span>
                 </Link>
             </nav>
 
