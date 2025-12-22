@@ -60,6 +60,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/{appointment}/approve', [\App\Http\Controllers\AdminAppointmentReviewController::class, 'approve'])->name('approve');
         Route::patch('/{appointment}/reject-with-suggestion', [\App\Http\Controllers\AdminAppointmentReviewController::class, 'rejectWithSuggestion'])->name('reject-with-suggestion');
     });
+
+    Route::resource('admin/leads', \App\Http\Controllers\Admin\LeadController::class)->only(['index', 'update'])->names('admin.leads');
 });
 
 require __DIR__.'/settings.php';

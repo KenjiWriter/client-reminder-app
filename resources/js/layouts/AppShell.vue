@@ -1,14 +1,35 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
-import { Home, Calendar, Users, Settings, Mail, Globe, ClipboardCheck } from 'lucide-vue-next';
+import { 
+    LayoutDashboard, 
+    Users, 
+    Calendar as CalendarIcon, 
+    Settings, 
+    LogOut,
+    Menu,
+    X,
+    UserCircle,
+    ClipboardCheck,
+    Inbox,
+    Mail,
+    Globe
+} from 'lucide-vue-next';
 import { route } from 'ziggy-js';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from '@/composables/useTranslation';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import NavMain from '@/components/NavMain.vue';
+import { NavItem as NavItemType } from '@/types';
 
 interface User {
+    id: number;
     name: string;
     email: string;
+    email_verified_at: string | null;
+    created_at: string;
+    updated_at: string;
 }
 
 interface PageProps {
@@ -22,6 +43,7 @@ interface PageProps {
     translations: Record<string, string>;
     sidebarOpen: boolean;
     pendingApprovalsCount: number;
+    [key: string]: unknown;
 }
 
 interface NavItem {
@@ -31,19 +53,26 @@ interface NavItem {
     badge?: number;
 }
 
-const { t } = useTranslation();
+const { t, locale } = useTranslation();
+
+const sidebarOpen = ref(false);
 
 const navItems = computed<NavItem[]>(() => [
-    { name: 'nav.dashboard', href: route('dashboard'), icon: Home },
-    { 
-        name: 'nav.review', 
-        href: route('admin.appointments.review.index'), 
-        icon: ClipboardCheck, 
-        badge: (page.props as any).pendingApprovalsCount 
+    { name: 'nav.dashboard', href: route('dashboard'), icon: LayoutDashboard },
+    {
+        name: 'nav.leads',
+        href: route('admin.leads.index'),
+        icon: Inbox,
+    },
+    {
+        name: 'nav.review',
+        href: route('admin.appointments.review.index'),
+        icon: ClipboardCheck,
+        badge: (page.props as any).pendingApprovalsCount
     },
     { name: 'nav.clients', href: route('clients.index'), icon: Users },
     { name: 'nav.messages', href: route('messages.index'), icon: Mail },
-    { name: 'nav.calendar', href: route('calendar.index'), icon: Calendar },
+    { name: 'nav.calendar', href: route('calendar.index'), icon: CalendarIcon },
     { name: 'nav.settings', href: route('settings.index'), icon: Settings },
 ]);
 
@@ -82,7 +111,7 @@ const switchLocale = (locale: string) => {
             <div class="flex h-16 items-center px-6">
                 <div class="flex items-center gap-2">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                        <Calendar class="h-6 w-6 text-primary-foreground" />
+                        <CalendarIcon class="h-6 w-6 text-primary-foreground" />
                     </div>
                     <span class="text-lg font-semibold">App 👋</span>
                 </div>

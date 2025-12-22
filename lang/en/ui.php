@@ -3,10 +3,13 @@
 return [
     'nav' => [
         'dashboard' => 'Dashboard',
-        'calendar' => 'Calendar',
         'clients' => 'Clients',
-        'messages' => 'Messages',
+        'calendar' => 'Calendar',
         'settings' => 'Settings',
+        'users' => 'Users',
+        'review' => 'Pending Review',
+        'leads' => 'Leads',
+        'logout' => 'Logout',
     ],
 
     'messages' => [
@@ -157,5 +160,18 @@ return [
         'suggestDescription' => 'Rejection will notify the client and propose this new time instead.',
         'cancel' => 'Cancel',
         'proposeNotify' => 'Propose & Notify',
+    ],
+
+    'leads' => [
+        'title' => 'Leads',
+        'source' => 'Source',
+        'status' => 'Status',
+        'note' => 'Note',
+        'createdAt' => 'Created At',
+        'statuses' => [
+            'new' => 'New',
+            'contacted' => 'Contacted',
+            'closed' => 'Closed',
+        ],
     ],
 ];

@@ -3,11 +3,13 @@
 return [
     'nav' => [
         'dashboard' => 'Panel główny',
-        'calendar' => 'Kalendarz',
         'clients' => 'Klienci',
-        'review' => 'Oczekujące',
-        'messages' => 'Wiadomości',
+        'calendar' => 'Kalendarz',
         'settings' => 'Ustawienia',
+        'users' => 'Użytkownicy',
+        'review' => 'Oczekujące',
+        'leads' => 'Nowe kontakty',
+        'logout' => 'Wyloguj',
     ],
 
     'messages' => [
@@ -158,5 +160,18 @@ return [
         'suggestDescription' => 'Odrzucenie powiadomi klienta i zaproponuje ten nowy termin.',
         'cancel' => 'Anuluj',
         'proposeNotify' => 'Zaproponuj i powiadom',
+    ],
+
+    'leads' => [
+        'title' => 'Nowe kontakty',
+        'source' => 'Źródło',
+        'status' => 'Status',
+        'note' => 'Notatka',
+        'createdAt' => 'Data zgłoszenia',
+        'statuses' => [
+            'new' => 'Nowy',
+            'contacted' => 'Skontaktowano',
+            'closed' => 'Zamknięty',
+        ],
     ],
 ];
