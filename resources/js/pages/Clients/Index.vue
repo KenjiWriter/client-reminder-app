@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import AppShell from '@/layouts/AppShell.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
@@ -42,12 +41,7 @@ const props = withDefaults(defineProps<{
     filters: () => ({ search: '' }),
 });
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Clients',
-        href: '/clients',
-    },
-];
+
 
 const search = ref(props.filters.search || '');
 
@@ -65,7 +59,7 @@ const deleteClient = (id: number) => {
 <template>
     <Head title="Clients" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
+    <AppShell>
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-bold">Clients</h1>
@@ -121,5 +115,5 @@ const deleteClient = (id: number) => {
                 </Table>
             </div>
         </div>
-    </AppLayout>
+    </AppShell>
 </template>

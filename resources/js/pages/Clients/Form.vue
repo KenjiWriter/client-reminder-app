@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import AppShell from '@/layouts/AppShell.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import Input from '@/components/ui/input/Input.vue';
@@ -35,23 +34,12 @@ const submit = () => {
         form.post(route('clients.store'));
     }
 };
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Clients',
-        href: '/clients',
-    },
-    {
-        title: isEditing ? 'Edit Client' : 'Add Client',
-        href: '',
-    },
-];
 </script>
 
 <template>
     <Head :title="isEditing ? 'Edit Client' : 'Add Client'" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
+    <AppShell>
         <div class="max-w-2xl mx-auto p-4 w-full">
             <h1 class="text-2xl font-bold mb-6">{{ isEditing ? 'Edit Client' : 'Add Client' }}</h1>
 
@@ -85,5 +73,5 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
             </form>
         </div>
-    </AppLayout>
+    </AppShell>
 </template>

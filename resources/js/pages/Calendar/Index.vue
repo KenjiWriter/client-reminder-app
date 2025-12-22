@@ -177,8 +177,8 @@ const formatTime = (isoString: string) => {
                             <Button class="bg-green-600 hover:bg-green-700 text-white" @click="openCreateModal">
                             <Plus class="mr-2 h-4 w-4" /> New Appointment
                         </Button>
-                    </DialogTrigger>
-                    <DialogContent class="sm:max-w-[425px]">
+                        </DialogTrigger>
+                        <DialogContent class="sm:max-w-[425px]">
                         <DialogHeader>
                             <DialogTitle>{{ editingAppointmentId ? 'Edit Appointment' : 'Add Appointment' }}</DialogTitle>
                             <DialogDescription>

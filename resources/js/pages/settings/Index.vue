@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import AppShell from '@/layouts/AppShell.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,13 +24,6 @@ const props = withDefaults(defineProps<{
         reminder_hours: 24,
     }),
 });
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Settings',
-        href: '/settings',
-    },
-];
 
 const form = useForm({
     timezone: props.settings.timezone,
