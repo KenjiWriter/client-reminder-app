@@ -15,22 +15,32 @@ import {
 } from '@/components/ui/table';
 import debounce from 'lodash/debounce';
 import { Plus, Trash, Pencil } from 'lucide-vue-next';
+import { route } from 'ziggy-js';
 
-const props = defineProps<{
-    clients: {
-        data: Array<{
-            id: number;
-            full_name: string;
-            phone_e164: string;
-            email: string | null;
-            public_uid: string;
-        }>;
-        links: any[];
-    };
-    filters: {
-        search: string;
-    };
-}>;
+interface Client {
+    id: number;
+    full_name: string;
+    phone_e164: string;
+    email: string | null;
+    public_uid: string;
+}
+
+interface ClientsData {
+    data: Client[];
+    links: any[];
+}
+
+interface Filters {
+    search: string;
+}
+
+const props = withDefaults(defineProps<{
+    clients: ClientsData;
+    filters: Filters;
+}>(), {
+    clients: () => ({ data: [], links: [] }),
+    filters: () => ({ search: '' }),
+});
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

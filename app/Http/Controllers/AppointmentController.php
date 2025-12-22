@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointmentRequest;
+use App\Http\Requests\UpdateAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Client;
 use Carbon\Carbon;
@@ -30,6 +31,7 @@ class AppointmentController extends Controller
                     'start' => $appointment->starts_at->toIso8601String(),
                     'end' => $appointment->starts_at->addMinutes($appointment->duration_minutes)->toIso8601String(),
                     'client_id' => $appointment->client_id,
+                    'duration_minutes' => $appointment->duration_minutes,
                     'note' => $appointment->note,
                     'send_reminder' => $appointment->send_reminder,
                 ];
@@ -51,6 +53,17 @@ class AppointmentController extends Controller
 
         return redirect()->back()
             ->with('success', 'Appointment scheduled.');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateAppointmentRequest $request, Appointment $appointment)
+    {
+        $appointment->update($request->validated());
+
+        return redirect()->back()
+            ->with('success', 'Appointment updated.');
     }
 
     /**

@@ -5,15 +5,20 @@ import { Head, useForm, Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import Input from '@/components/ui/input/Input.vue';
 import Label from '@/components/ui/label/Label.vue';
+import { route } from 'ziggy-js';
 
-const props = defineProps<{
-    client?: {
-        id: number;
-        full_name: string;
-        email: string | null;
-        phone_e164: string;
-    };
-}>;
+interface Client {
+    id: number;
+    full_name: string;
+    email: string | null;
+    phone_e164: string;
+}
+
+const props = withDefaults(defineProps<{
+    client?: Client;
+}>(), {
+    client: undefined,
+});
 
 const isEditing = !!props.client;
 

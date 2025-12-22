@@ -17,25 +17,34 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock } from 'lucide-vue-next';
+import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2 } from 'lucide-vue-next';
 import { format, startOfWeek, addDays, getDay, isSameDay, parseISO, startOfToday, addWeeks, subWeeks } from 'date-fns';
+import { route } from 'ziggy-js';
 
-const props = defineProps<{
-    events: Array<{
-        id: number;
-        title: string;
-        start: string;
-        end: string;
-        client_id: number;
-        note: string | null;
-        send_reminder: boolean;
-    }>;
-    clients: Array<{
-        id: number;
-        full_name: string;
-        phone_e164: string;
-    }>;
-}>;
+interface CalendarEvent {
+    id: number;
+    title: string;
+    start: string;
+    end: string;
+    client_id: number;
+    duration_minutes: number;
+    note: string | null;
+    send_reminder: boolean;
+}
+
+interface CalendarClient {
+    id: number;
+    full_name: string;
+    phone_e164: string;
+}
+
+const props = withDefaults(defineProps<{
+    events: CalendarEvent[];
+    clients: CalendarClient[];
+}>(), {
+    events: () => [],
+    clients: () => [],
+});
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -61,8 +70,10 @@ const prevWeek = () => {
     router.visit(route('calendar.index', { start: currentStartDate.value.toISOString() }), { preserveState: true, preserveScroll: true });
 };
 
-// Create Form State
+// Create/Edit Form State
 const isCreateOpen = ref(false);
+const editingAppointmentId = ref<number | null>(null);
+
 const form = useForm({
     client_id: '',
     date: format(new Date(), 'yyyy-MM-dd'),
@@ -70,20 +81,58 @@ const form = useForm({
     duration_minutes: 60,
     note: '',
     send_reminder: true,
+    starts_at: '', // For validation errors
 });
+
+const openCreateModal = () => {
+    editingAppointmentId.value = null;
+    form.reset();
+    form.date = format(new Date(), 'yyyy-MM-dd');
+    form.time = '12:00';
+    form.duration_minutes = 60;
+    form.send_reminder = true;
+    isCreateOpen.value = true;
+};
+
+const editAppointment = (event: typeof props.events[0]) => {
+    editingAppointmentId.value = event.id;
+    form.client_id = String(event.client_id);
+    form.date = format(parseISO(event.start), 'yyyy-MM-dd');
+    form.time = format(parseISO(event.start), 'HH:mm');
+    form.duration_minutes = event.duration_minutes;
+    form.note = event.note || '';
+    form.send_reminder = !!event.send_reminder;
+    isCreateOpen.value = true;
+};
+
+const closeDialog = () => {
+    isCreateOpen.value = false;
+    form.reset();
+    editingAppointmentId.value = null;
+};
 
 const submit = () => {
     const starts_at = `${form.date}T${form.time}:00`;
+    const payload = { ...form, starts_at };
     
-    form.transform((data) => ({
-        ...data,
-        starts_at: starts_at,
-    })).post(route('appointments.store'), {
-        onSuccess: () => {
-            isCreateOpen.value = false;
-            form.reset();
-        },
-    });
+    if (editingAppointmentId.value) {
+        form.transform(() => payload).put(route('appointments.update', editingAppointmentId.value), {
+            onSuccess: () => closeDialog(),
+        });
+    } else {
+        form.transform(() => payload).post(route('appointments.store'), {
+            onSuccess: () => closeDialog(),
+        });
+    }
+};
+
+const deleteAppointment = () => {
+    if (!editingAppointmentId.value) return;
+    if (confirm('Are you sure you want to cancel this appointment? This action cannot be undone.')) {
+        router.delete(route('appointments.destroy', editingAppointmentId.value), {
+            onSuccess: () => closeDialog(),
+        });
+    }
 };
 
 const getEventsForDay = (day: Date) => {
@@ -117,15 +166,15 @@ const formatTime = (isoString: string) => {
 
                 <Dialog v-model:open="isCreateOpen">
                     <DialogTrigger as-child>
-                        <Button>
+                        <Button @click="openCreateModal">
                             <Plus class="mr-2 h-4 w-4" /> New Appointment
                         </Button>
                     </DialogTrigger>
                     <DialogContent class="sm:max-w-[425px]">
                         <DialogHeader>
-                            <DialogTitle>Add Appointment</DialogTitle>
+                            <DialogTitle>{{ editingAppointmentId ? 'Edit Appointment' : 'Add Appointment' }}</DialogTitle>
                             <DialogDescription>
-                                Schedule a new visit for a client.
+                                {{ editingAppointmentId ? 'Update details for this appointment.' : 'Schedule a new visit for a client.' }}
                             </DialogDescription>
                         </DialogHeader>
                         <form @submit.prevent="submit" class="grid gap-4 py-4">
@@ -166,8 +215,13 @@ const formatTime = (isoString: string) => {
                                 <Textarea id="note" v-model="form.note" placeholder="Treatment details..." />
                             </div>
 
-                            <DialogFooter>
-                                <Button type="submit" :disabled="form.processing">Save Appointment</Button>
+                            <DialogFooter class="flex justify-between sm:justify-between">
+                                <Button v-if="editingAppointmentId" type="button" variant="destructive" @click="deleteAppointment">
+                                    <Trash2 class="mr-2 h-4 w-4" /> Cancel
+                                </Button>
+                                <Button type="submit" :disabled="form.processing" class="ml-auto">
+                                    {{ editingAppointmentId ? 'Update Appointment' : 'Save Appointment' }}
+                                </Button>
                             </DialogFooter>
                         </form>
                     </DialogContent>
@@ -182,7 +236,12 @@ const formatTime = (isoString: string) => {
                     </div>
                     
                     <div class="flex-1 flex flex-col gap-2">
-                        <div v-for="event in getEventsForDay(day)" :key="event.id" class="p-2 rounded bg-primary/10 border border-primary/20 text-xs">
+                        <div 
+                            v-for="event in getEventsForDay(day)" 
+                            :key="event.id" 
+                            class="p-2 rounded bg-primary/10 border border-primary/20 text-xs cursor-pointer hover:bg-primary/20 transition-colors"
+                            @click="editAppointment(event)"
+                        >
                            <div class="font-bold">{{ formatTime(event.start) }} - {{ event.title }}</div>
                            <div class="text-muted-foreground line-clamp-1">{{ event.note }}</div>
                         </div>
@@ -190,6 +249,7 @@ const formatTime = (isoString: string) => {
                             No appointments
                         </div>
                     </div>
+                    <!-- Quick Add Button per day (optional) -->
                 </div>
             </div>
         </div>
