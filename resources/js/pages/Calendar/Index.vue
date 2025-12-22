@@ -241,29 +241,57 @@ const formatTime = (isoString: string) => {
                 <!-- Calendar Grid Card -->
                 <div class="rounded-2xl border border-border bg-card shadow-sm p-4">
 
+
                 <!-- Week Grid -->
-                <div class="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
-                <div v-for="day in days" :key="day.toISOString()" class="min-h-[200px] border rounded-lg p-2 bg-background flex flex-col gap-2">
-                    <div class="text-center border-b pb-2 font-medium" :class="{'text-primary': isSameDay(day, new Date())}">
-                        {{ format(day, 'EEE, MMM d') }}
+                <div class="grid grid-cols-[80px_repeat(7,1fr)] gap-0">
+                    <!-- Header Row -->
+                    <div class="border-b border-border bg-muted/30"></div>
+                    <div
+                        v-for="day in days"
+                        :key="day.toISOString()"
+                        class="border-b border-l border-border p-3 text-center"
+                        :class="{'bg-primary/5': isSameDay(day, new Date())}"
+                    >
+                        <div class="text-sm font-semibold" :class="{'text-primary': isSameDay(day, new Date())}">
+                            {{ format(day, 'EEE') }}
+                        </div>
+                        <div class="text-xs text-muted-foreground mt-1">
+                            {{ format(day, 'd') }}
+                        </div>
                     </div>
-                    
-                    <div class="flex-1 flex flex-col gap-2">
-                        <div 
-                            v-for="event in getEventsForDay(day)" 
-                            :key="event.id" 
-                            class="p-2 rounded bg-primary/10 border border-primary/20 text-xs cursor-pointer hover:bg-primary/20 transition-colors"
-                            @click="editAppointment(event)"
+
+                    <!-- Time Grid Rows (9 AM - 5 PM) -->
+                    <template v-for="hour in [9, 10, 11, 12, 13, 14, 15, 16, 17]" :key="hour">
+                        <!-- Time Label -->
+                        <div class="border-b border-border p-2 text-right text-xs text-muted-foreground">
+                            {{ hour < 12 ? hour : hour === 12 ? 12 : hour - 12 }} {{ hour < 12 ? 'AM' : 'PM' }}
+                        </div>
+
+                        <!-- Day Cells -->
+                        <div
+                            v-for="day in days"
+                            :key="`${day.toISOString()}-${hour}`"
+                            class="relative border-b border-l border-border min-h-[60px] hover:bg-muted/50 transition-colors"
+                            :class="{'bg-primary/5': isSameDay(day, new Date())}"
                         >
-                           <div class="font-bold">{{ formatTime(event.start) }} - {{ event.title }}</div>
-                           <div class="text-muted-foreground line-clamp-1">{{ event.note }}</div>
+                            <!-- Events for this hour/day -->
+                            <div
+                                v-for="event in getEventsForDay(day).filter(e => {
+                                    const startHour = parseISO(e.start).getHours();
+                                    return startHour === hour;
+                                })"
+                                :key="event.id"
+                                class="absolute left-1 right-1 top-1 rounded-md p-2 text-xs cursor-pointer hover:shadow-md transition-shadow bg-event-upcoming border-l-2 border-event-upcoming-dot"
+                                :style="{height: `${(event.duration_minutes / 60) * 60 - 4}px`}"
+                                @click="editAppointment(event)"
+                            >
+                                <div class="font-medium text-event-upcoming-dot">{{ event.title }}</div>
+                                <div class="text-event-upcoming-dot/70 text-[10px] mt-0.5">
+                                    {{ formatTime(event.start) }}
+                                </div>
+                            </div>
                         </div>
-                         <div v-if="getEventsForDay(day).length === 0" class="text-center text-muted-foreground text-xs py-4 italic">
-                            No appointments
-                        </div>
-                    </div>
-                    <!-- Quick Add Button per day (optional) -->
-                </div>
+                    </template>
                 </div>
             </div>
                 </div>
