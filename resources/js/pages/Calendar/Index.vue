@@ -236,8 +236,13 @@ const formatTime = (isoString: string) => {
                 </Dialog>
             </div>
 
-            <!-- Calendar Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-7 gap-4">
+            <!-- Calendar Content -->
+            <div class="flex-1 overflow-auto p-6">
+                <!-- Calendar Grid Card -->
+                <div class="rounded-2xl border border-border bg-card shadow-sm p-4">
+
+                <!-- Week Grid -->
+                <div class="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
                 <div v-for="day in days" :key="day.toISOString()" class="min-h-[200px] border rounded-lg p-2 bg-background flex flex-col gap-2">
                     <div class="text-center border-b pb-2 font-medium" :class="{'text-primary': isSameDay(day, new Date())}">
                         {{ format(day, 'EEE, MMM d') }}
@@ -259,7 +264,9 @@ const formatTime = (isoString: string) => {
                     </div>
                     <!-- Quick Add Button per day (optional) -->
                 </div>
+                </div>
             </div>
+                </div>
             </div>
     </AppShell>
 </template>
