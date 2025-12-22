@@ -13,8 +13,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import debounce from 'lodash/debounce';
-import { Plus, Trash, Pencil } from 'lucide-vue-next';
+import { Plus, Trash2, Edit, MoreHorizontal } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
 
 interface Client {
@@ -42,14 +50,12 @@ const props = withDefaults(defineProps<{
     filters: () => ({ search: '' }),
 });
 
-
+const { t } = useTranslation();
 
 const search = ref(props.filters.search || '');
 
 watch(search, debounce((value: string) => {
     router.get('/clients', { search: value }, { preserveState: true, replace: true });
-
-const { t } = useTranslation();
 }, 300));
 
 const deleteClient = (id: number) => {
