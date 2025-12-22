@@ -76,11 +76,11 @@ class SendAppointmentReminderJob implements ShouldQueue
 
     private function composeMessage(Appointment $appointment): string
     {
-        $timezone = config('app.timezone', 'UTC');
+        $timezone = \App\Models\Setting::get('timezone', config('app.timezone', 'UTC'));
         $startsAt = $appointment->starts_at->timezone($timezone);
 
         $publicUrl = config('app.url').'/c/'.$appointment->client->public_uid;
-        $footerNote = config('sms.footer_note', '');
+        $footerNote = \App\Models\Setting::get('sms_footer_note', '');
 
         $message = "Hi {$appointment->client->full_name}!\n\n";
         $message .= "Reminder: You have an appointment on {$startsAt->format('l, F j')} at {$startsAt->format('g:i A')}.\n\n";

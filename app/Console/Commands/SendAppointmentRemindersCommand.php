@@ -15,7 +15,7 @@ class SendAppointmentRemindersCommand extends Command
 
     public function handle(): int
     {
-        $reminderHours = config('sms.defaults.reminder_hours', 24);
+        $reminderHours = (int) \App\Models\Setting::get('reminder_hours', 24);
 
         // Find appointments where reminder should be sent in the next 5-minute window
         $now = Carbon::now();
