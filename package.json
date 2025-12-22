@@ -32,9 +32,11 @@
     },
     "dependencies": {
         "@inertiajs/vue3": "^2.1.0",
+        "@tanstack/vue-table": "^8.21.3",
         "@vueuse/core": "^12.8.2",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
+        "date-fns": "^4.1.0",
         "laravel-vite-plugin": "^2.0.0",
         "lodash": "^4.17.21",
         "lucide-vue-next": "^0.468.0",
