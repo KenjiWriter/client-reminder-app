@@ -20,6 +20,8 @@ return [
         'search' => 'Search',
         'close' => 'Close',
         'updateAppointment' => 'Update Appointment',
+        'minutes' => 'minutes',
+        'hours' => 'hours',
     ],
     
     'calendar' => [

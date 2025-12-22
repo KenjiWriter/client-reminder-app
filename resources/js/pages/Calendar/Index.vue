@@ -47,7 +47,20 @@ const props = withDefaults(defineProps<{
     clients: () => [],
 });
 
-const { t } = useTranslation();
+const { t, locale } = useTranslation();
+
+// Localized formatting helpers
+const formatHeaderDate = (date: Date) => {
+    return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(date);
+};
+
+const formatDayName = (date: Date) => {
+    return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date);
+};
+
+const formatHourLabel = (hour: number) => {
+    return new Intl.DateTimeFormat(locale, { hour: 'numeric', hour12: locale === 'en' }).format(new Date().setHours(hour, 0, 0, 0));
+};
 
 // View mode state (only Week implemented for MVP)
 const viewMode = ref('week');
@@ -191,7 +204,7 @@ const formatTime = (isoString: string) => {
                         <ChevronLeft class="h-4 w-4" />
                     </Button>
                     <div class="min-w-[140px] text-center text-sm font-medium">
-                        {{ format(currentStartDate, 'MMMM yyyy') }}
+                        {{ formatHeaderDate(currentStartDate) }}
                     </div>
                     <Button variant="outline" size="icon" @click="nextWeek">
                         <ChevronRight class="h-4 w-4" />
@@ -285,7 +298,7 @@ const formatTime = (isoString: string) => {
                         :class="{'bg-primary/5': isSameDay(day, new Date())}"
                     >
                         <div class="text-sm font-semibold" :class="{'text-primary': isSameDay(day, new Date())}">
-                            {{ format(day, 'EEE') }}
+                            {{ formatDayName(day) }}
                         </div>
                         <div class="text-xs text-muted-foreground mt-1">
                             {{ format(day, 'd') }}
@@ -296,7 +309,7 @@ const formatTime = (isoString: string) => {
                     <template v-for="hour in Array.from({length: 16}, (_, i) => i + 8)" :key="hour">
                         <!-- Time Label -->
                         <div class="border-b border-border p-2 text-right text-xs text-muted-foreground">
-                            {{ hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM` }}
+                            {{ formatHourLabel(hour) }}
                         </div>
 
                         <!-- Day Cells -->

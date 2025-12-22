@@ -39,5 +39,7 @@ export function useTranslation() {
         return value;
     };
 
-    return { t };
+    const locale = (page.props.locale as string) || 'pl';
+
+    return { t, locale };
 }

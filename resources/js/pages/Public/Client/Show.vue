@@ -9,7 +9,7 @@ import { Calendar, Clock } from 'lucide-vue-next';
 import { format } from 'date-fns';
 import { route } from 'ziggy-js';
 
-const { t } = useTranslation();
+const { t, locale } = useTranslation();
 
 interface Appointment {
     id: number;
@@ -102,14 +102,14 @@ const toggleOptOut = () => {
                                 <div class="flex items-center gap-2">
                                     <Calendar class="h-4 w-4 text-muted-foreground" />
                                     <span class="font-semibold">
-                                        {{ format(new Date(appointment.starts_at), 'EEEE, MMMM d, yyyy') }}
+                                        {{ new Intl.DateTimeFormat(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(appointment.starts_at)) }}
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <Clock class="h-4 w-4 text-muted-foreground" />
                                     <span class="text-muted-foreground">
-                                        {{ format(new Date(appointment.starts_at), 'h:mm a') }}
-                                        ({{ appointment.duration_minutes }} {{ t('appointments.duration').split('(')[0].trim().toLowerCase() }})
+                                        {{ new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: 'numeric', hour12: locale === 'en' }).format(new Date(appointment.starts_at)) }}
+                                        ({{ appointment.duration_minutes }} {{ t('common.minutes') }})
                                     </span>
                                 </div>
                                 <p v-if="appointment.note" class="text-sm text-muted-foreground mt-2 pl-6">

@@ -20,6 +20,8 @@ return [
         'search' => 'Szukaj',
         'close' => 'Zamknij',
         'updateAppointment' => 'Zaktualizuj wizytę',
+        'minutes' => 'minut',
+        'hours' => 'godzin',
     ],
     
     'calendar' => [
