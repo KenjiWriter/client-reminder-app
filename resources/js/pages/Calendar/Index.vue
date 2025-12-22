@@ -276,8 +276,8 @@ const formatTime = (isoString: string) => {
                         </div>
                     </div>
 
-                    <!-- Time Grid Rows (00:00 - 23:00) -->
-                    <template v-for="hour in Array.from({length: 24}, (_, i) => i)" :key="hour">
+                    <!-- Time Grid Rows (8 AM - 11 PM) -->
+                    <template v-for="hour in Array.from({length: 16}, (_, i) => i + 8)" :key="hour">
                         <!-- Time Label -->
                         <div class="border-b border-border p-2 text-right text-xs text-muted-foreground">
                             {{ hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM` }}
