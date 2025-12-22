@@ -46,12 +46,10 @@ const props = withDefaults(defineProps<{
     clients: () => [],
 });
 
-// View mode state
-const viewMode = ref('week'); // week | day | month
+// View mode state (only Week implemented for MVP)
+const viewMode = ref('week');
 const viewOptions = [
-    { value: 'day', label: 'Day' },
     { value: 'week', label: 'Week' },
-    { value: 'month', label: 'Month' },
 ];
 
 // Calendar State
@@ -68,6 +66,11 @@ const nextWeek = () => {
 
 const prevWeek = () => {
     currentStartDate.value = subWeeks(currentStartDate.value, 1);
+    router.visit(route('calendar.index', { start: currentStartDate.value.toISOString() }), { preserveState: true, preserveScroll: true });
+};
+
+const goToToday = () => {
+    currentStartDate.value = startOfWeek(new Date(), { weekStartsOn: 1 });
     router.visit(route('calendar.index', { start: currentStartDate.value.toISOString() }), { preserveState: true, preserveScroll: true });
 };
 
@@ -153,17 +156,14 @@ const formatTime = (isoString: string) => {
     <AppShell>
             <!-- Calendar Toolbar -->
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-6 py-4">
-                <!-- View Selector -->
-                <SegmentedControl v-model="viewMode" :options="viewOptions" />
-
-                <!-- Month Navigation -->
+                <!-- Week Navigation -->
                 <div class="flex items-center gap-2">
                     <Button variant="outline" size="icon" @click="prevWeek">
                         <ChevronLeft class="h-4 w-4" />
                     </Button>
-                    <button class="rounded-md px-3 py-1.5 text-sm font-medium hover:bg-muted">
-                        {{ format(currentStartDate, 'MMMM') }} ▼
-                    </button>
+                    <div class="min-w-[140px] text-center text-sm font-medium">
+                        {{ format(currentStartDate, 'MMMM yyyy') }}
+                    </div>
                     <Button variant="outline" size="icon" @click="nextWeek">
                         <ChevronRight class="h-4 w-4" />
                     </Button>
@@ -171,7 +171,7 @@ const formatTime = (isoString: string) => {
 
                 <!-- Actions -->
                 <div class="flex items-center gap-2">
-                    <Button variant="outline">Today</Button>
+                    <Button variant="outline" @click="goToToday">Today</Button>
                     <Dialog v-model:open="isCreateOpen">
                         <DialogTrigger as-child>
                             <Button class="bg-green-600 hover:bg-green-700 text-white" @click="openCreateModal">
@@ -234,6 +234,7 @@ const formatTime = (isoString: string) => {
                         </form>
                     </DialogContent>
                 </Dialog>
+                </div>
             </div>
 
             <!-- Calendar Content -->
@@ -293,7 +294,6 @@ const formatTime = (isoString: string) => {
                         </div>
                     </template>
                 </div>
-            </div>
                 </div>
             </div>
     </AppShell>
