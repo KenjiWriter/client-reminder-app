@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import AppShell from '@/layouts/AppShell.vue';
+import SegmentedControl from '@/components/ui/segmented-control/SegmentedControl.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { Button } from '@/components/ui/button';
@@ -46,11 +46,12 @@ const props = withDefaults(defineProps<{
     clients: () => [],
 });
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Calendar',
-        href: '/calendar',
-    },
+// View mode state
+const viewMode = ref('week'); // week | day | month
+const viewOptions = [
+    { value: 'day', label: 'Day' },
+    { value: 'week', label: 'Week' },
+    { value: 'month', label: 'Month' },
 ];
 
 // Calendar State
@@ -148,25 +149,32 @@ const formatTime = (isoString: string) => {
 <template>
     <Head title="Calendar" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 p-4">
-            <!-- Header -->
-            <div class="flex items-center justify-between">
+
+    <AppShell>
+            <!-- Calendar Toolbar -->
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-6 py-4">
+                <!-- View Selector -->
+                <SegmentedControl v-model="viewMode" :options="viewOptions" />
+
+                <!-- Month Navigation -->
                 <div class="flex items-center gap-2">
                     <Button variant="outline" size="icon" @click="prevWeek">
                         <ChevronLeft class="h-4 w-4" />
                     </Button>
-                    <h2 class="text-xl font-semibold">
-                        {{ format(currentStartDate, 'MMMM yyyy') }}
-                    </h2>
+                    <button class="rounded-md px-3 py-1.5 text-sm font-medium hover:bg-muted">
+                        {{ format(currentStartDate, 'MMMM') }} ▼
+                    </button>
                     <Button variant="outline" size="icon" @click="nextWeek">
                         <ChevronRight class="h-4 w-4" />
                     </Button>
                 </div>
 
-                <Dialog v-model:open="isCreateOpen">
-                    <DialogTrigger as-child>
-                        <Button @click="openCreateModal">
+                <!-- Actions -->
+                <div class="flex items-center gap-2">
+                    <Button variant="outline">Today</Button>
+                    <Dialog v-model:open="isCreateOpen">
+                        <DialogTrigger as-child>
+                            <Button class="bg-green-600 hover:bg-green-700 text-white" @click="openCreateModal">
                             <Plus class="mr-2 h-4 w-4" /> New Appointment
                         </Button>
                     </DialogTrigger>
@@ -252,6 +260,6 @@ const formatTime = (isoString: string) => {
                     <!-- Quick Add Button per day (optional) -->
                 </div>
             </div>
-        </div>
-    </AppLayout>
+            </div>
+    </AppShell>
 </template>
