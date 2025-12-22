@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
+import { useTranslation } from '@/composables/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -7,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Calendar, Clock } from 'lucide-vue-next';
 import { format } from 'date-fns';
 import { route } from 'ziggy-js';
+
+const { t } = useTranslation();
 
 interface Appointment {
     id: number;
@@ -43,24 +46,24 @@ const toggleOptOut = () => {
 </script>
 
 <template>
-    <Head :title="`Appointments for ${client.full_name}`" />
+    <Head :title="t('public.title', { name: client.full_name })" />
 
     <div class="min-h-screen bg-background">
         <div class="max-w-3xl mx-auto p-6 space-y-8">
             <!-- Header -->
             <div class="text-center space-y-2">
-                <h1 class="text-3xl font-bold">Hello, {{ client.full_name }}!</h1>
-                <p class="text-muted-foreground">View your upcoming appointments</p>
+                <h1 class="text-3xl font-bold">{{ t('public.hello', { name: client.full_name }) }}</h1>
+                <p class="text-muted-foreground">{{ t('public.viewUpcoming') }}</p>
             </div>
 
             <!-- SMS Opt-Out Toggle -->
             <Card>
                 <CardHeader>
-                    <CardTitle>SMS Reminders</CardTitle>
+                    <CardTitle>{{ t('public.smsReminders') }}</CardTitle>
                     <CardDescription>
                         {{ client.sms_opt_out 
-                            ? 'SMS reminders are currently disabled' 
-                            : 'You will receive SMS reminders 24 hours before your appointments' 
+                            ? t('public.remindersDisabled') 
+                            : t('public.remindersEnabled') 
                         }}
                     </CardDescription>
                 </CardHeader>
@@ -72,7 +75,7 @@ const toggleOptOut = () => {
                             :disabled="form.processing"
                         />
                         <Label class="cursor-pointer" @click="toggleOptOut">
-                            Enable SMS Reminders
+                            {{ t('public.enableReminders') }}
                         </Label>
                     </div>
                 </CardContent>
@@ -80,11 +83,11 @@ const toggleOptOut = () => {
 
             <!-- Appointments List -->
             <div class="space-y-4">
-                <h2 class="text-2xl font-semibold">Upcoming Appointments</h2>
+                <h2 class="text-2xl font-semibold">{{ t('public.upcomingAppointments') }}</h2>
                 
                 <div v-if="appointments.length === 0" class="text-center py-12">
                     <Calendar class="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <p class="text-lg text-muted-foreground">No upcoming appointments</p>
+                    <p class="text-lg text-muted-foreground">{{ t('public.noAppointments') }}</p>
                 </div>
 
                 <Card v-for="appointment in appointments" :key="appointment.id" class="hover:shadow-md transition-shadow">
@@ -106,7 +109,7 @@ const toggleOptOut = () => {
                                     <Clock class="h-4 w-4 text-muted-foreground" />
                                     <span class="text-muted-foreground">
                                         {{ format(new Date(appointment.starts_at), 'h:mm a') }}
-                                        ({{ appointment.duration_minutes }} minutes)
+                                        ({{ appointment.duration_minutes }} {{ t('appointments.duration').split('(')[0].trim().toLowerCase() }})
                                     </span>
                                 </div>
                                 <p v-if="appointment.note" class="text-sm text-muted-foreground mt-2 pl-6">
@@ -120,7 +123,7 @@ const toggleOptOut = () => {
 
             <!-- Footer -->
             <div class="text-center text-sm text-muted-foreground pt-8">
-                <p>If you need to reschedule or cancel, please contact us directly.</p>
+                <p>{{ t('public.footerContact') }}</p>
             </div>
         </div>
     </div>

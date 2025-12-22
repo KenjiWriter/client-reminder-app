@@ -60,4 +60,17 @@ return [
         'note' => 'Notatka (opcjonalnie)',
         'sendReminder' => 'Wyślij przypomnienie',
     ],
+    
+    'public' => [
+        'title' => 'Wizyty dla {name}',
+        'hello' => 'Witaj, {name}!',
+        'viewUpcoming' => 'Zobacz swoje nadchodzące wizyty',
+        'smsReminders' => 'Przypomnienia SMS',
+        'remindersDisabled' => 'Przypomnienia SMS są obecnie wyłączone',
+        'remindersEnabled' => 'Otrzymasz przypomnienie SMS na 24 godziny przed wizytą',
+        'enableReminders' => 'Włącz przypomnienia SMS',
+        'upcomingAppointments' => 'Nadchodzące wizyty',
+        'noAppointments' => 'Brak nadchodzących wizyt',
+        'footerContact' => 'Jeśli chcesz zmienić termin lub odwołać wizytę, skontaktuj się z nami bezpośrednio.',
+    ],
 ];

@@ -60,4 +60,17 @@ return [
         'note' => 'Note (optional)',
         'sendReminder' => 'Send reminder',
     ],
+    
+    'public' => [
+        'title' => 'Appointments for {name}',
+        'hello' => 'Hello, {name}!',
+        'viewUpcoming' => 'View your upcoming appointments',
+        'smsReminders' => 'SMS Reminders',
+        'remindersDisabled' => 'SMS reminders are currently disabled',
+        'remindersEnabled' => 'You will receive SMS reminders 24 hours before your appointments',
+        'enableReminders' => 'Enable SMS Reminders',
+        'upcomingAppointments' => 'Upcoming Appointments',
+        'noAppointments' => 'No upcoming appointments',
+        'footerContact' => 'If you need to reschedule or cancel, please contact us directly.',
+    ],
 ];
