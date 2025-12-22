@@ -3,6 +3,7 @@ import AppShell from '@/layouts/AppShell.vue';
 import SegmentedControl from '@/components/ui/segmented-control/SegmentedControl.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
+import { useTranslation } from '@/composables/useTranslation';
 import { Button } from '@/components/ui/button';
 import Label from '@/components/ui/label/Label.vue';
 import Input from '@/components/ui/input/Input.vue';
@@ -45,6 +46,8 @@ const props = withDefaults(defineProps<{
     events: () => [],
     clients: () => [],
 });
+
+const { t } = useTranslation();
 
 // View mode state (only Week implemented for MVP)
 const viewMode = ref('week');
@@ -197,23 +200,21 @@ const formatTime = (isoString: string) => {
 
                 <!-- Actions -->
                 <div class="flex items-center gap-2">
-                    <Button variant="outline" @click="goToToday">Today</Button>
+                    <Button variant="outline" @click="goToToday">{{ t('common.today') }}</Button>
                     <Dialog v-model:open="isCreateOpen">
                         <DialogTrigger as-child>
                             <Button class="bg-green-600 hover:bg-green-700 text-white" @click="openCreateModal">
-                            <Plus class="mr-2 h-4 w-4" /> New Appointment
-                        </Button>
+                                <Plus class="mr-2 h-4 w-4" /> {{ t('common.newAppointment') }}
+                            </Button>
                         </DialogTrigger>
                         <DialogContent class="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>{{ editingAppointmentId ? 'Edit Appointment' : 'Add Appointment' }}</DialogTitle>
-                            <DialogDescription>
-                                {{ editingAppointmentId ? 'Update details for this appointment.' : 'Schedule a new visit for a client.' }}
-                            </DialogDescription>
-                        </DialogHeader>
+                            <DialogHeader>
+                                <DialogTitle>{{ editingAppointmentId ? t('calendar.editAppointment') : t('calendar.addAppointment') }}</DialogTitle>
+                                <DialogDescription>{{ t('calendar.updateDetails') }}</DialogDescription>
+                            </DialogHeader>
                         <form @submit.prevent="submit" class="grid gap-4 py-4">
                             <div class="grid gap-2">
-                                <Label for="client">Client</Label>
+                                <Label for="client">{{ t('appointments.client') }}</Label>
                                 <Select v-model="form.client_id">
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a client" />
@@ -227,35 +228,39 @@ const formatTime = (isoString: string) => {
                                 <div v-if="form.errors.client_id" class="text-sm text-red-500">{{ form.errors.client_id }}</div>
                             </div>
                             
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="send_reminder" v-model="form.send_reminder" class="h-4 w-4" />
+                                <Label for="send_reminder">{{ t('calendar.sendReminder') }}</Label>
+                            </div>
+
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="grid gap-2">
-                                    <Label for="date">Date</Label>
+                                    <Label for="date">{{ t('appointments.date') }}</Label>
                                     <Input id="date" type="date" v-model="form.date" required />
                                 </div>
                                 <div class="grid gap-2">
-                                    <Label for="time">Time</Label>
+                                    <Label for="time">{{ t('appointments.time') }}</Label>
                                     <Input id="time" type="time" v-model="form.time" required />
                                 </div>
                             </div>
                              <div v-if="form.errors.starts_at" class="text-sm text-red-500">{{ form.errors.starts_at }}</div>
 
                             <div class="grid gap-2">
-                                <Label for="duration">Duration (minutes)</Label>
+                                <Label for="duration">{{ t('appointments.duration') }}</Label>
                                 <Input id="duration" type="number" v-model="form.duration_minutes" min="15" step="15" />
                             </div>
 
                             <div class="grid gap-2">
-                                <Label for="note">Note (Optional)</Label>
+                                <Label for="note">{{ t('appointments.note') }}</Label>
                                 <Textarea id="note" v-model="form.note" placeholder="Treatment details..." />
                             </div>
 
                             <DialogFooter class="flex justify-between sm:justify-between">
                                 <Button v-if="editingAppointmentId" type="button" variant="destructive" @click="deleteAppointment">
-                                    <Trash2 class="mr-2 h-4 w-4" /> Cancel
+                                    {{ t('common.delete') }}
                                 </Button>
-                                <Button type="submit" :disabled="form.processing" class="ml-auto">
-                                    {{ editingAppointmentId ? 'Update Appointment' : 'Save Appointment' }}
-                                </Button>
+                                <Button type="button" variant="outline" @click="closeDialog">{{ t('common.cancel') }}</Button>
+                                <Button type="submit" :disabled="form.processing">{{ t('common.save') }}</Button>
                             </DialogFooter>
                         </form>
                     </DialogContent>
