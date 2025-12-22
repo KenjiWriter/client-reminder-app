@@ -10,6 +10,15 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+// Locale switcher
+Route::post('/locale', function(\Illuminate\Http\Request $request) {
+    $locale = $request->input('locale');
+    if (in_array($locale, ['pl', 'en'])) {
+        $request->session()->put('locale', $locale);
+    }
+    return redirect()->back();
+})->name('locale.switch');
+
 // Public client page (no auth required)
 Route::get('/c/{publicUid}', [\App\Http\Controllers\PublicClientController::class, 'show'])
     ->name('public.client.show');
