@@ -10,6 +10,12 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+// Public client page (no auth required)
+Route::get('/c/{publicUid}', [\App\Http\Controllers\PublicClientController::class, 'show'])
+    ->name('public.client.show');
+Route::post('/c/{publicUid}/opt-out', [\App\Http\Controllers\PublicClientController::class, 'toggleOptOut'])
+    ->name('public.client.toggle-opt-out');
+
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
