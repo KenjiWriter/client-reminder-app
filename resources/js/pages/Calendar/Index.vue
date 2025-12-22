@@ -114,6 +114,17 @@ const openCreateModal = () => {
     isCreateOpen.value = true;
 };
 
+const openCreateModalAtTime = (day: Date, hour: number) => {
+    editingAppointmentId.value = null;
+    form.reset();
+    form.date = format(day, 'yyyy-MM-dd');
+    form.time = `${hour.toString().padStart(2, '0')}:00`;
+    form.starts_at = `${format(day, 'yyyy-MM-dd')} ${hour.toString().padStart(2, '0')}:00:00`;
+    form.duration_minutes = 60;
+    form.send_reminder = true;
+    isCreateOpen.value = true;
+};
+
 const editAppointment = (event: typeof props.events[0]) => {
     editingAppointmentId.value = event.id;
     form.client_id = String(event.client_id);
@@ -287,8 +298,9 @@ const formatTime = (isoString: string) => {
                         <div
                             v-for="day in days"
                             :key="`${day.toISOString()}-${hour}`"
-                            class="relative border-b border-l border-border min-h-[60px] hover:bg-muted/50 transition-colors"
+                            class="relative border-b border-l border-border min-h-[60px] hover:bg-muted/50 transition-colors cursor-pointer"
                             :class="{'bg-primary/5': isSameDay(day, new Date())}"
+                            @click="openCreateModalAtTime(day, hour)"
                         >
                             <!-- Events for this hour/day -->
                             <div
@@ -299,7 +311,7 @@ const formatTime = (isoString: string) => {
                                 :key="event.id"
                                 class="absolute left-1 right-1 top-1 rounded-md p-2 text-xs cursor-pointer hover:shadow-md transition-shadow bg-event-upcoming border-l-2 border-event-upcoming-dot"
                                 :style="{height: `${(event.duration_minutes / 60) * 60 - 4}px`}"
-                                @click="editAppointment(event)"
+                                @click.stop="editAppointment(event)"
                             >
                                 <div class="font-medium text-event-upcoming-dot">{{ event.title }}</div>
                                 <div class="text-event-upcoming-dot/70 text-[10px] mt-0.5">
