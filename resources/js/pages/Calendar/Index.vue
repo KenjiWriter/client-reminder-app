@@ -2,7 +2,7 @@
 import AppShell from '@/layouts/AppShell.vue';
 import SegmentedControl from '@/components/ui/segmented-control/SegmentedControl.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import Label from '@/components/ui/label/Label.vue';
 import Input from '@/components/ui/input/Input.vue';
@@ -82,10 +82,23 @@ const form = useForm({
     client_id: '',
     date: format(new Date(), 'yyyy-MM-dd'),
     time: '12:00',
+    starts_at: '', // Synced from date + time
     duration_minutes: 60,
     note: '',
     send_reminder: true,
-    starts_at: '', // For validation errors
+});
+
+// Watch date and time to update starts_at
+watch(() => form.date, (newDate) => {
+    if (newDate && form.time) {
+        form.starts_at = `${newDate}T${form.time}:00`;
+    }
+});
+
+watch(() => form.time, (newTime) => {
+    if (form.date && newTime) {
+        form.starts_at = `${form.date}T${newTime}:00`;
+    }
 });
 
 const openCreateModal = () => {
@@ -93,6 +106,7 @@ const openCreateModal = () => {
     form.reset();
     form.date = format(new Date(), 'yyyy-MM-dd');
     form.time = '12:00';
+    form.starts_at = `${format(new Date(), 'yyyy-MM-dd')}T12:00:00`;
     form.duration_minutes = 60;
     form.send_reminder = true;
     isCreateOpen.value = true;
@@ -103,6 +117,7 @@ const editAppointment = (event: typeof props.events[0]) => {
     form.client_id = String(event.client_id);
     form.date = format(parseISO(event.start), 'yyyy-MM-dd');
     form.time = format(parseISO(event.start), 'HH:mm');
+    form.starts_at = event.start; // Set starts_at directly
     form.duration_minutes = event.duration_minutes;
     form.note = event.note || '';
     form.send_reminder = !!event.send_reminder;
@@ -116,15 +131,13 @@ const closeDialog = () => {
 };
 
 const submit = () => {
-    const starts_at = `${form.date}T${form.time}:00`;
-    const payload = { ...form, starts_at };
-    
+    // starts_at is already synced via watchers
     if (editingAppointmentId.value) {
-        form.transform(() => payload).put(route('appointments.update', editingAppointmentId.value), {
+        form.put(route('appointments.update', editingAppointmentId.value), {
             onSuccess: () => closeDialog(),
         });
     } else {
-        form.transform(() => payload).post(route('appointments.store'), {
+        form.post(route('appointments.store'), {
             onSuccess: () => closeDialog(),
         });
     }
