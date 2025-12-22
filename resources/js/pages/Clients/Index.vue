@@ -69,16 +69,16 @@ const deleteClient = (id: number) => {
     <Head title="Clients" />
 
     <AppShell>
-        <div class="flex h-full flex-1 flex-col gap-4 p-4">
-            <template #header-title>
-                <div class="flex items-center justify-between w-full">
-                    <h1 class="text-2xl font-semibold">{{ t('clients.title') }}</h1>
-                    <Link :href="route('clients.create')" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2">
-                        <Plus class="h-4 w-4" /> {{ t('clients.newClient') }}
-                    </Link>
-                </div>
-            </template>
+        <template #header-title>
+            <div class="flex items-center justify-between w-full">
+                <h1 class="text-2xl font-semibold">{{ t('clients.title') }}</h1>
+                <Link :href="route('clients.create')" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2">
+                    <Plus class="h-4 w-4" /> {{ t('clients.newClient') }}
+                </Link>
+            </div>
+        </template>
 
+        <div class="flex h-full flex-1 flex-col gap-4 p-4">
             <div class="flex w-full items-center space-x-2">
                 <Input
                     v-model="search"
