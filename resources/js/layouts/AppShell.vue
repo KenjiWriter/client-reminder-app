@@ -74,7 +74,30 @@ const isActive = (href: string) => {
 
         <!-- Main content -->
         <div class="flex flex-1 flex-col overflow-hidden">
-            <slot />
+            <!-- Topbar -->
+            <header class="flex h-16 items-center justify-between border-b border-border bg-card px-6">
+                <div class="flex items-center gap-4">
+                    <slot name="header-title">
+                        <h1 class="text-2xl font-semibold">{{ $page.props.title || 'Dashboard' }}</h1>
+                    </slot>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-muted-foreground">Hi, Anna 👋</span>
+                    <div class="relative h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span class="text-sm font-medium text-primary">A</span>
+                        <!-- Notification badge -->
+                        <span class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+                            3
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page content -->
+            <main class="flex-1 overflow-y-auto">
+                <slot />
+            </main>
         </div>
     </div>
 </template>
