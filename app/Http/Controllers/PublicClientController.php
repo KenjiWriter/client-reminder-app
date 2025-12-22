@@ -50,8 +50,12 @@ class PublicClientController extends Controller
     {
         $client = Client::where('public_uid', $publicUid)->firstOrFail();
 
+        $newState = $request->has('opt_out') 
+            ? $request->boolean('opt_out') 
+            : !$client->sms_opt_out;
+
         $client->update([
-            'sms_opt_out' => !$client->sms_opt_out,
+            'sms_opt_out' => $newState,
         ]);
 
         return redirect()->back()->with('message', $client->sms_opt_out 
@@ -136,5 +140,22 @@ class PublicClientController extends Controller
         $this->workflow->clientRejectSuggestion($appointment);
 
         return redirect()->back()->with('message', 'Suggestion rejected. You can request another time.');
+    }
+
+    public function cancelAppointment(Request $request, string $publicUid, Appointment $appointment)
+    {
+        $client = Client::where('public_uid', $publicUid)->firstOrFail();
+
+        if ($appointment->client_id !== $client->id) {
+            abort(403);
+        }
+
+        if ($appointment->starts_at->subHours(24)->isPast()) {
+            return back()->withErrors(['message' => 'Cancellation is only allowed at least 24 hours before the appointment.']);
+        }
+
+        $this->workflow->cancelAppointment($appointment);
+
+        return redirect()->back()->with('message', 'Appointment canceled successfully.');
     }
 }

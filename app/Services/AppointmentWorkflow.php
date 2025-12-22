@@ -94,4 +94,20 @@ class AppointmentWorkflow
             'suggestion_created_at' => null,
         ]);
     }
+
+    /**
+     * Client cancels the appointment.
+     */
+    public function cancelAppointment(Appointment $appointment): void
+    {
+        $appointment->update([
+            'status' => Appointment::STATUS_CANCELED,
+            'requested_starts_at' => null,
+            'suggested_starts_at' => null,
+            'reminder_sent_at' => null,
+        ]);
+        
+        // Optional: Send cancellation confirmation SMS?
+        // $this->smsService->sendCancellation($appointment);
+    }
 }

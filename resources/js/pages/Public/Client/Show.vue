@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { useTranslation } from '@/composables/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -39,15 +39,39 @@ const props = withDefaults(defineProps<{
     appointments: () => [],
 });
 
-const form = useForm({
-    opt_out: props.client.sms_opt_out,
-});
+const isOptedOut = ref(props.client.sms_opt_out);
 
-const toggleOptOut = () => {
-    form.post(route('public.client.toggle-opt-out', props.client.public_uid), {
+const toggleOptOut = (checked: boolean) => {
+    // Optimistic update
+    isOptedOut.value = !checked;
+    
+    // Explicitly send the current button state to backend
+    // If button is CHECKED (true), user wants reminders -> opt_out should be FALSE
+    // If button is UNCHECKED (false), user disables -> opt_out should be TRUE
+    
+    router.post(route('public.client.toggle-opt-out', props.client.public_uid), {
+        opt_out: !checked // Send the explicit status
+    }, {
         preserveScroll: true,
+        onError: () => {
+             // Revert on error
+             isOptedOut.value = !isOptedOut.value;
+        },
+        onFinish: () => {
+            // No-op, props will update automatically if we wanted to rely on them, 
+            // but local ref is smoother for 'clicked' behavior
+        }
     });
 };
+
+const cancelAppointment = (appointment: Appointment) => {
+    if (!confirm(t('public.cancel.confirm', { date: formatDate(appointment.starts_at) }))) return;
+
+    router.delete(route('public.client.cancel-appointment', [props.client.public_uid, appointment.id]), {
+        preserveScroll: true
+    });
+};
+
 
 // Rescheduling logic
 const selectedAppointment = ref<Appointment | null>(null);
@@ -169,9 +193,8 @@ const slotsByDate = computed(() => {
                     <div class="flex items-center space-x-2">
                         <Checkbox 
                             id="sms-opt-in"
-                            :checked="!form.opt_out" 
+                            :checked="!isOptedOut" 
                             @update:checked="toggleOptOut"
-                            :disabled="form.processing"
                         />
                         <Label for="sms-opt-in" class="cursor-pointer">
                             {{ t('public.enableReminders') }}
@@ -302,6 +325,15 @@ const slotsByDate = computed(() => {
                                             </DialogFooter>
                                         </DialogContent>
                                     </Dialog>
+                                    
+                                    <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        class="text-rose-600 hover:text-rose-700 hover:bg-rose-50 ml-2"
+                                        @click="cancelAppointment(appointment)"
+                                    >
+                                        {{ t('public.cancel.button') }}
+                                    </Button>
                                 </div>
                                 <div v-else-if="appointment.status === 'confirmed'" class="text-xs text-muted-foreground pt-2 italic">
                                     {{ t('public.reschedule.restriction') }}

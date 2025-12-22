@@ -24,14 +24,19 @@ Route::get('/c/{publicUid}', [\App\Http\Controllers\PublicClientController::clas
     ->name('public.client.show');
 Route::post('/c/{publicUid}/opt-out', [\App\Http\Controllers\PublicClientController::class, 'toggleOptOut'])
     ->name('public.client.toggle-opt-out');
-Route::get('/c/{publicUid}/availability', [\App\Http\Controllers\PublicClientController::class, 'availability'])
+Route::get('/c/{publicUid}/availability', [PublicClientController::class, 'availability'])
     ->name('public.client.availability');
-Route::patch('/c/{publicUid}/appointments/{appointment}/request-reschedule', [\App\Http\Controllers\PublicClientController::class, 'requestReschedule'])
-    ->name('public.client.request-reschedule');
-Route::patch('/c/{publicUid}/appointments/{appointment}/accept-suggestion', [\App\Http\Controllers\PublicClientController::class, 'acceptSuggestion'])
-    ->name('public.client.accept-suggestion');
-Route::patch('/c/{publicUid}/appointments/{appointment}/reject-suggestion', [\App\Http\Controllers\PublicClientController::class, 'rejectSuggestion'])
-    ->name('public.client.reject-suggestion');
+
+Route::prefix('/c/{publicUid}/appointments')->name('public.client.')->group(function () {
+    Route::patch('/{appointment}/request-reschedule', [PublicClientController::class, 'requestReschedule'])
+        ->name('request-reschedule');
+    Route::patch('/{appointment}/accept-suggestion', [PublicClientController::class, 'acceptSuggestion'])
+        ->name('accept-suggestion');
+    Route::patch('/{appointment}/reject-suggestion', [PublicClientController::class, 'rejectSuggestion'])
+        ->name('reject-suggestion');
+    Route::delete('/{appointment}', [PublicClientController::class, 'cancelAppointment'])
+        ->name('cancel-appointment');
+});
 
 Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');

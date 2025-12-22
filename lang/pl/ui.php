@@ -138,6 +138,10 @@ return [
             'accept' => 'Akceptuję',
             'reject' => 'Odrzucam',
         ],
+        'cancel' => [
+            'button' => 'Odwołaj wizytę',
+            'confirm' => 'Czy na pewno chcesz odwołać wizytę dnia :date? Ta operacja jest nieodwracalna.',
+        ],
     ],
 
     'review' => [

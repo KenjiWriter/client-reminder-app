@@ -32,7 +32,10 @@ export function useTranslation() {
         // Replace parameters if provided
         if (params) {
             return Object.entries(params).reduce((str, [paramKey, paramValue]) => {
-                return str.replace(new RegExp(`{${paramKey}}`, 'g'), String(paramValue));
+                // Replace {key} or :key
+                let result = str.replace(new RegExp(`{${paramKey}}`, 'g'), String(paramValue));
+                result = result.replace(new RegExp(`:${paramKey}`, 'g'), String(paramValue));
+                return result;
             }, value);
         }
 

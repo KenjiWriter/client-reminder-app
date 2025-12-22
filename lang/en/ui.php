@@ -137,6 +137,10 @@ return [
             'accept' => 'Accept',
             'reject' => 'Reject',
         ],
+        'cancel' => [
+            'button' => 'Cancel Appointment',
+            'confirm' => 'Are you sure you want to cancel the appointment on :date? This cannot be undone.',
+        ],
     ],
 
     'review' => [
