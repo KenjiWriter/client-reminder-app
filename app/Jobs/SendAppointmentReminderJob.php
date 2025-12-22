@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Contracts\SmsProvider;
 use App\Models\Appointment;
+use App\Models\SmsMessage;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -49,9 +50,21 @@ class SendAppointmentReminderJob implements ShouldQueue
             $message = $this->composeMessage($appointment);
             $result = $smsProvider->send($appointment->client->phone_e164, $message);
 
+            SmsMessage::create([
+                'provider' => config('sms.driver', 'log'),
+                'to_e164' => $appointment->client->phone_e164,
+                'message_hash' => hash('sha256', $message),
+                'status' => $result->success ? 'success' : 'failed',
+                'error' => $result->error,
+                'appointment_id' => $appointment->id,
+                'client_id' => $appointment->client_id,
+                'provider_message_id' => $result->providerMessageId,
+                'sent_at' => now(),
+            ]);
+
             if (! $result->success) {
                 // Rollback the reminder_sent_at if send failed
-                $appointment->update(['reminder_sent_at' => null]);
+                Appointment::where('id', $appointment->id)->update(['reminder_sent_at' => null]);
 
                 Log::error('Failed to send appointment reminder', [
                     'appointment_id' => $appointment->id,
@@ -68,7 +81,23 @@ class SendAppointmentReminderJob implements ShouldQueue
             ]);
         } catch (\Exception $e) {
             // Rollback on any exception
-            $appointment->update(['reminder_sent_at' => null]);
+            Appointment::where('id', $appointment->id)->update(['reminder_sent_at' => null]);
+
+            if ($e instanceof \RuntimeException && str_contains($e->getMessage(), 'SMS send failed')) {
+                // Already logged/handled above
+            } else {
+                // Log unhandled exceptions too
+                SmsMessage::create([
+                    'provider' => config('sms.driver', 'log'),
+                    'to_e164' => $appointment->client->phone_e164 ?? 'unknown',
+                    'message_hash' => isset($message) ? hash('sha256', $message) : 'unknown',
+                    'status' => 'failed',
+                    'error' => $e->getMessage(),
+                    'appointment_id' => $appointment->id,
+                    'client_id' => $appointment->client_id,
+                    'sent_at' => now(),
+                ]);
+            }
 
             throw $e;
         }
