@@ -4,6 +4,7 @@ import { Link, usePage, router } from '@inertiajs/vue3';
 import { Home, Calendar, Users, Settings, Mail, Globe } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTranslation } from '@/composables/useTranslation';
 
 interface User {
     name: string;
@@ -22,12 +23,14 @@ interface NavItem {
     icon: any;
 }
 
+const { t } = useTranslation();
+
 const navItems: NavItem[] = [
-    { name: 'Dashboard', href: route('dashboard'), icon: Home },
-    { name: 'Calendar', href: route('calendar.index'), icon: Calendar },
-    { name: 'Clients', href: route('clients.index'), icon: Users },
-    { name: 'Messages', href: '#', icon: Mail },
-    { name: 'Settings', href: route('settings.index'), icon: Settings },
+    { name: 'nav.dashboard', href: route('dashboard'), icon: Home },
+    { name: 'nav.calendar', href: route('calendar.index'), icon: Calendar },
+    { name: 'nav.clients', href: route('clients.index'), icon: Users },
+    { name: 'nav.messages', href: '#', icon: Mail },
+    { name: 'nav.settings', href: route('settings.index'), icon: Settings },
 ];
 
 const page = usePage<PageProps>();
@@ -85,7 +88,7 @@ const switchLocale = (locale: string) => {
                     ]"
                 >
                     <component :is="item.icon" class="h-5 w-5" />
-                    {{ item.name }}
+                    <span>{{ t(item.name) }}</span>
                 </Link>
             </nav>
 
