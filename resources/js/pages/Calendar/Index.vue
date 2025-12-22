@@ -88,16 +88,18 @@ const form = useForm({
     send_reminder: true,
 });
 
-// Watch date and time to update starts_at
+// Watch date and time to update starts_at (with local timezone)
 watch(() => form.date, (newDate) => {
     if (newDate && form.time) {
-        form.starts_at = `${newDate}T${form.time}:00`;
+        // Create datetime in local timezone (not UTC)
+        form.starts_at = `${newDate} ${form.time}:00`;
     }
 });
 
 watch(() => form.time, (newTime) => {
     if (form.date && newTime) {
-        form.starts_at = `${form.date}T${newTime}:00`;
+        // Create datetime in local timezone (not UTC)
+        form.starts_at = `${form.date} ${newTime}:00`;
     }
 });
 
@@ -106,7 +108,7 @@ const openCreateModal = () => {
     form.reset();
     form.date = format(new Date(), 'yyyy-MM-dd');
     form.time = '12:00';
-    form.starts_at = `${format(new Date(), 'yyyy-MM-dd')}T12:00:00`;
+    form.starts_at = `${format(new Date(), 'yyyy-MM-dd')} 12:00:00`;
     form.duration_minutes = 60;
     form.send_reminder = true;
     isCreateOpen.value = true;
