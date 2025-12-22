@@ -8,6 +8,23 @@ return [
         'messages' => 'Wiadomości',
         'settings' => 'Ustawienia',
     ],
+
+    'messages' => [
+        'title' => 'Logi SMS',
+        'subtitle' => 'Historia wszystkich wysłanych przypomnień',
+        'search_placeholder' => 'Szukaj po nazwisku lub telefonie...',
+        'table' => [
+            'status' => 'Status',
+            'recipient' => 'Odbiorca',
+            'client' => 'Klient',
+            'sent_at' => 'Wysłano',
+            'error' => 'Szczegóły błędu',
+            'appointment' => 'Wizyta',
+        ],
+        'status_success' => 'Sukces',
+        'status_failed' => 'Błąd',
+        'empty' => 'Nie znaleziono wiadomości.',
+    ],
     
     'common' => [
         'today' => 'Dziś',

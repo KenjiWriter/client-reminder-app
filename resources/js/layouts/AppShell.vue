@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
     { name: 'nav.dashboard', href: route('dashboard'), icon: Home },
     { name: 'nav.calendar', href: route('calendar.index'), icon: Calendar },
     { name: 'nav.clients', href: route('clients.index'), icon: Users },
-    { name: 'nav.messages', href: '#', icon: Mail },
+    { name: 'nav.messages', href: route('messages.index'), icon: Mail },
     { name: 'nav.settings', href: route('settings.index'), icon: Settings },
 ];
 

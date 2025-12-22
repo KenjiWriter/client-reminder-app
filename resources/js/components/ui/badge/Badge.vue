@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Props {
-    variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'upcoming' | 'completed' | 'rescheduled' | 'canceled' | 'noshow';
+    variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'upcoming' | 'completed' | 'rescheduled' | 'canceled' | 'noshow' | 'success';
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -17,6 +17,7 @@ const variantClasses = {
     rescheduled: 'bg-event-rescheduled text-event-rescheduled-dot',
     canceled: 'bg-event-canceled text-event-canceled-dot',
     noshow: 'bg-event-noshow text-event-noshow-dot',
+    success: 'bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/20',
 };
 </script>
 

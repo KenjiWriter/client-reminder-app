@@ -8,6 +8,23 @@ return [
         'messages' => 'Messages',
         'settings' => 'Settings',
     ],
+
+    'messages' => [
+        'title' => 'SMS Logs',
+        'subtitle' => 'Audit history of all sent reminders',
+        'search_placeholder' => 'Search by name or phone...',
+        'table' => [
+            'status' => 'Status',
+            'recipient' => 'Recipient',
+            'client' => 'Client',
+            'sent_at' => 'Sent At',
+            'error' => 'Error Details',
+            'appointment' => 'Appointment',
+        ],
+        'status_success' => 'Success',
+        'status_failed' => 'Failed',
+        'empty' => 'No messages found.',
+    ],
     
     'common' => [
         'today' => 'Today',
