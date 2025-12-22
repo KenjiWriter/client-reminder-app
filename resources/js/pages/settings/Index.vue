@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppShell from '@/layouts/AppShell.vue';
 import { Head, useForm } from '@inertiajs/vue3';
+import { useTranslation } from '@/composables/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { route } from 'ziggy-js';
+
+const { t } = useTranslation();
 
 interface Settings {
     timezone: string;
@@ -48,14 +51,14 @@ const timezones = [
 </script>
 
 <template>
-    <Head title="Settings" />
+    <Head :title="t('nav.settings')" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 p-4">
-            <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-bold">Business Settings</h1>
-            </div>
-
+    <AppShell>
+        <template #header-title>
+            <h1 class="text-2xl font-semibold">{{ t('settings.businessSettings') }}</h1>
+        </template>
+        
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 lg:p-6">
             <form @submit.prevent="submit" class="max-w-2xl space-y-6">
                 <Card>
                     <CardHeader>
@@ -64,10 +67,10 @@ const timezones = [
                     </CardHeader>
                     <CardContent>
                         <div class="grid gap-2">
-                            <Label for="timezone">Timezone</Label>
+                            <Label for="timezone">{{ t('settings.timezone') }}</Label>
                             <Select v-model="form.timezone">
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select timezone" />
+                                    <SelectValue :placeholder="t('settings.timezone')" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem v-for="tz in timezones" :key="tz" :value="tz">
@@ -87,7 +90,7 @@ const timezones = [
                     </CardHeader>
                     <CardContent class="space-y-4">
                         <div class="grid gap-2">
-                            <Label for="reminder_hours">Send reminder (hours before appointment)</Label>
+                            <Label for="reminder_hours">{{ t('settings.reminderHours') }}</Label>
                             <Input
                                 id="reminder_hours"
                                 type="number"
@@ -101,11 +104,11 @@ const timezones = [
                         </div>
 
                         <div class="grid gap-2">
-                            <Label for="sms_footer_note">SMS Footer Note (Optional)</Label>
+                            <Label for="sms_footer_note">{{ t('settings.smsFooterNote') }}</Label>
                             <Textarea
                                 id="sms_footer_note"
                                 v-model="form.sms_footer_note"
-                                placeholder="e.g., Thank you for choosing our service!"
+                                :placeholder="t('settings.smsFooterNote')"
                                 rows="3"
                                 maxlength="500"
                             />
@@ -117,10 +120,10 @@ const timezones = [
 
                 <div class="flex justify-end">
                     <Button type="submit" :disabled="form.processing">
-                        Save Settings
+                        {{ t('common.save') }}
                     </Button>
                 </div>
             </form>
         </div>
-    </AppLayout>
+    </AppShell>
 </template>
