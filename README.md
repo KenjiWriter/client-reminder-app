@@ -48,6 +48,8 @@ This application uses Laravel Queues and the Scheduler to send SMS reminders.
    * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
    ```
    
+   The scheduler runs the `reminders:send-bulk` command every 5 minutes.
+   
    Locally, you can run:
    ```bash
    php artisan schedule:work
@@ -81,14 +83,21 @@ SMS_FOOTER_NOTE="Thank you for choosing our service!"
 - Requires `SMSAPI_TOKEN` in `.env`
 - To enable: Set `SMS_DRIVER=smsapi`
 
-### Testing Reminders
+### Triggering Reminders Manually
 
-To manually trigger the reminder command:
+**Manual Individual Reminder**
+Send a reminder for a specific appointment ID. This respects guards (opt-out, already sent) unless `--force` is used. Use `--sync` to send immediately without the queue.
 ```bash
-php artisan reminders:send
+php artisan reminders:send {appointment_id} [--force] [--sync]
 ```
 
-The scheduler automatically runs this command every 5 minutes when `php artisan schedule:work` is running.
+**Manual Bulk Check**
+Run the same check the scheduler does (appointments due in ~24h):
+```bash
+php artisan reminders:send-bulk
+```
+
+Both commands respect the logic defined in the `AppointmentReminderSender` service.
 
 ### How It Works
 

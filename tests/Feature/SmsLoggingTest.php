@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\SmsMessage;
 use App\Contracts\SmsProvider;
 use App\ValueObjects\SmsResult;
+use App\Services\AppointmentReminderSender;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -22,8 +23,9 @@ test('it logs successful sms send', function () {
         ->once()
         ->andReturn(SmsResult::success('msg-123'));
 
+    $sender = new AppointmentReminderSender($mockProvider);
     $job = new SendAppointmentReminderJob($appointment->id);
-    $job->handle($mockProvider);
+    $job->handle($sender);
 
     $this->assertDatabaseHas('sms_messages', [
         'appointment_id' => $appointment->id,
@@ -46,10 +48,11 @@ test('it logs failed sms send', function () {
         ->once()
         ->andReturn(SmsResult::failure('Provider error'));
 
+    $sender = new AppointmentReminderSender($mockProvider);
     $job = new SendAppointmentReminderJob($appointment->id);
     
     try {
-        $job->handle($mockProvider);
+        $job->handle($sender);
     } catch (\RuntimeException $e) {
         // Expected
     }

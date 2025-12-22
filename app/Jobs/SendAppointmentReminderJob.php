@@ -18,13 +18,14 @@ class SendAppointmentReminderJob implements ShouldQueue
      */
     public function __construct(
         public int $appointmentId,
+        public bool $isForced = false,
     ) {
     }
 
     /**
      * Execute the job.
      */
-    public function handle(SmsProvider $smsProvider): void
+    public function handle(\App\Services\AppointmentReminderSender $sender): void
     {
         $appointment = Appointment::with('client')->find($this->appointmentId);
 
@@ -34,93 +35,17 @@ class SendAppointmentReminderJob implements ShouldQueue
             return;
         }
 
-        // Idempotency check: Only send if reminder_sent_at is null
-        // Use atomic update to prevent race conditions
-        $updated = Appointment::where('id', $appointment->id)
-            ->whereNull('reminder_sent_at')
-            ->update(['reminder_sent_at' => now()]);
+        $result = $sender->send($appointment, $this->isForced);
 
-        if ($updated === 0) {
-            Log::info('Reminder already sent for appointment', ['appointment_id' => $this->appointmentId]);
-
-            return;
-        }
-
-        try {
-            $message = $this->composeMessage($appointment);
-            $result = $smsProvider->send($appointment->client->phone_e164, $message);
-
-            SmsMessage::create([
-                'provider' => config('sms.driver', 'log'),
-                'to_e164' => $appointment->client->phone_e164,
-                'message_hash' => hash('sha256', $message),
-                'status' => $result->success ? 'success' : 'failed',
+        if (!$result->success) {
+            Log::error('Job failed to send reminder', [
+                'appointment_id' => $this->appointmentId,
                 'error' => $result->error,
-                'appointment_id' => $appointment->id,
-                'client_id' => $appointment->client_id,
-                'provider_message_id' => $result->providerMessageId,
-                'sent_at' => now(),
             ]);
 
-            if (! $result->success) {
-                // Rollback the reminder_sent_at if send failed
-                Appointment::where('id', $appointment->id)->update(['reminder_sent_at' => null]);
-
-                Log::error('Failed to send appointment reminder', [
-                    'appointment_id' => $appointment->id,
-                    'error' => $result->error,
-                ]);
-
-                throw new \RuntimeException("SMS send failed: {$result->error}");
-            }
-
-            Log::info('Appointment reminder sent successfully', [
-                'appointment_id' => $appointment->id,
-                'client_id' => $appointment->client_id,
-                'message_id' => $result->providerMessageId,
-            ]);
-        } catch (\Exception $e) {
-            // Rollback on any exception
-            Appointment::where('id', $appointment->id)->update(['reminder_sent_at' => null]);
-
-            if ($e instanceof \RuntimeException && str_contains($e->getMessage(), 'SMS send failed')) {
-                // Already logged/handled above
-            } else {
-                // Log unhandled exceptions too
-                SmsMessage::create([
-                    'provider' => config('sms.driver', 'log'),
-                    'to_e164' => $appointment->client->phone_e164 ?? 'unknown',
-                    'message_hash' => isset($message) ? hash('sha256', $message) : 'unknown',
-                    'status' => 'failed',
-                    'error' => $e->getMessage(),
-                    'appointment_id' => $appointment->id,
-                    'client_id' => $appointment->client_id,
-                    'sent_at' => now(),
-                ]);
-            }
-
-            throw $e;
+            throw new \RuntimeException("SMS send failed: {$result->error}");
         }
     }
 
-    private function composeMessage(Appointment $appointment): string
-    {
-        $timezone = \App\Models\Setting::get('timezone', config('app.timezone', 'UTC'));
-        $startsAt = $appointment->starts_at->timezone($timezone);
 
-        $publicUrl = config('app.url').'/c/'.$appointment->client->public_uid;
-        $footerNote = \App\Models\Setting::get('sms_footer_note', '');
-
-        $message = "Hi {$appointment->client->full_name}!\n\n";
-        $message .= "Reminder: You have an appointment on {$startsAt->format('l, F j')} at {$startsAt->format('g:i A')}.\n\n";
-        $message .= "View your appointments: {$publicUrl}\n";
-
-        if ($footerNote) {
-            $message .= "\n{$footerNote}\n";
-        }
-
-        $message .= "\nTo stop reminders, visit the link above.";
-
-        return $message;
-    }
 }
