@@ -24,4 +24,9 @@ class Client extends Model
             $client->public_uid = $client->public_uid ?? (string) Str::ulid();
         });
     }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
 }
