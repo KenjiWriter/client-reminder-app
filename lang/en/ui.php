@@ -1,18 +1,6 @@
 <?php
 
 return [
-    'nav' => [
-        'nav.dashboard' => 'Dashboard',
-        'nav.clients' => 'Clients',
-        'nav.calendar' => 'Calendar',
-        'nav.messages' => 'Messages',
-        'settings' => 'Settings',
-        'users' => 'Users',
-        'review' => 'Pending Review',
-        'leads' => 'Leads',
-        'logout' => 'Logout',
-    ],
-
     'messages' => [
         'title' => 'SMS Logs',
         'subtitle' => 'Audit history of all sent reminders',
@@ -97,9 +85,11 @@ return [
         'stats' => [
             'totalClients' => 'Total Clients',
             'totalAppointments' => 'Total Appointments',
+            'totalCanceled' => 'Total Canceled',
             'newClients' => 'New Clients',
             'smsSent' => 'SMS Sent',
             'reschedules' => 'Reschedules',
+            'canceled' => 'Canceled',
             'inPeriod' => 'in period',
         ],
         'charts' => [

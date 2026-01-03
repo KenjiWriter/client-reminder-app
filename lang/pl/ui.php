@@ -1,18 +1,6 @@
 <?php
 
 return [
-    'nav' => [
-        'nav.dashboard' => 'Panel główny',
-        'nav.calendar' => 'Kalendarz',
-        'nav.messages' => 'Wiadomości',
-        'nav.clients' => 'Klienci',
-        'settings' => 'Ustawienia',
-        'users' => 'Użytkownicy',
-        'review' => 'Oczekujące',
-        'leads' => 'Nowe kontakty',
-        'logout' => 'Wyloguj',
-    ],
-
     'messages' => [
         'title' => 'Logi SMS',
         'subtitle' => 'Historia wszystkich wysłanych przypomnień',
@@ -97,9 +85,11 @@ return [
         'stats' => [
             'totalClients' => 'Wszyscy klienci',
             'totalAppointments' => 'Wszystkie wizyty',
+            'totalCanceled' => 'Anulowane ogółem',
             'newClients' => 'Nowi klienci',
             'smsSent' => 'Wysłane SMS',
             'reschedules' => 'Przełożone wizyty',
+            'canceled' => 'Anulowane',
             'inPeriod' => 'w okresie',
         ],
         'charts' => [
