@@ -8,7 +8,7 @@ import DashboardChart from '@/components/Dashboard/DashboardChart.vue';
 import SegmentedControl from '@/components/ui/segmented-control/SegmentedControl.vue';
 import { Input } from '@/components/ui/input';
 import { route } from 'ziggy-js';
-import { Users, Calendar, UserPlus, MessageSquare, RefreshCw, Filter } from 'lucide-vue-next';
+import { Users, Calendar, UserPlus, MessageSquare, RefreshCw, Filter, XCircle } from 'lucide-vue-next';
 
 interface DataPoint {
     date: string;
@@ -24,18 +24,21 @@ interface Props {
     totals: {
         clients: number;
         appointments: number;
+        canceled: number;
     };
     period: {
         new_clients: number;
         appointments: number;
         sms_sent: number;
         rescheduled_appointments: number;
+        canceled: number;
     };
     timeseries: {
         clients: DataPoint[];
         appointments: DataPoint[];
         sms: DataPoint[];
         reschedules: DataPoint[];
+        canceled: DataPoint[];
     };
 }
 
@@ -140,6 +143,19 @@ const getPeriodLabel = () => {
                     :description="getPeriodLabel()"
                     :icon="RefreshCw"
                     variant="warning"
+                />
+                <MetricCard
+                    :title="t('dashboard.stats.totalCanceled')"
+                    :value="totals.canceled"
+                    :icon="XCircle"
+                    variant="destructive"
+                />
+                <MetricCard
+                    :title="t('dashboard.stats.canceled')"
+                    :value="period.canceled"
+                    :description="getPeriodLabel()"
+                    :icon="XCircle"
+                    variant="destructive"
                 />
             </div>
 

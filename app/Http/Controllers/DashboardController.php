@@ -33,6 +33,7 @@ class DashboardController extends Controller
                 'totals' => [
                     'clients' => Client::count(),
                     'appointments' => Appointment::count(),
+                    'canceled' => Appointment::where('status', 'canceled')->count(),
                 ],
                 'period' => [
                     'new_clients' => Client::whereBetween('created_at', [$startDate, $endDate])->count(),
@@ -41,12 +42,15 @@ class DashboardController extends Controller
                         ->whereBetween('sent_at', [$startDate, $endDate])->count(),
                     'rescheduled_appointments' => Appointment::whereBetween('last_rescheduled_at', [$startDate, $endDate])
                         ->count(),
+                    'canceled' => Appointment::where('status', 'canceled')
+                        ->whereBetween('starts_at', [$startDate, $endDate])->count(),
                 ],
                 'timeseries' => [
                     'clients' => $this->getClientsOverTime($startDate, $endDate, $timezone),
                     'appointments' => $this->getAppointmentsOverTime($startDate, $endDate, $timezone),
                     'sms' => $this->getSmsOverTime($startDate, $endDate, $timezone),
                     'reschedules' => $this->getReschedulesOverTime($startDate, $endDate, $timezone),
+                    'canceled' => $this->getCanceledOverTime($startDate, $endDate, $timezone),
                 ],
             ];
         });
@@ -124,6 +128,16 @@ class DashboardController extends Controller
         $data = Appointment::whereBetween('last_rescheduled_at', [$start, $end])
             ->get()
             ->groupBy(fn($item) => $item->last_rescheduled_at->timezone($timezone)->format('Y-m-d'));
+
+        return $this->formatTimeSeries($data, $start, $end, $timezone);
+    }
+
+    private function getCanceledOverTime($start, $end, $timezone)
+    {
+        $data = Appointment::where('status', 'canceled')
+            ->whereBetween('starts_at', [$start, $end])
+            ->get()
+            ->groupBy(fn($item) => $item->starts_at->timezone($timezone)->format('Y-m-d'));
 
         return $this->formatTimeSeries($data, $start, $end, $timezone);
     }
