@@ -9,6 +9,8 @@ import { Spinner } from '@/components/ui/spinner';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
+import { route } from 'ziggy-js';
+
 defineProps<{
     status?: string;
     canResetPassword: boolean;
@@ -30,10 +32,15 @@ const submit = () => {
 
 <template>
     <AuthBase
-        title="Log in to your account"
         description="Enter your email and password below to log in"
     >
-        <Head title="Log in" />
+        <Head title="Facemodeling - Logowanie" />
+
+        <div class="mb-6 text-center">
+            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600 tracking-widest drop-shadow-sm uppercase">
+                Facemodeling
+            </h1>
+        </div>
 
         <div
             v-if="status"
@@ -62,14 +69,6 @@ const submit = () => {
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
                         <Label for="password">Password</Label>
-                        <TextLink
-                            v-if="canResetPassword"
-                            :href="route('password.request')"
-                            class="text-sm"
-                            :tabindex="5"
-                        >
-                            Forgot password?
-                        </TextLink>
                     </div>
                     <Input
                         id="password"
@@ -100,14 +99,6 @@ const submit = () => {
                     <Spinner v-if="form.processing" />
                     Log in
                 </Button>
-            </div>
-
-            <div
-                class="text-center text-sm text-muted-foreground"
-                v-if="canRegister"
-            >
-                Don't have an account?
-                <TextLink :href="route('register')" :tabindex="5">Sign up</TextLink>
             </div>
         </form>
     </AuthBase>
