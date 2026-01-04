@@ -18,7 +18,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2 } from 'lucide-vue-next';
+import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus } from 'lucide-vue-next';
 import { format, startOfWeek, addDays, getDay, isSameDay, parseISO, startOfToday, addWeeks, subWeeks } from 'date-fns';
 import { route } from 'ziggy-js';
 
@@ -277,6 +277,49 @@ const getEventsForDay = (day: Date) => {
 const formatTime = (isoString: string) => {
     return format(parseISO(isoString), 'HH:mm');
 };
+
+// Quick Create Client Modal State
+const isClientModalOpen = ref(false);
+const clientForm = useForm({
+    full_name: '',
+    phone_e164: '',
+    email: '',
+    sms_opt_out: false,
+});
+
+const openClientModal = () => {
+    clientForm.reset();
+    isClientModalOpen.value = true;
+};
+
+const closeClientModal = () => {
+    isClientModalOpen.value = false;
+    clientForm.reset();
+};
+
+const submitClient = () => {
+    clientForm.post(route('clients.store'), {
+        preserveScroll: true,
+        onSuccess: (response: any) => {
+            // Extract the new client from response
+            const newClient = response.props?.flash?.client || response.client;
+            
+            if (newClient && newClient.id) {
+                // Add to clients list (reactive update)
+                props.clients.push({
+                    id: newClient.id,
+                    full_name: newClient.full_name,
+                    phone_e164: newClient.phone_e164,
+                });
+                
+                // Auto-select the new client
+                form.client_id = String(newClient.id);
+            }
+            
+            closeClientModal();
+        },
+    });
+};
 </script>
 
 <template>
@@ -315,7 +358,18 @@ const formatTime = (isoString: string) => {
                             </DialogHeader>
                         <form @submit.prevent="submit" class="grid gap-4 py-4">
                             <div class="grid gap-2">
-                                <Label for="client">{{ t('appointments.client') }}</Label>
+                                <div class="flex items-center justify-between">
+                                    <Label for="client">{{ t('appointments.client') }}</Label>
+                                    <Button 
+                                        type="button" 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        @click="openClientModal"
+                                        class="h-7 text-xs"
+                                    >
+                                        <UserPlus class="mr-1 h-3 w-3" /> {{ t('common.newClient') || 'New Client' }}
+                                    </Button>
+                                </div>
                                 <Select v-model="form.client_id">
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a client" />
@@ -368,6 +422,40 @@ const formatTime = (isoString: string) => {
                 </Dialog>
                 </div>
             </div>
+
+            <!-- Quick Create Client Modal (Nested) -->
+            <Dialog v-model:open="isClientModalOpen">
+                <DialogContent class="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>{{ t('common.newClient') || 'New Client' }}</DialogTitle>
+                        <DialogDescription>Add a new client to your system</DialogDescription>
+                    </DialogHeader>
+                    <form @submit.prevent="submitClient" class="grid gap-4 py-4">
+                        <div class="grid gap-2">
+                            <Label for="full_name">{{ t('clients.fullName') }}</Label>
+                            <Input id="full_name" v-model="clientForm.full_name" required />
+                            <div v-if="clientForm.errors.full_name" class="text-sm text-red-500">{{ clientForm.errors.full_name }}</div>
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="phone">{{ t('clients.phone') }}</Label>
+                            <Input id="phone" v-model="clientForm.phone_e164" type="tel" placeholder="+48..." required />
+                            <div v-if="clientForm.errors.phone_e164" class="text-sm text-red-500">{{ clientForm.errors.phone_e164 }}</div>
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="email">{{ t('clients.email') }} ({{ t('common.optional') || 'optional' }})</Label>
+                            <Input id="email" v-model="clientForm.email" type="email" />
+                            <div v-if="clientForm.errors.email" class="text-sm text-red-500">{{ clientForm.errors.email }}</div>
+                        </div>
+
+                        <DialogFooter>
+                            <Button type="button" variant="outline" @click="closeClientModal">{{ t('common.cancel') }}</Button>
+                            <Button type="submit" :disabled="clientForm.processing">{{ t('common.save') }}</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
 
             <!-- Calendar Content -->
             <div class="flex-1 overflow-auto p-6">

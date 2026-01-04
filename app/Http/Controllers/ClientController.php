@@ -43,9 +43,21 @@ class ClientController extends Controller
      */
     public function store(StoreClientRequest $request)
     {
-        Client::create(array_merge($request->validated(), [
+        $client = Client::create(array_merge($request->validated(), [
             'phone_e164' => $request->input('phone_e164'),
         ]));
+
+        // If request wants JSON (for nested modal usage)
+        if ($request->wantsJson() || $request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'client' => [
+                    'id' => $client->id,
+                    'full_name' => $client->full_name,
+                    'phone_e164' => $client->phone_e164,
+                ],
+            ]);
+        }
 
         return redirect()->route('clients.index')
             ->with('success', 'Client created successfully.');

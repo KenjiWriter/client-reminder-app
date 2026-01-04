@@ -31,6 +31,8 @@ return [
         'updateAppointment' => 'Update Appointment',
         'minutes' => 'minutes',
         'hours' => 'hours',
+        'newClient' => 'New Client',
+        'optional' => 'optional',
     ],
     
     'calendar' => [

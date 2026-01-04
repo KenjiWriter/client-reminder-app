@@ -31,6 +31,8 @@ return [
         'updateAppointment' => 'Zaktualizuj wizytę',
         'minutes' => 'minut',
         'hours' => 'godzin',
+        'newClient' => 'Nowy klient',
+        'optional' => 'opcjonalnie',
     ],
     
     'calendar' => [
