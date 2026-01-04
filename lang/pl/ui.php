@@ -22,6 +22,7 @@ return [
         'today' => 'Dziś',
         'newAppointment' => 'Nowa wizyta',
         'save' => 'Zapisz',
+        'saving' => 'Zapisywanie...',
         'cancel' => 'Anuluj',
         'edit' => 'Edytuj',
         'delete' => 'Usuń',

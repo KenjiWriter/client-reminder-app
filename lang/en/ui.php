@@ -22,6 +22,7 @@ return [
         'today' => 'Today',
         'newAppointment' => 'New Appointment',
         'save' => 'Save',
+        'saving' => 'Saving...',
         'cancel' => 'Cancel',
         'edit' => 'Edit',
         'delete' => 'Delete',

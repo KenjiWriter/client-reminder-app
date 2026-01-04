@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppShell from '@/layouts/AppShell.vue';
+import axios from 'axios';
 import SegmentedControl from '@/components/ui/segmented-control/SegmentedControl.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
@@ -280,46 +281,80 @@ const formatTime = (isoString: string) => {
 
 // Quick Create Client Modal State
 const isClientModalOpen = ref(false);
-const clientForm = useForm({
+const clientForm = ref({
     full_name: '',
-    phone_e164: '',
+    phone: '',
     email: '',
     sms_opt_out: false,
 });
+const clientFormErrors = ref<Record<string, string>>({});
+const isSubmittingClient = ref(false);
 
 const openClientModal = () => {
-    clientForm.reset();
+    clientForm.value = {
+        full_name: '',
+        phone: '',
+        email: '',
+        sms_opt_out: false,
+    };
+    clientFormErrors.value = {};
     isClientModalOpen.value = true;
 };
 
 const closeClientModal = () => {
     isClientModalOpen.value = false;
-    clientForm.reset();
+    clientForm.value = {
+        full_name: '',
+        phone: '',
+        email: '',
+        sms_opt_out: false,
+    };
+    clientFormErrors.value = {};
 };
 
-const submitClient = () => {
-    clientForm.post(route('clients.store'), {
-        preserveScroll: true,
-        onSuccess: (response: any) => {
-            // Extract the new client from response
-            const newClient = response.props?.flash?.client || response.client;
+
+
+const submitClient = async () => {
+    if (isSubmittingClient.value) return;
+    
+    clientFormErrors.value = {};
+    isSubmittingClient.value = true;
+    
+    try {
+        const response = await axios.post(route('clients.store'), clientForm.value, {
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+        
+        const data = response.data;
+        
+        if (data.success && data.client) {
+            // Add to clients list (reactive update)
+            props.clients.push({
+                id: data.client.id,
+                full_name: data.client.full_name,
+                phone_e164: data.client.phone_e164,
+            });
             
-            if (newClient && newClient.id) {
-                // Add to clients list (reactive update)
-                props.clients.push({
-                    id: newClient.id,
-                    full_name: newClient.full_name,
-                    phone_e164: newClient.phone_e164,
-                });
-                
-                // Auto-select the new client
-                form.client_id = String(newClient.id);
-            }
+            // Auto-select the new client
+            form.client_id = String(data.client.id);
             
             closeClientModal();
-        },
-    });
+        }
+    } catch (error: any) {
+        console.error('Error creating client:', error);
+        
+        if (error.response && error.response.status === 422) {
+            clientFormErrors.value = error.response.data.errors;
+        } else {
+            clientFormErrors.value = { general: 'An error occurred while creating the client.' };
+        }
+    } finally {
+        isSubmittingClient.value = false;
+    }
 };
+
 </script>
 
 <template>
@@ -431,27 +466,50 @@ const submitClient = () => {
                         <DialogDescription>Add a new client to your system</DialogDescription>
                     </DialogHeader>
                     <form @submit.prevent="submitClient" class="grid gap-4 py-4">
+                        <div v-if="clientFormErrors.general" class="text-sm text-red-500 p-2 bg-red-50 rounded">
+                            {{ clientFormErrors.general }}
+                        </div>
+                        
                         <div class="grid gap-2">
                             <Label for="full_name">{{ t('clients.fullName') }}</Label>
-                            <Input id="full_name" v-model="clientForm.full_name" required />
-                            <div v-if="clientForm.errors.full_name" class="text-sm text-red-500">{{ clientForm.errors.full_name }}</div>
+                            <Input 
+                                id="full_name" 
+                                v-model="clientForm.full_name" 
+                                required 
+                                :class="{ 'border-red-500': clientFormErrors.full_name }"
+                            />
+                            <div v-if="clientFormErrors.full_name" class="text-sm text-red-500">{{ clientFormErrors.full_name }}</div>
                         </div>
 
                         <div class="grid gap-2">
                             <Label for="phone">{{ t('clients.phone') }}</Label>
-                            <Input id="phone" v-model="clientForm.phone_e164" type="tel" placeholder="+48..." required />
-                            <div v-if="clientForm.errors.phone_e164" class="text-sm text-red-500">{{ clientForm.errors.phone_e164 }}</div>
+                            <Input 
+                                id="phone" 
+                                v-model="clientForm.phone" 
+                                type="tel" 
+                                placeholder="+48..." 
+                                required 
+                                :class="{ 'border-red-500': clientFormErrors.phone }"
+                            />
+                            <div v-if="clientFormErrors.phone" class="text-sm text-red-500">{{ clientFormErrors.phone }}</div>
                         </div>
 
                         <div class="grid gap-2">
                             <Label for="email">{{ t('clients.email') }} ({{ t('common.optional') || 'optional' }})</Label>
-                            <Input id="email" v-model="clientForm.email" type="email" />
-                            <div v-if="clientForm.errors.email" class="text-sm text-red-500">{{ clientForm.errors.email }}</div>
+                            <Input 
+                                id="email" 
+                                v-model="clientForm.email" 
+                                type="email" 
+                                :class="{ 'border-red-500': clientFormErrors.email }"
+                            />
+                            <div v-if="clientFormErrors.email" class="text-sm text-red-500">{{ clientFormErrors.email }}</div>
                         </div>
 
                         <DialogFooter>
                             <Button type="button" variant="outline" @click="closeClientModal">{{ t('common.cancel') }}</Button>
-                            <Button type="submit" :disabled="clientForm.processing">{{ t('common.save') }}</Button>
+                            <Button type="submit" :disabled="isSubmittingClient">
+                                {{ isSubmittingClient ? (t('common.saving') || 'Saving...') : t('common.save') }}
+                            </Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
