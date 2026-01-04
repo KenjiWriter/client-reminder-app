@@ -43,9 +43,33 @@ This application uses Laravel Queues and the Scheduler to send SMS reminders.
    QUEUE_CONNECTION=database
    ```
    
-   Run the queue worker:
+   **Local Development:**
    ```bash
    php artisan queue:work
+   ```
+
+   **Production (Supervisor):**
+   In production, use Supervisor to keep the queue worker running.
+   
+   `/etc/supervisor/conf.d/client-reminder-worker.conf`:
+   ```ini
+   [program:client-reminder-worker]
+   process_name=%(program_name)s_%(process_num)02d
+   command=php /path/to/project/artisan queue:work database --sleep=3 --tries=3
+   autostart=true
+   autorestart=true
+   user=www-data
+   numprocs=1
+   redirect_stderr=true
+   stdout_logfile=/path/to/project/storage/logs/worker.log
+   stopwaitsecs=3600
+   ```
+   
+   After creating the file:
+   ```bash
+   sudo supervisorctl reread
+   sudo supervisorctl update
+   sudo supervisorctl start client-reminder-worker:*
    ```
 
 2. **Scheduler**
