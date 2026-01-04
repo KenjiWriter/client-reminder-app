@@ -70,7 +70,7 @@ const deleteClient = (id: number) => {
 
     <AppShell>
         <template #header-title>
-            <div class="flex items-center justify-between w-full">
+            <div class="flex items-center justify-between gap-4 w-full">
                 <h1 class="text-2xl font-semibold">{{ t('clients.title') }}</h1>
                 <Link :href="route('clients.create')" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2">
                     <Plus class="h-4 w-4" /> {{ t('clients.newClient') }}
