@@ -2,6 +2,34 @@
 
 A small business appointment + SMS reminder system.
 
+## Features
+
+### 📊 Dashboard & Analytics
+- **Key Performance Indicators (KPIs)**:
+  - Total Clients, Appointments, and Canceled visits
+  - Period-based metrics (7/30/90 days, MTD): New Clients, SMS Sent, Rescheduled, Canceled
+- **Interactive Charts**:
+  - Appointments per day (Area chart)
+  - SMS Sent per day (Line chart)
+  - New Clients per day (Bar chart)
+  - Reschedules per day (Line chart)
+- **Filters**: Date range filtering (7d, 30d, 90d, Month-to-Date, Custom Range)
+
+### 📅 Appointment Management
+- **Calendar View**: Visual overview of all scheduled visits
+- **Status Tracking**: Confirmed, Pending Approval, Canceled, Completed
+- **SMS Reminders**: Automated 24h reminders via queue/scheduler process
+
+### 👥 Client Management
+- **Profile**: Detailed client information and history
+- **Public Page**: Unique public link for each client to check their appointments
+- **Self-Service**: Clients can request rescheduling or cancellation via their public page
+- **Reschedule Workflow**: Admin approval system for client-requested changes
+
+### 💬 Communication
+- **SMS Logs**: Full history of sent messages with delivery status
+- **Templates**: Configurable SMS footer and content (via translations)
+
 ## Setup
 
 1. **Clone the repository**
