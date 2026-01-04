@@ -17,6 +17,7 @@ const page = usePage();
 const flashMessage = computed(() => (page.props.flash as any)?.message);
 
 const parallaxOffset = ref(0);
+const formSubmitted = ref(false);
 
 const form = useForm({
     full_name: '',
@@ -29,6 +30,7 @@ const submit = () => {
     form.post(route('consultation.store'), {
         preserveScroll: true,
         onSuccess: () => {
+             formSubmitted.value = true;
              form.reset();
         }
     });
@@ -185,12 +187,12 @@ const updateParallax = () => {
                       <p class="text-lg text-muted-foreground">{{ t('landing.form_subtitle') }}</p>
                   </div>
 
-                  <div v-if="flashMessage" class="bg-emerald-50 border border-emerald-200 rounded-lg p-8 text-center animate-fade-in-up">
+                  <div v-if="formSubmitted" class="bg-emerald-50 border border-emerald-200 rounded-lg p-8 text-center animate-in">
                         <div class="flex justify-center mb-4">
-                            <CheckCircle2 class="h-12 w-12 text-emerald-600" />
+                            <CheckCircle2 class="h-16 w-16 text-emerald-600" />
                         </div>
-                        <h3 class="text-xl font-semibold text-emerald-900 mb-2">{{ t('landing.form_success_title', { default: 'Dziękujemy!' }) }}</h3>
-                        <p class="text-emerald-700">{{ flashMessage }}</p>
+                        <h3 class="text-2xl font-semibold text-emerald-900 mb-2">{{ t('landing.form_success_title') || 'Dziękujemy za kontakt!' }}</h3>
+                        <p class="text-emerald-700 text-lg">{{ t('landing.form_success_desc') || 'Skontaktujemy się z Tobą wkrótce.' }}</p>
                   </div>
 
                   <form v-else @submit.prevent="submit" class="bg-card p-8 rounded-xl shadow-sm border space-y-6">
@@ -207,9 +209,9 @@ const updateParallax = () => {
                         </div>
 
                         <div class="space-y-2">
-                             <Label for="email">{{ t('landing.form_email') }}</Label>
-                             <Input id="email" v-model="form.email" type="email" placeholder="email@example.com" />
-                             <p v-if="form.errors.email" class="text-sm text-destructive">{{ form.errors.email }}</p>
+                            <Label for="email">{{ t('landing.form_email') }}</Label>
+                            <Input id="email" v-model="form.email" type="email" placeholder="email@example.com" />
+                            <p v-if="form.errors.email" class="text-sm text-destructive">{{ form.errors.email }}</p>
                         </div>
                         
                         <div class="space-y-2">

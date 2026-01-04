@@ -19,7 +19,7 @@ return [
     'form_note' => 'Message / Preferred Time',
     'form_submit' => 'Submit Request',
     'form_sending' => 'Sending...',
-    'form_success_title' => 'Thank you!',
-    'form_success_message' => 'Your form has been sent. We will contact you shortly.',
+    'form_success_title' => 'Thank you for contacting us!',
+    'form_success_desc' => 'We will contact you soon.',
     'footer_rights' => 'All rights reserved.',
 ];

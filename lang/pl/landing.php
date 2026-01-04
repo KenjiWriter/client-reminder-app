@@ -19,7 +19,7 @@ return [
     'form_note' => 'Wiadomość / Preferowana godzina',
     'form_submit' => 'Wyślij zgłoszenie',
     'form_sending' => 'Wysyłanie...',
-    'form_success_title' => 'Dziękujemy!',
-    'form_success_message' => 'Twój formularz został wysłany. Skontaktujemy się wkrótce.',
+    'form_success_title' => 'Dziękujemy za kontakt!',
+    'form_success_desc' => 'Skontaktujemy się z Tobą wkrótce.',
     'footer_rights' => 'Wszelkie prawa zastrzeżone.',
 ];
