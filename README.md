@@ -51,7 +51,12 @@ This application uses Laravel Queues and the Scheduler to send SMS reminders.
    **Production (Supervisor):**
    In production, use Supervisor to keep the queue worker running.
    
-   `/etc/supervisor/conf.d/client-reminder-worker.conf`:
+   Install Supervisor:
+   ```bash
+   sudo apt-get install supervisor
+   ```
+
+   Create configuration file `/etc/supervisor/conf.d/client-reminder-worker.conf`:
    ```ini
    [program:client-reminder-worker]
    process_name=%(program_name)s_%(process_num)02d
