@@ -20,7 +20,13 @@ A small business appointment + SMS reminder system.
    ```bash
    php artisan migrate
    ```
-5. **Build Frontend**
+5. **Generate Routes**
+   Required for frontend to access Laravel routes and typed route helpers (Ziggy + Wayfinder).
+   ```bash
+   php artisan ziggy:generate
+   php artisan wayfinder:generate
+   ```
+6. **Build Frontend**
    ```bash
    npm run build
    ```
