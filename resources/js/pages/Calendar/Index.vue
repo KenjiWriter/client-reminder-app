@@ -145,9 +145,35 @@ const openCreateModal = () => {
 const openCreateModalAtTime = (day: Date, hour: number) => {
     editingAppointmentId.value = null;
     form.reset();
-    form.date = format(day, 'yyyy-MM-dd');
-    form.time = `${hour.toString().padStart(2, '0')}:00`;
-    form.starts_at = `${format(day, 'yyyy-MM-dd')} ${hour.toString().padStart(2, '0')}:00:00`;
+    
+    const BUFFER_MINUTES = 20;
+    
+    // Create the clicked datetime
+    const clickedDateTime = new Date(day);
+    clickedDateTime.setHours(hour, 0, 0, 0);
+    
+    // Get all events for this day and sort by start time
+    const dayEvents = getEventsForDay(day).sort((a, b) => a.start.localeCompare(b.start));
+    
+    // Find if the clicked time conflicts with any existing appointment (including buffer)
+    let suggestedDateTime = clickedDateTime;
+    
+    for (const event of dayEvents) {
+        const eventStart = parseISO(event.start);
+        const eventEnd = parseISO(event.end);
+        const eventEndWithBuffer = new Date(eventEnd.getTime() + BUFFER_MINUTES * 60000);
+        
+        // Check if clicked time falls within appointment or its buffer zone
+        if (clickedDateTime >= eventStart && clickedDateTime < eventEndWithBuffer) {
+            // Suggest next available time (after this appointment's buffer)
+            suggestedDateTime = eventEndWithBuffer;
+            // Continue checking in case there are back-to-back appointments
+        }
+    }
+    
+    form.date = format(suggestedDateTime, 'yyyy-MM-dd');
+    form.time = format(suggestedDateTime, 'HH:mm');
+    form.starts_at = `${format(suggestedDateTime, 'yyyy-MM-dd')} ${format(suggestedDateTime, 'HH:mm')}:00`;
     form.duration_minutes = 90;
     form.send_reminder = true;
     isCreateOpen.value = true;
