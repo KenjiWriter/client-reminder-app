@@ -56,16 +56,20 @@ This application uses Laravel Queues and the Scheduler to send SMS reminders.
    sudo apt-get install supervisor
    ```
 
-   Create configuration file `/etc/supervisor/conf.d/client-reminder-worker.conf`:
+   Create configuration file `/etc/supervisor/conf.d/client-reminder-worker.conf`.
+   **Important:** Replace `/path/to/project` with your actual path (e.g., `/var/www/client-reminder-app`).
+
    ```ini
    [program:client-reminder-worker]
    process_name=%(program_name)s_%(process_num)02d
+   # Replace /path/to/project with your actual root directory
    command=php /path/to/project/artisan queue:work database --sleep=3 --tries=3
    autostart=true
    autorestart=true
    user=www-data
    numprocs=1
    redirect_stderr=true
+   # Replace /path/to/project with your actual root directory
    stdout_logfile=/path/to/project/storage/logs/worker.log
    stopwaitsecs=3600
    ```
