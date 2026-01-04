@@ -154,7 +154,7 @@ return [
     ],
 
     'leads' => [
-        'title' => 'Leads',
+        'title' => 'New Leads',
         'source' => 'Source',
         'status' => 'Status',
         'note' => 'Note',
@@ -164,5 +164,21 @@ return [
             'contacted' => 'Contacted',
             'closed' => 'Closed',
         ],
+    ],
+    
+    'stats' => [
+        'title' => 'Site Statistics',
+        'totalVisits' => 'Total Visits',
+        'uniqueVisitors' => 'Unique Visitors',
+        'activeClients' => 'Active Clients',
+        'activeClientsDesc' => 'Users who have visited the site',
+        'inactiveClients' => 'Inactive Clients',
+        'inactiveClientsDesc' => 'Users with zero visits',
+        'name' => 'Name',
+        'email' => 'Email',
+        'visits' => 'Visits',
+        'lastSeen' => 'Last Seen',
+        'noActive' => 'No active clients found.',
+        'allActive' => 'All clients are active! 🎉',
     ],
 ];

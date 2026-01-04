@@ -7,6 +7,7 @@ return [
     'leads'     => 'Leads',
     'review'    => 'Review',
     'settings'  => 'Settings',
+    'statistics'=> 'Site Stats',
     'logout'    => 'Logout',
     'messages'  => 'Messages',
 ];

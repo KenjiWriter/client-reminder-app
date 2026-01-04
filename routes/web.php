@@ -60,6 +60,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::resource('admin/leads', \App\Http\Controllers\Admin\LeadController::class)->only(['index', 'update'])->names('admin.leads');
+
+    Route::get('/statistics', [\App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics.index');
 });
 
 require __DIR__.'/settings.php';

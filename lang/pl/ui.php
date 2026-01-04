@@ -165,4 +165,20 @@ return [
             'closed' => 'Zamknięty',
         ],
     ],
+    
+    'stats' => [
+        'title' => 'Statystyki witryny',
+        'totalVisits' => 'Wszystkie odwiedziny',
+        'uniqueVisitors' => 'Unikalni użytkownicy',
+        'activeClients' => 'Aktywni klienci',
+        'activeClientsDesc' => 'Użytkownicy, którzy odwiedzili stronę',
+        'inactiveClients' => 'Nieaktywni klienci',
+        'inactiveClientsDesc' => 'Użytkownicy z zerową liczbą odwiedzin',
+        'name' => 'Imię i nazwisko',
+        'email' => 'Adres e-mail',
+        'visits' => 'Odwiedziny',
+        'lastSeen' => 'Ostatnio widziany',
+        'noActive' => 'Nie znaleziono aktywnych klientów.',
+        'allActive' => 'Wszyscy klienci są aktywni! 🎉',
+    ],
 ];
