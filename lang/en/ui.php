@@ -59,6 +59,17 @@ return [
     
     'settings' => [
         'title' => 'Settings',
+        'theme' => 'Theme',
+        'themeDesc' => 'Choose between dark and light mode',
+        'darkMode' => 'Dark Mode',
+        'lightModeEnabled' => 'Light theme enabled',
+        'darkModeEnabled' => 'Dark theme enabled',
+        'changePassword' => 'Change Password',
+        'changePasswordDesc' => 'Update your account password',
+        'currentPassword' => 'Current Password',
+        'newPassword' => 'New Password',
+        'confirmPassword' => 'Confirm New Password',
+        'updatePassword' => 'Update Password',
         'timezone' => 'Timezone',
         'reminderHours' => 'Hours before reminder',
         'smsFooterNote' => 'SMS Footer Note',

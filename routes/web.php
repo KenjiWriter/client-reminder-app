@@ -48,7 +48,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [\App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update');
+    Route::put('/settings/password', [\App\Http\Controllers\SettingsController::class, 'updatePassword'])->name('settings.password.update');
 
     Route::get('/messages', [\App\Http\Controllers\SmsMessageController::class, 'index'])->name('messages.index');
 

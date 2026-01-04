@@ -59,6 +59,17 @@ return [
     
     'settings' => [
         'title' => 'Ustawienia',
+        'theme' => 'Motyw',
+        'themeDesc' => 'Wybierz między trybem ciemnym a jasnym',
+        'darkMode' => 'Tryb ciemny',
+        'lightModeEnabled' => 'Włączony jasny motyw',
+        'darkModeEnabled' => 'Włączony ciemny motyw',
+        'changePassword' => 'Zmień hasło',
+        'changePasswordDesc' => 'Aktualizuj hasło do konta',
+        'currentPassword' => 'Obecne hasło',
+        'newPassword' => 'Nowe hasło',
+        'confirmPassword' => 'Potwierdź nowe hasło',
+        'updatePassword' => 'Zaktualizuj hasło',
         'timezone' => 'Strefa czasowa',
         'reminderHours' => 'Godziny przed przypomnieniem',
         'smsFooterNote' => 'Stopka SMS',
