@@ -23,9 +23,15 @@ class AppointmentController extends Controller
      */
     public function index(Request $request)
     {
-        // Simple range filtering for calendar view
-        $start = $request->input('start') ? Carbon::parse($request->input('start')) : Carbon::today()->startOfWeek();
-        $end = $request->input('end') ? Carbon::parse($request->input('end')) : Carbon::today()->endOfWeek();
+        // Get date range from request, or default to current month ± 2 weeks for better coverage
+        if ($request->has('start') && $request->has('end')) {
+            $start = Carbon::parse($request->input('start'));
+            $end = Carbon::parse($request->input('end'));
+        } else {
+            // Default: show current month + padding
+            $start = Carbon::now()->startOfMonth()->subWeeks(1);
+            $end = Carbon::now()->endOfMonth()->addWeeks(1);
+        }
 
         $events = Appointment::with('client')
             ->whereBetween('starts_at', [$start, $end])

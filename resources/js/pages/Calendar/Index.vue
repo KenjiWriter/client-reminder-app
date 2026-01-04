@@ -77,17 +77,29 @@ const days = computed(() => {
 
 const nextWeek = () => {
     currentStartDate.value = addWeeks(currentStartDate.value, 1);
-    router.visit(route('calendar.index', { start: currentStartDate.value.toISOString() }), { preserveState: true, preserveScroll: true });
+    const weekEnd = addDays(currentStartDate.value, 6);
+    router.visit(route('calendar.index', { 
+        start: currentStartDate.value.toISOString(), 
+        end: weekEnd.toISOString() 
+    }), { preserveState: true, preserveScroll: true });
 };
 
 const prevWeek = () => {
     currentStartDate.value = subWeeks(currentStartDate.value, 1);
-    router.visit(route('calendar.index', { start: currentStartDate.value.toISOString() }), { preserveState: true, preserveScroll: true });
+    const weekEnd = addDays(currentStartDate.value, 6);
+    router.visit(route('calendar.index', { 
+        start: currentStartDate.value.toISOString(), 
+        end: weekEnd.toISOString() 
+    }), { preserveState: true, preserveScroll: true });
 };
 
 const goToToday = () => {
     currentStartDate.value = startOfWeek(new Date(), { weekStartsOn: 1 });
-    router.visit(route('calendar.index', { start: currentStartDate.value.toISOString() }), { preserveState: true, preserveScroll: true });
+    const weekEnd = addDays(currentStartDate.value, 6);
+    router.visit(route('calendar.index', { 
+        start: currentStartDate.value.toISOString(), 
+        end: weekEnd.toISOString() 
+    }), { preserveState: true, preserveScroll: true });
 };
 
 // Create/Edit Form State
