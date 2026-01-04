@@ -84,7 +84,7 @@ class AppointmentController extends Controller
 
         // Only check availability if time or duration changed
         if ($appointment->starts_at->ne($startsAt) || $appointment->duration_minutes != $validated['duration_minutes']) {
-            if (!$this->availability->isSlotAvailable($startsAt, $validated['duration_minutes'])) {
+            if (!$this->availability->isSlotAvailable($startsAt, $validated['duration_minutes'], $appointment->id)) {
                 return back()->withErrors(['starts_at' => 'This slot is already booked.']);
             }
         }

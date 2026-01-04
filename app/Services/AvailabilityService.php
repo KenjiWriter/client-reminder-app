@@ -76,8 +76,13 @@ class AvailabilityService
 
     /**
      * Check if a specific slot is available.
+     * 
+     * @param Carbon $startsAt
+     * @param int $durationMinutes
+     * @param int|null $excludeAppointmentId Optional appointment ID to exclude (for edits)
+     * @return bool
      */
-    public function isSlotAvailable(Carbon $startsAt, int $durationMinutes): bool
+    public function isSlotAvailable(Carbon $startsAt, int $durationMinutes, ?int $excludeAppointmentId = null): bool
     {
         $endsAt = $startsAt->copy()->addMinutes($durationMinutes);
         
@@ -87,6 +92,9 @@ class AvailabilityService
             : "DATE_ADD(starts_at, INTERVAL duration_minutes MINUTE)";
 
         return !Appointment::where('status', '!=', Appointment::STATUS_CANCELED)
+            ->when($excludeAppointmentId, function ($query, $id) {
+                $query->where('id', '!=', $id);
+            })
             ->where(function ($query) use ($startsAt, $endsAt, $endCalc) {
                 $query->where('starts_at', '<', $endsAt)
                     ->whereRaw("$endCalc > ?", [$startsAt]);
