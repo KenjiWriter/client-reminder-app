@@ -107,16 +107,36 @@ const switchLocale = (locale: string) => {
 
 <template>
     <div class="flex h-screen overflow-hidden bg-background">
+        <!-- Mobile backdrop overlay -->
+        <div 
+            v-if="sidebarOpen" 
+            class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            @click="sidebarOpen = false"
+        ></div>
+
         <!-- Sidebar -->
-        <aside class="hidden w-64 flex-col border-r border-border bg-card lg:flex">
+        <aside 
+            :class="[
+                'fixed lg:static inset-y-0 left-0 z-50 w-64 flex-col border-r border-border bg-card transition-transform duration-300 ease-in-out lg:translate-x-0',
+                sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+                'lg:flex'
+            ]"
+        >
             <!-- Logo -->
-            <div class="flex h-16 items-center px-6">
+            <div class="flex h-16 items-center justify-between px-6">
                 <div class="flex items-center gap-2">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
                         <CalendarIcon class="h-6 w-6 text-primary-foreground" />
                     </div>
                     <span class="text-lg font-semibold">App 👋</span>
                 </div>
+                <!-- Close button for mobile -->
+                <button 
+                    @click="sidebarOpen = false"
+                    class="lg:hidden p-2 rounded-md hover:bg-accent"
+                >
+                    <X class="h-5 w-5" />
+                </button>
             </div>
 
             <!-- Navigation -->
@@ -131,6 +151,7 @@ const switchLocale = (locale: string) => {
                             ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                             : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
                     ]"
+                    @click="sidebarOpen = false"
                 >
                     <component :is="item.icon" class="h-5 w-5" />
                     <span>{{ t(item.name) }}</span>
@@ -140,7 +161,7 @@ const switchLocale = (locale: string) => {
                 </Link>
             </nav>
 
-            <!-- User section (optional) -->
+            <!-- User section -->
             <div class="border-t border-border p-4">
                 <div class="flex items-center gap-3">
                     <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -156,17 +177,25 @@ const switchLocale = (locale: string) => {
         <!-- Main content -->
         <div class="flex flex-1 flex-col overflow-hidden">
             <!-- Topbar -->
-            <header class="flex h-16 items-center justify-between border-b border-border bg-card px-6">
+            <header class="flex h-16 items-center justify-between border-b border-border bg-card px-4 lg:px-6">
                 <div class="flex items-center gap-4">
+                    <!-- Mobile menu button -->
+                    <button
+                        @click="sidebarOpen = !sidebarOpen"
+                        class="lg:hidden p-2 rounded-md hover:bg-accent"
+                    >
+                        <Menu class="h-6 w-6" />
+                    </button>
+
                     <slot name="header-title">
-                        <h1 class="text-2xl font-semibold">{{ $page.props.title || 'Dashboard' }}</h1>
+                        <h1 class="text-xl lg:text-2xl font-semibold">{{ $page.props.title || 'Dashboard' }}</h1>
                     </slot>
                 </div>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 lg:gap-4">
                     <!-- Language Switcher -->
                     <Select :model-value="page.props.locale" @update:model-value="switchLocale">
-                        <SelectTrigger class="w-[80px] h-8">
+                        <SelectTrigger class="w-[70px] lg:w-[80px] h-8">
                             <Globe class="mr-1 h-3.5 w-3.5" />
                             <SelectValue />
                         </SelectTrigger>
@@ -176,7 +205,7 @@ const switchLocale = (locale: string) => {
                         </SelectContent>
                     </Select>
                     
-                    <span class="text-sm text-muted-foreground">Hi, {{ firstName }} 👋</span>
+                    <span class="hidden md:block text-sm text-muted-foreground">Hi, {{ firstName }} 👋</span>
                     <div class="relative h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                         <span class="text-sm font-medium text-primary">{{ userInitials }}</span>
                     </div>
