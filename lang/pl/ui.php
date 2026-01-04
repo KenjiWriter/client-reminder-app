@@ -33,6 +33,8 @@ return [
         'hours' => 'godzin',
         'newClient' => 'Nowy klient',
         'optional' => 'opcjonalnie',
+        'loading' => 'Ładowanie...',
+        'loadMore' => 'Załaduj więcej',
     ],
     
     'calendar' => [

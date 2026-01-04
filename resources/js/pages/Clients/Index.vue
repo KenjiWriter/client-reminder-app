@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import debounce from 'lodash/debounce';
-import { Plus, Trash2, Edit, MoreHorizontal } from 'lucide-vue-next';
+import { Plus, Trash2, Edit, MoreHorizontal, Loader2 } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
 
 interface Client {
@@ -35,7 +35,8 @@ interface Client {
 
 interface ClientsData {
     data: Client[];
-    links: any[];
+    next_cursor: string | null;
+    next_page_url: string | null;
 }
 
 interface Filters {
@@ -46,21 +47,70 @@ const props = withDefaults(defineProps<{
     clients: ClientsData;
     filters: Filters;
 }>(), {
-    clients: () => ({ data: [], links: [] }),
+    clients: () => ({ data: [], next_cursor: null, next_page_url: null }),
     filters: () => ({ search: '' }),
 });
 
 const { t } = useTranslation();
 
 const search = ref(props.filters.search || '');
+const allClients = ref<Client[]>([...props.clients.data]);
+const nextCursor = ref(props.clients.next_cursor);
+const isLoadingMore = ref(false);
 
+// Reset clients when search changes
 watch(search, debounce((value: string) => {
-    router.get('/clients', { search: value }, { preserveState: true, replace: true });
+    allClients.value = [];
+    nextCursor.value = null;
+    router.get('/clients', { search: value }, { 
+        preserveState: true, 
+        replace: true,
+        onSuccess: (page: any) => {
+            allClients.value = page.props.clients.data;
+            nextCursor.value = page.props.clients.next_cursor;
+        },
+    });
 }, 300));
+
+// Watch for prop changes when navigating back
+watch(() => props.clients, (newClients) => {
+    if (!isLoadingMore.value) {
+        allClients.value = [...newClients.data];
+        nextCursor.value = newClients.next_cursor;
+    }
+}, { deep: true });
+
+const loadMore = () => {
+    if (!nextCursor.value || isLoadingMore.value) return;
+    
+    isLoadingMore.value = true;
+    
+    router.get('/clients', { 
+        search: search.value,
+        cursor: nextCursor.value,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+        only: ['clients'],
+        onSuccess: (page: any) => {
+            allClients.value = [...allClients.value, ...page.props.clients.data];
+            nextCursor.value = page.props.clients.next_cursor;
+            isLoadingMore.value = false;
+        },
+        onError: () => {
+            isLoadingMore.value = false;
+        },
+    });
+};
 
 const deleteClient = (id: number) => {
     if (confirm('Are you sure you want to delete this client?')) {
-        router.delete(route('clients.destroy', id));
+        router.delete(route('clients.destroy', id), {
+            onSuccess: () => {
+                // Remove from local array
+                allClients.value = allClients.value.filter(c => c.id !== id);
+            },
+        });
     }
 };
 </script>
@@ -99,7 +149,7 @@ const deleteClient = (id: number) => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="client in clients.data" :key="client.id">
+                        <TableRow v-for="client in allClients" :key="client.id">
                             <TableCell class="font-medium">
                                 {{ client.full_name }}
                             </TableCell>
@@ -128,13 +178,26 @@ const deleteClient = (id: number) => {
                                 </DropdownMenu>
                             </TableCell>
                         </TableRow>
-                        <TableRow v-if="clients.data.length === 0">
+                        <TableRow v-if="allClients.length === 0">
                             <TableCell colspan="4" class="h-24 text-center">
                                 {{ t('clients.noClientsFound') }}
                             </TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+
+            <!-- Load More Button -->
+            <div v-if="nextCursor" class="flex justify-center py-4">
+                <Button 
+                    variant="outline" 
+                    @click="loadMore" 
+                    :disabled="isLoadingMore"
+                    class="min-w-[200px]"
+                >
+                    <Loader2 v-if="isLoadingMore" class="mr-2 h-4 w-4 animate-spin" />
+                    {{ isLoadingMore ? (t('common.loading') || 'Loading...') : (t('common.loadMore') || 'Load More') }}
+                </Button>
             </div>
         </div>
     </AppShell>

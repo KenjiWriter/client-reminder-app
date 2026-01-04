@@ -21,8 +21,7 @@ class ClientController extends Controller
                       ->orWhere('phone_e164', 'like', "%{$search}%");
             })
             ->latest()
-            ->paginate(10)
-            ->withQueryString();
+            ->cursorPaginate(20);
 
         return Inertia::render('Clients/Index', [
             'clients' => $clients,
