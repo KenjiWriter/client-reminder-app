@@ -111,7 +111,7 @@ const form = useForm({
     date: format(new Date(), 'yyyy-MM-dd'),
     time: '12:00',
     starts_at: '', // Synced from date + time
-    duration_minutes: 60,
+    duration_minutes: 90,
     note: '',
     send_reminder: true,
 });
@@ -137,7 +137,7 @@ const openCreateModal = () => {
     form.date = format(new Date(), 'yyyy-MM-dd');
     form.time = '12:00';
     form.starts_at = `${format(new Date(), 'yyyy-MM-dd')} 12:00:00`;
-    form.duration_minutes = 60;
+    form.duration_minutes = 90;
     form.send_reminder = true;
     isCreateOpen.value = true;
 };
@@ -148,7 +148,7 @@ const openCreateModalAtTime = (day: Date, hour: number) => {
     form.date = format(day, 'yyyy-MM-dd');
     form.time = `${hour.toString().padStart(2, '0')}:00`;
     form.starts_at = `${format(day, 'yyyy-MM-dd')} ${hour.toString().padStart(2, '0')}:00:00`;
-    form.duration_minutes = 60;
+    form.duration_minutes = 90;
     form.send_reminder = true;
     isCreateOpen.value = true;
 };
