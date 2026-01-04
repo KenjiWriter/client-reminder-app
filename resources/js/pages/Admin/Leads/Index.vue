@@ -13,6 +13,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
+import { route } from 'ziggy-js';
 
 interface Lead {
     id: number;
@@ -81,6 +82,7 @@ const getStatusColor = (status: string) => {
                             <TableHead>{{ t('clients.phone') }}</TableHead>
                             <TableHead>{{ t('leads.createdAt') }}</TableHead>
                             <TableHead>{{ t('leads.source') }}</TableHead>
+                            <TableHead>Wiadomość</TableHead>
                             <TableHead>{{ t('leads.status') }}</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -98,7 +100,12 @@ const getStatusColor = (status: string) => {
                                 <Badge variant="outline" class="uppercase text-[10px]">{{ lead.source }}</Badge>
                             </TableCell>
                             <TableCell>
-                                <Select :model-value="lead.status" @update:model-value="(val) => updateStatus(lead, val)">
+                                <div class="truncate max-w-[200px]" :title="lead.note || ''">
+                                    {{ lead.note || '-' }}
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <Select :model-value="lead.status" @update:model-value="(val) => updateStatus(lead, val as string)">
                                     <SelectTrigger class="h-7 w-[130px] text-xs" :class="getStatusColor(lead.status)">
                                         <SelectValue />
                                     </SelectTrigger>
