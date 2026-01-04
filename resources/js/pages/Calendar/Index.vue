@@ -120,16 +120,81 @@ const form = useForm({
 watch(() => form.date, (newDate) => {
     if (newDate && form.time) {
         // Create datetime in local timezone (not UTC)
-        form.starts_at = `${newDate} ${form.time}:00`;
+        const tentativeDateTime = `${newDate} ${form.time}:00`;
+        
+        // Apply smart scheduling if we have a date and time
+        const smartDateTime = findNextAvailableTime(newDate, form.time, editingAppointmentId.value);
+        
+        // Update form with smart time
+        if (smartDateTime) {
+            form.date = format(smartDateTime, 'yyyy-MM-dd');
+            form.time = format(smartDateTime, 'HH:mm');
+            form.starts_at = `${format(smartDateTime, 'yyyy-MM-dd')} ${format(smartDateTime, 'HH:mm')}:00`;
+        } else {
+            form.starts_at = tentativeDateTime;
+        }
     }
 });
 
 watch(() => form.time, (newTime) => {
     if (form.date && newTime) {
         // Create datetime in local timezone (not UTC)
-        form.starts_at = `${form.date} ${newTime}:00`;
+        const tentativeDateTime = `${form.date} ${newTime}:00`;
+        
+        // Apply smart scheduling if we have a date and time
+        const smartDateTime = findNextAvailableTime(form.date, newTime, editingAppointmentId.value);
+        
+        // Update form with smart time
+        if (smartDateTime) {
+            form.date = format(smartDateTime, 'yyyy-MM-dd');
+            form.time = format(smartDateTime, 'HH:mm');
+            form.starts_at = `${format(smartDateTime, 'yyyy-MM-dd')} ${format(smartDateTime, 'HH:mm')}:00`;
+        } else {
+            form.starts_at = tentativeDateTime;
+        }
     }
 });
+
+// Smart scheduling helper: Find next available time considering conflicts and buffers
+const findNextAvailableTime = (dateStr: string, timeStr: string, excludeAppointmentId: number | null = null): Date | null => {
+    const BUFFER_MINUTES = 20;
+    
+    try {
+        // Parse the requested date and time
+        const requestedDate = new Date(dateStr);
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        requestedDate.setHours(hours, minutes, 0, 0);
+        
+        // Get all events for this day, excluding the one being edited
+        const dayEvents = props.events
+            .filter(event => {
+                const eventDate = parseISO(event.start);
+                return isSameDay(eventDate, requestedDate) && event.id !== excludeAppointmentId;
+            })
+            .sort((a, b) => a.start.localeCompare(b.start));
+        
+        let suggestedDateTime = requestedDate;
+        
+        // Check for conflicts with existing appointments (including buffer)
+        for (const event of dayEvents) {
+            const eventStart = parseISO(event.start);
+            const eventEnd = parseISO(event.end);
+            const eventEndWithBuffer = new Date(eventEnd.getTime() + BUFFER_MINUTES * 60000);
+            
+            // Check if requested time falls within appointment or its buffer zone
+            if (suggestedDateTime >= eventStart && suggestedDateTime < eventEndWithBuffer) {
+                // Adjust to next available time (after this appointment's buffer)
+                suggestedDateTime = eventEndWithBuffer;
+            }
+        }
+        
+        // Return the suggested time if it's different from requested
+        return suggestedDateTime.getTime() !== requestedDate.getTime() ? suggestedDateTime : null;
+    } catch (error) {
+        console.error('Error in findNextAvailableTime:', error);
+        return null;
+    }
+};
 
 const openCreateModal = () => {
     editingAppointmentId.value = null;
@@ -146,34 +211,19 @@ const openCreateModalAtTime = (day: Date, hour: number) => {
     editingAppointmentId.value = null;
     form.reset();
     
-    const BUFFER_MINUTES = 20;
+    // Find the smart time slot considering existing appointments
+    const timeStr = `${hour.toString().padStart(2, '0')}:00`;
+    const smartDateTime = findNextAvailableTime(format(day, 'yyyy-MM-dd'), timeStr, null);
     
-    // Create the clicked datetime
-    const clickedDateTime = new Date(day);
-    clickedDateTime.setHours(hour, 0, 0, 0);
-    
-    // Get all events for this day and sort by start time
-    const dayEvents = getEventsForDay(day).sort((a, b) => a.start.localeCompare(b.start));
-    
-    // Find if the clicked time conflicts with any existing appointment (including buffer)
-    let suggestedDateTime = clickedDateTime;
-    
-    for (const event of dayEvents) {
-        const eventStart = parseISO(event.start);
-        const eventEnd = parseISO(event.end);
-        const eventEndWithBuffer = new Date(eventEnd.getTime() + BUFFER_MINUTES * 60000);
-        
-        // Check if clicked time falls within appointment or its buffer zone
-        if (clickedDateTime >= eventStart && clickedDateTime < eventEndWithBuffer) {
-            // Suggest next available time (after this appointment's buffer)
-            suggestedDateTime = eventEndWithBuffer;
-            // Continue checking in case there are back-to-back appointments
-        }
+    // Use smart time if available, otherwise use clicked time
+    const finalDateTime = smartDateTime || day;
+    if (!smartDateTime) {
+        finalDateTime.setHours(hour, 0, 0, 0);
     }
     
-    form.date = format(suggestedDateTime, 'yyyy-MM-dd');
-    form.time = format(suggestedDateTime, 'HH:mm');
-    form.starts_at = `${format(suggestedDateTime, 'yyyy-MM-dd')} ${format(suggestedDateTime, 'HH:mm')}:00`;
+    form.date = format(finalDateTime, 'yyyy-MM-dd');
+    form.time = format(finalDateTime, 'HH:mm');
+    form.starts_at = `${format(finalDateTime, 'yyyy-MM-dd')} ${format(finalDateTime, 'HH:mm')}:00`;
     form.duration_minutes = 90;
     form.send_reminder = true;
     isCreateOpen.value = true;
