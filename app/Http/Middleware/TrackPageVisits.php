@@ -23,9 +23,17 @@ class TrackPageVisits
         // Only track GET requests
         if ($request->isMethod('GET')) {
             try {
+                // Try to extract client_id from public route parameter
+                $clientId = null;
+                if ($request->route('publicUid')) {
+                    $client = \App\Models\Client::where('public_uid', $request->route('publicUid'))->first();
+                    $clientId = $client?->id;
+                }
+
                 \App\Models\SiteVisit::create([
                     'ip_address' => $request->ip(),
                     'user_id' => $request->user()?->id,
+                    'client_id' => $clientId,
                     'url' => $request->fullUrl(),
                     'user_agent' => substr($request->userAgent() ?? '', 0, 255),
                 ]);

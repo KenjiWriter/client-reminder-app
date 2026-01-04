@@ -10,7 +10,7 @@ const { t } = useTranslation();
 interface Client {
     id: number;
     name: string;
-    email: string;
+    phone: string;
     visit_count?: number;
     last_visit?: string;
 }
@@ -77,7 +77,7 @@ const props = defineProps<Props>();
                                 <thead class="[&_tr]:border-b">
                                     <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                                         <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">{{ t('stats.name') }}</th>
-                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">{{ t('stats.email') }}</th>
+                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">{{ t('stats.phone') }}</th>
                                         <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">{{ t('stats.visits') }}</th>
                                         <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">{{ t('stats.lastSeen') }}</th>
                                     </tr>
@@ -85,7 +85,7 @@ const props = defineProps<Props>();
                                 <tbody class="[&_tr:last-child]:border-0">
                                     <tr v-for="client in activeClients" :key="client.id" class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                                         <td class="p-4 align-middle font-medium">{{ client.name }}</td>
-                                        <td class="p-4 align-middle">{{ client.email }}</td>
+                                        <td class="p-4 align-middle">{{ client.phone }}</td>
                                         <td class="p-4 align-middle text-right">{{ client.visit_count }}</td>
                                         <td class="p-4 align-middle text-right text-muted-foreground">{{ client.last_visit }}</td>
                                     </tr>
@@ -112,13 +112,13 @@ const props = defineProps<Props>();
                                 <thead class="[&_tr]:border-b">
                                     <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                                         <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">{{ t('stats.name') }}</th>
-                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">{{ t('stats.email') }}</th>
+                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">{{ t('stats.phone') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="[&_tr:last-child]:border-0">
                                     <tr v-for="client in inactiveClients" :key="client.id" class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                                         <td class="p-4 align-middle font-medium">{{ client.name }}</td>
-                                        <td class="p-4 align-middle">{{ client.email }}</td>
+                                        <td class="p-4 align-middle">{{ client.phone }}</td>
                                     </tr>
                                      <tr v-if="inactiveClients.length === 0">
                                         <td colspan="2" class="p-4 text-center text-muted-foreground">{{ t('stats.allActive') }}</td>
