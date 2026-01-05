@@ -8,6 +8,7 @@ use App\Models\SmsMessage;
 use App\Models\Setting;
 use App\ValueObjects\SmsResult;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Lang;
 
 class AppointmentReminderSender
 {
@@ -72,6 +73,19 @@ class AppointmentReminderSender
         try {
             $message = $this->composeMessage($appointment, $template, $overrides);
             $result = $this->smsProvider->send($appointment->client->phone_e164, $message);
+
+            // Handle "No links allowed" error from SMS provider (e.g. SMSAPI)
+            if (!$result->success && str_contains($result->error ?? '', 'Not allowed to send messages with link')) {
+                // Log the failed attempt with link
+                $this->logMessage($appointment, $message, $result);
+
+                // Try to strip links by using _no_link template variant
+                $noLinkTemplate = $template . '_no_link';
+                if (Lang::has("sms.{$noLinkTemplate}", 'pl')) {
+                    $message = $this->composeMessage($appointment, $noLinkTemplate, $overrides);
+                    $result = $this->smsProvider->send($appointment->client->phone_e164, $message);
+                }
+            }
 
             $this->logMessage($appointment, $message, $result);
 
