@@ -21,6 +21,42 @@ class AppointmentController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        if (!$query) {
+            return response()->json([]);
+        }
+
+        $appointments = Appointment::with('client')
+            ->whereHas('client', function ($q) use ($query) {
+                $q->where('full_name', 'like', "%{$query}%")
+                  ->orWhere('email', 'like', "%{$query}%")
+                  ->orWhere('phone_e164', 'like', "%{$query}%");
+            })
+            ->orderBy('starts_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($appointment) {
+                return [
+                    'id' => $appointment->id,
+                    'start_time' => $appointment->starts_at->toIso8601String(),
+                    'starts_at_formatted' => $appointment->starts_at->format('Y-m-d H:i'),
+                    'client' => [
+                        'name' => $appointment->client->full_name,
+                        'email' => $appointment->client->email,
+                        'phone' => $appointment->client->phone_e164,
+                    ],
+                ];
+            });
+
+        return response()->json($appointments);
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
     public function index(Request $request)
     {
         // Get date range from request, or default to current month ± 2 weeks for better coverage

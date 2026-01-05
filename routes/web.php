@@ -41,6 +41,7 @@ Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'inde
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('clients', \App\Http\Controllers\ClientController::class);
 
+    Route::get('/appointments/search', [\App\Http\Controllers\AppointmentController::class, 'search'])->name('appointments.search');
     Route::get('/calendar', [\App\Http\Controllers\AppointmentController::class, 'index'])->name('calendar.index');
     Route::post('/appointments', [\App\Http\Controllers\AppointmentController::class, 'store'])->name('appointments.store');
     Route::put('/appointments/{appointment}', [\App\Http\Controllers\AppointmentController::class, 'update'])->name('appointments.update');

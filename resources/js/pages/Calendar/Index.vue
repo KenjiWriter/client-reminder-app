@@ -19,9 +19,10 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus } from 'lucide-vue-next';
+import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus, Search } from 'lucide-vue-next';
 import { format, startOfWeek, addDays, getDay, isSameDay, parseISO, startOfToday, addWeeks, subWeeks } from 'date-fns';
 import { route } from 'ziggy-js';
+import { useDebounceFn } from '@vueuse/core';
 
 interface CalendarEvent {
     id: number;
@@ -355,6 +356,56 @@ const submitClient = async () => {
     }
 };
 
+// Search Logic
+const searchQuery = ref('');
+const searchResults = ref<any[]>([]);
+const isSearching = ref(false);
+
+const performSearch = useDebounceFn(async (query: string) => {
+    if (!query || query.length < 2) {
+        searchResults.value = [];
+        return;
+    }
+
+    try {
+        isSearching.value = true;
+        const response = await axios.get(route('appointments.search'), {
+            params: { query }
+        });
+        searchResults.value = response.data;
+    } catch (error) {
+        console.error('Search error:', error);
+    } finally {
+        isSearching.value = false;
+    }
+}, 300);
+
+watch(searchQuery, (newQuery) => {
+    performSearch(newQuery);
+});
+
+const selectSearchResult = (appointment: any) => {
+    // Clear search
+    searchQuery.value = '';
+    searchResults.value = [];
+
+    // Navigate to date
+    const date = parseISO(appointment.start_time);
+    currentStartDate.value = startOfWeek(date, { weekStartsOn: 1 });
+    
+    // Refresh calendar view
+     const weekEnd = addDays(currentStartDate.value, 6);
+    router.visit(route('calendar.index', { 
+        start: currentStartDate.value.toISOString(), 
+        end: weekEnd.toISOString() 
+    }), { preserveState: true, preserveScroll: true });
+};
+
+// Close search dropdown when clicking outside
+const closeSearch = () => {
+    searchResults.value = [];
+};
+
 </script>
 
 <template>
@@ -375,6 +426,42 @@ const submitClient = async () => {
                     <Button variant="outline" size="icon" @click="nextWeek">
                         <ChevronRight class="h-4 w-4" />
                     </Button>
+                </div>
+
+                <!-- Search Input -->
+                 <div class="relative w-full max-w-sm">
+                    <div class="relative">
+                        <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="search"
+                            :placeholder="t('common.search') || 'Search appointments...'"
+                            class="pl-9 w-full"
+                            v-model="searchQuery"
+                        />
+                    </div>
+                    
+                    <!-- Search Results Dropdown -->
+                    <div 
+                        v-if="searchResults.length > 0" 
+                        class="absolute top-full left-0 right-0 z-50 mt-1 max-h-[300px] overflow-auto rounded-md border border-border bg-popover p-1 shadow-md"
+                    >
+                        <div
+                            v-for="result in searchResults"
+                            :key="result.id"
+                            class="relative flex cursor-default select-none items-center rounded-sm px-2 py-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                            @click="selectSearchResult(result)"
+                        >
+                            <div class="flex flex-col gap-1 w-full">
+                                <div class="flex justify-between font-medium">
+                                    <span>{{ result.client.name }}</span>
+                                    <span>{{ result.starts_at_formatted }}</span>
+                                </div>
+                                <div class="text-xs text-muted-foreground flex justify-between">
+                                    <span>{{ result.client.phone }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Actions -->
