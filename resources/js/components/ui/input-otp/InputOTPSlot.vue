@@ -30,3 +30,4 @@ const slot = computed(() => context?.value.slots[props.index])
     </div>
   </div>
 </template>
+

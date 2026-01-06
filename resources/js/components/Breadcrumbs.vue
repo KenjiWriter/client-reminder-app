@@ -40,3 +40,4 @@ defineProps<{
         </BreadcrumbList>
     </Breadcrumb>
 </template>
+

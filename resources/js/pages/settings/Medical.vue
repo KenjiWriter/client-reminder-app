@@ -247,3 +247,4 @@ const getSeverityBadge = (severity: string) => {
         </Dialog>
     </SettingsLayout>
 </template>
+

@@ -15,3 +15,4 @@ const props = defineProps<SkeletonProps>()
     :class="cn('animate-pulse rounded-md bg-primary/10', props.class)"
   />
 </template>
+

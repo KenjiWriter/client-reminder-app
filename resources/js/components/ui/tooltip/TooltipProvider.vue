@@ -12,3 +12,4 @@ const props = withDefaults(defineProps<TooltipProviderProps>(), {
     <slot />
   </TooltipProvider>
 </template>
+

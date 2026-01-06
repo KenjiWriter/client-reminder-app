@@ -15,3 +15,4 @@ const props = defineProps<{
     :class="cn('size-4 animate-spin', props.class)"
   />
 </template>
+

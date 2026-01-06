@@ -34,3 +34,4 @@ const icon = computed(() => {
         :color="color"
     />
 </template>
+

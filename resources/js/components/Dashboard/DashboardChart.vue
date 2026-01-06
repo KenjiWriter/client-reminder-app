@@ -94,3 +94,4 @@ const chartOptions = computed(() => ({
         </CardContent>
     </Card>
 </template>
+

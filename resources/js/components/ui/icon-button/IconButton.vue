@@ -45,3 +45,4 @@ const iconSizeClasses = {
         <component :is="icon" :class="iconSizeClasses[size]" />
     </button>
 </template>
+

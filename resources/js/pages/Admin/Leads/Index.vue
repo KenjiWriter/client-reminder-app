@@ -129,3 +129,4 @@ const getStatusColor = (status: string) => {
         </div>
     </AppShell>
 </template>
+

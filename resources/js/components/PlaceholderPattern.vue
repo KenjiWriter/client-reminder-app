@@ -31,3 +31,4 @@ const patternId = computed(
         ></rect>
     </svg>
 </template>
+

@@ -70,3 +70,4 @@ const submit = () => {
         </div>
     </AuthLayout>
 </template>
+

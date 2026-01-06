@@ -42,3 +42,4 @@ defineProps<Props>();
         </SidebarGroupContent>
     </SidebarGroup>
 </template>
+

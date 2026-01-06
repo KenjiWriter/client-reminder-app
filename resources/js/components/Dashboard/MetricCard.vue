@@ -54,3 +54,4 @@ const bgClasses = {
         </CardContent>
     </Card>
 </template>
+

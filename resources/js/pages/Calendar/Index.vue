@@ -729,3 +729,4 @@ const closeSearch = () => {
             </div>
     </AppShell>
 </template>
+

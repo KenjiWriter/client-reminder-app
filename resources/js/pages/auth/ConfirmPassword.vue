@@ -51,3 +51,4 @@ import { Form, Head } from '@inertiajs/vue3';
         </Form>
     </AuthLayout>
 </template>
+

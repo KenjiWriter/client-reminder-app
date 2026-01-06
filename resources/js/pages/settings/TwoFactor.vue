@@ -5,8 +5,8 @@ import TwoFactorSetupModal from '@/components/TwoFactorSetupModal.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
-import AppLayout from '@/layouts/AppLayout.vue';
-import SettingsLayout from '@/layouts/settings/Layout.vue';
+import AppShell from '@/layouts/AppShell.vue';
+import SettingsLayout from '@/layouts/SettingsLayout.vue';
 import { disable, enable, show } from '@/routes/two-factor';
 import { BreadcrumbItem } from '@/types';
 import { Form, Head } from '@inertiajs/vue3';
@@ -39,7 +39,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
+    <AppShell :breadcrumbs="breadcrumbs">
         <Head title="Two-Factor Authentication" />
         <SettingsLayout>
             <div class="space-y-6">
@@ -117,5 +117,6 @@ onUnmounted(() => {
                 />
             </div>
         </SettingsLayout>
-    </AppLayout>
+    </AppShell>
 </template>
+

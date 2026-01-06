@@ -246,3 +246,4 @@ const formatDuration = (minutes: number) => {
         </Dialog>
     </SettingsLayout>
 </template>
+

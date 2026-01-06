@@ -44,3 +44,4 @@ const page = usePage();
         </SidebarMenu>
     </SidebarGroup>
 </template>
+

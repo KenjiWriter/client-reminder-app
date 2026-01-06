@@ -12,3 +12,4 @@ defineProps<{
         <slot />
     </AuthLayout>
 </template>
+

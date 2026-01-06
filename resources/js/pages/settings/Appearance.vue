@@ -58,3 +58,4 @@ const setMode = (mode: 'light' | 'dark' | 'auto') => {
         </div>
     </SettingsLayout>
 </template>
+

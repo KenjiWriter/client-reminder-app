@@ -215,3 +215,4 @@ const formatDate = (date: string) => {
         </Dialog>
     </AppShell>
 </template>
+

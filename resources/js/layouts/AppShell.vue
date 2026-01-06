@@ -217,3 +217,4 @@ const switchLocale = (locale: string) => {
         </div>
     </div>
 </template>
+

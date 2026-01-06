@@ -15,3 +15,4 @@ const props = defineProps<{
     <slot />
   </p>
 </template>
+

@@ -23,3 +23,4 @@ const className = computed(() => props.class);
         <slot />
     </main>
 </template>
+

@@ -202,3 +202,4 @@ const deleteClient = (id: number) => {
         </div>
     </AppShell>
 </template>
+
