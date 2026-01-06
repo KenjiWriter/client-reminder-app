@@ -87,8 +87,8 @@ const deleteService = (id: number) => {
     }
 };
 
-const formatPrice = (price: number) => {
-    return `${price.toFixed(2)} PLN`;
+const formatPrice = (price: number | string) => {
+    return `${Number(price).toFixed(2)} PLN`;
 };
 
 const formatDuration = (minutes: number) => {

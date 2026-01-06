@@ -82,6 +82,7 @@ return [
     
     'appointments' => [
         'client' => 'Klient',
+        'service' => 'Usługa',
         'date' => 'Data',
         'time' => 'Godzina',
         'duration' => 'Czas trwania (minuty)',

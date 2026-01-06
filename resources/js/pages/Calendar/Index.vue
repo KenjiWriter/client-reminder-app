@@ -122,7 +122,7 @@ const editingAppointmentId = ref<number | null>(null);
 
 const form = useForm({
     client_id: '',
-    service_id: '',
+    service_id: 'none',
     date: format(new Date(), 'yyyy-MM-dd'),
     time: '12:00',
     starts_at: '', // Synced from date + time
@@ -133,7 +133,7 @@ const form = useForm({
 
 // Watch service selection to auto-update duration
 watch(() => form.service_id, (newServiceId) => {
-    if (newServiceId && props.allServices) {
+    if (newServiceId && newServiceId !== 'none' && props.allServices) {
         const service = props.allServices.find(s => s.id === Number(newServiceId));
         if (service) {
             form.duration_minutes = service.duration_minutes;
@@ -224,10 +224,20 @@ const findNextAvailableTime = (dateStr: string, timeStr: string, excludeAppointm
 const openCreateModal = () => {
     editingAppointmentId.value = null;
     form.reset();
+
+    // Select first service by default if available
+    if (props.allServices && props.allServices.length > 0) {
+        const defaultService = props.allServices[0];
+        form.service_id = String(defaultService.id);
+        form.duration_minutes = defaultService.duration_minutes;
+    } else {
+        form.service_id = 'none';
+        form.duration_minutes = 90;
+    }
+
     form.date = format(new Date(), 'yyyy-MM-dd');
     form.time = '12:00';
     form.starts_at = `${format(new Date(), 'yyyy-MM-dd')} 12:00:00`;
-    form.duration_minutes = 90;
     form.send_reminder = true;
     isCreateOpen.value = true;
 };
@@ -235,6 +245,16 @@ const openCreateModal = () => {
 const openCreateModalAtTime = (day: Date, hour: number) => {
     editingAppointmentId.value = null;
     form.reset();
+
+    // Select first service by default if available
+    if (props.allServices && props.allServices.length > 0) {
+        const defaultService = props.allServices[0];
+        form.service_id = String(defaultService.id);
+        form.duration_minutes = defaultService.duration_minutes;
+    } else {
+        form.service_id = 'none';
+        form.duration_minutes = 90;
+    }
     
     // Find the smart time slot considering existing appointments
     const timeStr = `${hour.toString().padStart(2, '0')}:00`;
@@ -249,7 +269,6 @@ const openCreateModalAtTime = (day: Date, hour: number) => {
     form.date = format(finalDateTime, 'yyyy-MM-dd');
     form.time = format(finalDateTime, 'HH:mm');
     form.starts_at = `${format(finalDateTime, 'yyyy-MM-dd')} ${format(finalDateTime, 'HH:mm')}:00`;
-    form.duration_minutes = 90;
     form.send_reminder = true;
     isCreateOpen.value = true;
 };
@@ -257,7 +276,7 @@ const openCreateModalAtTime = (day: Date, hour: number) => {
 const editAppointment = (event: typeof props.events[0]) => {
     editingAppointmentId.value = event.id;
     form.client_id = String(event.client_id);
-    form.service_id = event.service_id ? String(event.service_id) : '';
+    form.service_id = event.service_id ? String(event.service_id) : 'none';
     form.date = format(parseISO(event.start), 'yyyy-MM-dd');
     form.time = format(parseISO(event.start), 'HH:mm');
     form.starts_at = event.start; // Set starts_at directly
@@ -275,12 +294,18 @@ const closeDialog = () => {
 
 const submit = () => {
     // starts_at is already synced via watchers
+    
+    const transformedForm = form.transform((data) => ({
+        ...data,
+        service_id: data.service_id === 'none' ? null : data.service_id,
+    }));
+
     if (editingAppointmentId.value) {
-        form.put(route('appointments.update', editingAppointmentId.value), {
+        transformedForm.put(route('appointments.update', editingAppointmentId.value), {
             onSuccess: () => closeDialog(),
         });
     } else {
-        form.post(route('appointments.store'), {
+        transformedForm.post(route('appointments.store'), {
             onSuccess: () => closeDialog(),
         });
     }
@@ -510,9 +535,9 @@ const closeSearch = () => {
                                         <SelectValue placeholder="Wybierz usługę (opcjonalnie)" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">Brak - niestandardowa</SelectItem>
+                                        <SelectItem value="none">Brak - niestandardowa</SelectItem>
                                         <SelectItem v-for="service in allServices" :key="service.id" :value="String(service.id)">
-                                            {{ service.name }} ({{ service.duration_minutes }} min, {{ service.price.toFixed(2) }} PLN)
+                                            {{ service.name }} ({{ service.duration_minutes }} min, {{ Number(service.price).toFixed(2) }} PLN)
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>

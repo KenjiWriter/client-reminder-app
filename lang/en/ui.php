@@ -81,6 +81,7 @@ return [
     
     'appointments' => [
         'client' => 'Client',
+        'service' => 'Service',
         'date' => 'Date',
         'time' => 'Time',
         'duration' => 'Duration (minutes)',
