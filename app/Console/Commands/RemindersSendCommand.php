@@ -78,30 +78,37 @@ class RemindersSendCommand extends Command
 
     protected function handleBulk(AppointmentReminderSender $sender): int
     {
-        $reminderHours = (int) Setting::get('reminder_hours', 24);
-        $now = Carbon::now();
-        $windowEnd = $now->copy()->addMinutes(10); // Check 10-minute window
-
-        // Adjust target time based on business setting
-        // We look for appointments starting in (reminderHours) from now.
-        $targetStart = $now->copy()->addHours($reminderHours);
-        $targetEnd = $windowEnd->copy()->addHours($reminderHours);
-
-        $appointments = Appointment::where('send_reminder', true)
-            ->where('status', Appointment::STATUS_CONFIRMED)
-            ->whereNull('reminder_sent_at')
-            ->whereBetween('starts_at', [$targetStart, $targetEnd])
-            ->get();
-
-        if ($appointments->isEmpty()) {
-            $this->info("No reminders to send for the window: {$targetStart->format('H:i')} - {$targetEnd->format('H:i')}");
+        $settings = Setting::first();
+        $sendTime = $settings->sms_send_time ?? '09:00';
+        
+        // Time Check: Only run if current minute matches the configured send time
+        // We use wait/grace period or just strict check since it runs every minute
+        if (now()->format('H:i') !== $sendTime && !$this->option('force')) {
+            // Silently exit if not the right time
             return 0;
         }
 
-        $this->info("Found {$appointments->count()} appointments needing reminders.");
+        $this->info("Time match ($sendTime)! Starting bulk reminder process...");
+
+        // Select all confirmed appointments for TOMORROW
+        // We don't use 'reminder_hours' anymore for this daily batch logic
+        $tomorrow = Carbon::tomorrow();
+        
+        $appointments = Appointment::where('send_reminder', true)
+            ->where('status', Appointment::STATUS_CONFIRMED)
+            ->whereNull('reminder_sent_at')
+            ->whereDate('starts_at', $tomorrow)
+            ->get();
+
+        if ($appointments->isEmpty()) {
+            $this->info("No appointments found for tomorrow ({$tomorrow->format('Y-m-d')}).");
+            return 0;
+        }
+
+        $this->info("Found {$appointments->count()} appointments for tomorrow.");
 
         foreach ($appointments as $appointment) {
-            $this->line("- Dispatching reminder for Appointment #{$appointment->id} (Client ID: {$appointment->client_id})");
+            $this->line("- Dispatching reminder for Appointment #{$appointment->id} (Client: {$appointment->client->full_name})");
             SendAppointmentReminderJob::dispatch($appointment->id);
         }
 

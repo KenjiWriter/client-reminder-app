@@ -24,12 +24,17 @@ class SettingsController extends Controller
     {
         $settings = Setting::first();
         
+        $envToken = config('sms.smsapi.token');
+        $envSender = config('sms.from');
+
         return Inertia::render('Settings/Sms', [
             'settings' => $settings ? [
                 'sms_api_token' => $settings->sms_api_token,
                 'sms_sender_name' => $settings->sms_sender_name,
                 'sms_send_time' => $settings->sms_send_time,
-            ] : null
+            ] : null,
+            'has_env_token' => !empty($envToken),
+            'env_sender_name' => $envSender,
         ]);
     }
 
