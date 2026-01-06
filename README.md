@@ -43,6 +43,8 @@ A small business appointment + SMS reminder system.
 - **Client Integration**: Real-time condition management in client medical card
 - **Quick Add**: Create new condition types without leaving the client profile
 
+![Medical Conditions Management](docs/screenshots/Medical_Conditions.png)
+
 ## Setup
 
 1. **Clone the repository**
