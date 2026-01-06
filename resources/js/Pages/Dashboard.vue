@@ -8,7 +8,8 @@ import DashboardChart from '@/components/Dashboard/DashboardChart.vue';
 import SegmentedControl from '@/components/ui/segmented-control/SegmentedControl.vue';
 import { Input } from '@/components/ui/input';
 import { route } from 'ziggy-js';
-import { Users, Calendar, UserPlus, MessageSquare, RefreshCw, Filter, XCircle } from 'lucide-vue-next';
+import ServiceDistributionChart from '@/components/Dashboard/ServiceDistributionChart.vue';
+import { Users, Calendar, UserPlus, MessageSquare, RefreshCw, Filter, XCircle, TrendingUp, Trophy, Activity } from 'lucide-vue-next';
 
 interface DataPoint {
     date: string;
@@ -39,6 +40,12 @@ interface Props {
         sms: DataPoint[];
         reschedules: DataPoint[];
         canceled: DataPoint[];
+    };
+    analytics: {
+        projected_revenue: number;
+        service_breakdown: { name: string; count: number }[];
+        top_service: string;
+        total_visits: number;
     };
 }
 
@@ -109,6 +116,30 @@ const getPeriodLabel = () => {
         </template>
 
         <div class="flex h-full flex-1 flex-col gap-6 p-6 overflow-y-auto">
+            <!-- Business Analytics Cards -->
+            <div class="grid gap-6 md:grid-cols-3">
+                <MetricCard
+                    :title="t('dashboard.analytics.projectedRevenue')"
+                    :value="analytics.projected_revenue"
+                    :icon="TrendingUp"
+                    variant="primary"
+                    :formatter="(val: number) => new Intl.NumberFormat(t('common.locale'), { style: 'currency', currency: 'PLN' }).format(val)" 
+                />
+                <MetricCard
+                    :title="t('dashboard.stats.totalAppointments')"
+                    :value="totals.appointments"
+                    :icon="Activity"
+                    variant="default"
+                />
+                <MetricCard
+                    :title="t('dashboard.analytics.topService')"
+                    :value="analytics.top_service"
+                    :icon="Trophy"
+                    variant="warning"
+                    :is-text-value="true"
+                />
+            </div>
+
             <!-- KPI Cards -->
             <div class="grid gap-6 md:grid-cols-3 lg:grid-cols-5">
                 <MetricCard
@@ -117,12 +148,7 @@ const getPeriodLabel = () => {
                     :icon="Users"
                     variant="primary"
                 />
-                <MetricCard
-                    :title="t('dashboard.stats.totalAppointments')"
-                    :value="totals.appointments"
-                    :icon="Calendar"
-                    variant="default"
-                />
+
                 <MetricCard
                     :title="t('dashboard.stats.newClients')"
                     :value="period.new_clients"
@@ -160,31 +186,39 @@ const getPeriodLabel = () => {
             </div>
 
             <!-- Charts Section -->
-            <div class="grid gap-6 md:grid-cols-2">
-                <DashboardChart
-                    :title="t('dashboard.charts.appointmentsPerDay')"
-                    :data="timeseries.appointments"
-                    type="area"
-                    color="#0ea5e9"
-                />
-                <DashboardChart
-                    :title="t('dashboard.charts.smsSentPerDay')"
-                    :data="timeseries.sms"
-                    type="line"
-                    color="#10b981"
-                />
-                <DashboardChart
-                    :title="t('dashboard.charts.newClientsPerDay')"
-                    :data="timeseries.clients"
-                    type="bar"
-                    color="#6366f1"
-                />
-                <DashboardChart
-                    :title="t('dashboard.charts.reschedulesPerDay')"
-                    :data="timeseries.reschedules"
-                    type="line"
-                    color="#f59e0b"
-                />
+            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                 <div class="md:col-span-2 grid gap-6 md:grid-cols-2">
+                    <DashboardChart
+                        :title="t('dashboard.charts.appointmentsPerDay')"
+                        :data="timeseries.appointments"
+                        type="area"
+                        color="#0ea5e9"
+                    />
+                    <DashboardChart
+                        :title="t('dashboard.charts.smsSentPerDay')"
+                        :data="timeseries.sms"
+                        type="line"
+                        color="#10b981"
+                    />
+                    <DashboardChart
+                        :title="t('dashboard.charts.newClientsPerDay')"
+                        :data="timeseries.clients"
+                        type="bar"
+                        color="#6366f1"
+                    />
+                    <DashboardChart
+                        :title="t('dashboard.charts.reschedulesPerDay')"
+                        :data="timeseries.reschedules"
+                        type="line"
+                        color="#f59e0b"
+                    />
+                 </div>
+                 
+                 <!-- Service Breakdown Chart -->
+                 <ServiceDistributionChart
+                    :title="t('dashboard.charts.serviceBreakdown')"
+                    :data="analytics.service_breakdown"
+                 />
             </div>
         </div>
     </AppShell>

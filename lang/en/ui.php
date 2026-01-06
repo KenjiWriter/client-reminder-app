@@ -109,11 +109,17 @@ return [
             'canceled' => 'Canceled',
             'inPeriod' => 'in period',
         ],
+        'analytics' => [
+            'projectedRevenue' => 'Projected Revenue',
+            'totalVisits' => 'Total Visits',
+            'topService' => 'Top Service',
+        ],
         'charts' => [
             'appointmentsPerDay' => 'Appointments per day',
             'smsSentPerDay' => 'SMS sent per day',
             'newClientsPerDay' => 'New clients per day',
             'reschedulesPerDay' => 'Reschedules per day',
+            'serviceBreakdown' => 'Service Breakdown',
         ],
     ],
     

@@ -110,11 +110,17 @@ return [
             'canceled' => 'Anulowane',
             'inPeriod' => 'w okresie',
         ],
+        'analytics' => [
+            'projectedRevenue' => 'Przewidywany przychód',
+            'totalVisits' => 'Liczba wizyt',
+            'topService' => 'Najlepsza usługa',
+        ],
         'charts' => [
             'appointmentsPerDay' => 'Wizyty dziennie',
             'smsSentPerDay' => 'Wysłane SMS dziennie',
             'newClientsPerDay' => 'Nowi klienci dziennie',
             'reschedulesPerDay' => 'Przełożone wizyty dziennie',
+            'serviceBreakdown' => 'Rozkład usług',
         ],
     ],
     

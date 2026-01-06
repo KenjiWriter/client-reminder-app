@@ -52,6 +52,7 @@ class DashboardController extends Controller
                     'reschedules' => $this->getReschedulesOverTime($startDate, $endDate, $timezone),
                     'canceled' => $this->getCanceledOverTime($startDate, $endDate, $timezone),
                 ],
+                'analytics' => $this->getAnalytics($startDate, $endDate),
             ];
         });
 
@@ -158,5 +159,45 @@ class DashboardController extends Controller
         }
 
         return $results;
+    }
+
+    private function getAnalytics($start, $end)
+    {
+        // Fetch appointments with their related service
+        $appointments = Appointment::with('service')
+            ->whereBetween('starts_at', [$start, $end])
+            ->get();
+
+        // 1. Service Breakdown
+        // Filter out appointments without a service just in case
+        $serviceBreakdown = $appointments->whereNotNull('service')
+            ->groupBy(fn($appointment) => $appointment->service->name)
+            ->map(function ($group, $serviceName) {
+                return [
+                    'name' => $serviceName,
+                    'count' => $group->count(),
+                ];
+            })
+            ->values()
+            ->sortByDesc('count')
+            ->values();
+
+        // 2. Projected Revenue
+        $projectedRevenue = $appointments->sum(function ($appointment) {
+            return $appointment->service ? $appointment->service->price : 0;
+        });
+
+        // 3. Top Performing Service
+        $topService = $serviceBreakdown->first();
+
+        // 4. Total Visits
+        $totalVisits = $appointments->count();
+
+        return [
+            'projected_revenue' => $projectedRevenue,
+            'service_breakdown' => $serviceBreakdown,
+            'top_service' => $topService ? $topService['name'] : 'N/A',
+            'total_visits' => $totalVisits,
+        ];
     }
 }
