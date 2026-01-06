@@ -147,8 +147,12 @@ SMS_FOOTER_NOTE="Thank you for choosing our service!"
 
 **`smsapi` (Production)**
 - Integrates with SMS.API (https://www.smsapi.pl/)
-- Requires `SMSAPI_TOKEN` in `.env`
 - To enable: Set `SMS_DRIVER=smsapi`
+- **Configuration:**
+  - **Admin Panel (Recommended):** Go to **Settings > SMS Configuration**. Values set here override `.env` defaults.
+  - **Environment Variables:** Set `SMSAPI_TOKEN` in `.env` as a fallback.
+  
+  ![SMS Settings Panel](docs/screenshots/sms-settings.png)
 
 ### Triggering Reminders Manually
 
