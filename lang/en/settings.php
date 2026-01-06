@@ -7,6 +7,7 @@ return [
         'account' => 'Account',
         'sms' => 'SMS Configuration',
         'medical' => 'Medical Conditions',
+        'services' => 'Service Catalog',
         'appearance' => 'Appearance',
         'logout' => 'Log Out',
     ],

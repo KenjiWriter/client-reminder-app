@@ -57,12 +57,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // Medical Conditions Management
         Route::get('/medical', [\App\Http\Controllers\MedicalConditionTypeController::class, 'index'])->name('medical');
+        
+        // Services Management
+        Route::get('/services', [\App\Http\Controllers\ServiceController::class, 'index'])->name('services');
     });
 
     // Medical Condition Types API routes (for Quick Add feature)
     Route::post('/medical-condition-types', [\App\Http\Controllers\MedicalConditionTypeController::class, 'store'])->name('medical-condition-types.store');
     Route::put('/medical-condition-types/{medicalConditionType}', [\App\Http\Controllers\MedicalConditionTypeController::class, 'update'])->name('medical-condition-types.update');
     Route::delete('/medical-condition-types/{medicalConditionType}', [\App\Http\Controllers\MedicalConditionTypeController::class, 'destroy'])->name('medical-condition-types.destroy');
+
+    // Services API routes
+    Route::post('/services', [\App\Http\Controllers\ServiceController::class, 'store'])->name('services.store');
+    Route::put('/services/{service}', [\App\Http\Controllers\ServiceController::class, 'update'])->name('services.update');
+    Route::delete('/services/{service}', [\App\Http\Controllers\ServiceController::class, 'destroy'])->name('services.destroy');
 
     Route::get('/messages', [\App\Http\Controllers\SmsMessageController::class, 'index'])->name('messages.index');
 

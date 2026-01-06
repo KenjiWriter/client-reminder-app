@@ -7,6 +7,7 @@ return [
         'account' => 'Konto',
         'sms' => 'Konfiguracja SMS',
         'medical' => 'Schorzenia medyczne',
+        'services' => 'Katalog Usług',
         'appearance' => 'Wygląd',
         'logout' => 'Wyloguj',
     ],

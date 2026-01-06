@@ -29,6 +29,11 @@ const navItems = computed(() => [
         icon: Monitor,
     },
     {
+        name: 'settings.nav.services',
+        href: '/settings/services',
+        icon: Monitor,
+    },
+    {
         name: 'settings.nav.appearance',
         href: '/settings/appearance',
         icon: Monitor,

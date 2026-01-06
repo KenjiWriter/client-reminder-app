@@ -23,6 +23,7 @@ class StoreAppointmentRequest extends FormRequest
     {
         return [
             'client_id' => ['required', 'exists:clients,id'],
+            'service_id' => ['nullable', 'exists:services,id'],
             'starts_at' => ['required', 'date'],
             'duration_minutes' => ['required', 'integer', 'min:5', 'max:480'], // 5 min to 8 hours
             'note' => ['nullable', 'string', 'max:1000'],

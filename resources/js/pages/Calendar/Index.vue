@@ -30,6 +30,7 @@ interface CalendarEvent {
     start: string;
     end: string;
     client_id: number;
+    service_id?: number | null;
     duration_minutes: number;
     note: string | null;
     send_reminder: boolean;
@@ -41,12 +42,23 @@ interface CalendarClient {
     phone_e164: string;
 }
 
+interface Service {
+    id: number;
+    name: string;
+    description: string | null;
+    duration_minutes: number;
+    price: number;
+    is_active: boolean;
+}
+
 const props = withDefaults(defineProps<{
     events: CalendarEvent[];
     clients: CalendarClient[];
+    allServices?: Service[];
 }>(), {
     events: () => [],
     clients: () => [],
+    allServices: () => [],
 });
 
 const { t, locale } = useTranslation();
@@ -110,12 +122,23 @@ const editingAppointmentId = ref<number | null>(null);
 
 const form = useForm({
     client_id: '',
+    service_id: '',
     date: format(new Date(), 'yyyy-MM-dd'),
     time: '12:00',
     starts_at: '', // Synced from date + time
     duration_minutes: 90,
     note: '',
     send_reminder: true,
+});
+
+// Watch service selection to auto-update duration
+watch(() => form.service_id, (newServiceId) => {
+    if (newServiceId && props.allServices) {
+        const service = props.allServices.find(s => s.id === Number(newServiceId));
+        if (service) {
+            form.duration_minutes = service.duration_minutes;
+        }
+    }
 });
 
 // Watch date and time to update starts_at (with local timezone)
@@ -234,6 +257,7 @@ const openCreateModalAtTime = (day: Date, hour: number) => {
 const editAppointment = (event: typeof props.events[0]) => {
     editingAppointmentId.value = event.id;
     form.client_id = String(event.client_id);
+    form.service_id = event.service_id ? String(event.service_id) : '';
     form.date = format(parseISO(event.start), 'yyyy-MM-dd');
     form.time = format(parseISO(event.start), 'HH:mm');
     form.starts_at = event.start; // Set starts_at directly
@@ -479,6 +503,22 @@ const closeSearch = () => {
                                 <DialogDescription>{{ t('calendar.updateDetails') }}</DialogDescription>
                             </DialogHeader>
                         <form @submit.prevent="submit" class="grid gap-4 py-4">
+                            <div class="grid gap-2">
+                                <Label for="service">{{ t('appointments.service') || 'Usługa' }}</Label>
+                                <Select v-model="form.service_id">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Wybierz usługę (opcjonalnie)" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="">Brak - niestandardowa</SelectItem>
+                                        <SelectItem v-for="service in allServices" :key="service.id" :value="String(service.id)">
+                                            {{ service.name }} ({{ service.duration_minutes }} min, {{ service.price.toFixed(2) }} PLN)
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <div v-if="form.errors.service_id" class="text-sm text-red-500">{{ form.errors.service_id }}</div>
+                            </div>
+
                             <div class="grid gap-2">
                                 <div class="flex items-center justify-between">
                                     <Label for="client">{{ t('appointments.client') }}</Label>

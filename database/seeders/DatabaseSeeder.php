@@ -26,5 +26,8 @@ class DatabaseSeeder extends Seeder
         
         // Seed default settings
         $this->call(SettingsSeeder::class);
+        
+        // Seed default services
+        $this->call(ServiceSeeder::class);
     }
 }
