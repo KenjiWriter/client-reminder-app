@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import SettingsLayout from '@/Layouts/SettingsLayout.vue';
+import SettingsLayout from '@/layouts/SettingsLayout.vue';
 import { useDark, useToggle } from '@vueuse/core';
 import { Button } from '@/components/ui/button';
 import { Monitor, Moon, Sun } from 'lucide-vue-next';
+import { useTranslation } from '@/composables/useTranslation';
+
+const { t } = useTranslation();
 
 // Use VueUse for dark mode matching the user's request, or fallback to manual logic if not available.
 // Assuming VueUse is used in this project or standard class switching. 
@@ -37,19 +40,19 @@ const setMode = (mode: 'light' | 'dark' | 'auto') => {
     <SettingsLayout>
         <div class="space-y-6">
              <div>
-                <h3 class="text-lg font-medium">Wygląd</h3>
-                <p class="text-sm text-muted-foreground">Dostosuj wygląd aplikacji do swoich preferencji.</p>
+                <h3 class="text-lg font-medium">{{ t('settings.appearance.title') }}</h3>
+                <p class="text-sm text-muted-foreground">{{ t('settings.appearance.description') }}</p>
             </div>
 
             <div class="flex gap-4">
                 <Button variant="outline" class="flex flex-col items-center h-24 w-24 gap-2" @click="setMode('light')" :class="{ 'border-primary bg-primary/5': !isDark }">
                     <Sun class="h-6 w-6" />
-                    <span>Jasny</span>
+                    <span>{{ t('settings.appearance.light') }}</span>
                 </Button>
 
                 <Button variant="outline" class="flex flex-col items-center h-24 w-24 gap-2" @click="setMode('dark')" :class="{ 'border-primary bg-primary/5': isDark }">
                     <Moon class="h-6 w-6" />
-                    <span>Ciemny</span>
+                    <span>{{ t('settings.appearance.dark') }}</span>
                 </Button>
             </div>
         </div>

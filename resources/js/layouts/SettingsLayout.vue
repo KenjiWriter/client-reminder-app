@@ -6,27 +6,29 @@ import { User, MessageSquare, Monitor, LogOut } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import Heading from '@/components/Heading.vue';
+import { useTranslation } from '@/composables/useTranslation';
 
+const { t } = useTranslation();
 const page = usePage();
 const currentPath = computed(() => page.url);
 
-const navItems = [
+const navItems = computed(() => [
     {
-        name: 'Konto',
+        name: 'settings.nav.account',
         href: '/settings/account',
         icon: User,
     },
     {
-        name: 'Konfiguracja SMS',
+        name: 'settings.nav.sms',
         href: '/settings/sms',
         icon: MessageSquare,
     },
     {
-        name: 'Wygląd',
+        name: 'settings.nav.appearance',
         href: '/settings/appearance',
         icon: Monitor,
     },
-];
+]);
 
 const isActive = (href: string) => {
     return currentPath.value.startsWith(href);
@@ -36,13 +38,13 @@ const isActive = (href: string) => {
 <template>
     <AppShell>
          <template #header-title>
-            <h1 class="text-xl lg:text-2xl font-semibold">Ustawienia</h1>
+            <h1 class="text-xl lg:text-2xl font-semibold">{{ t('settings.title') }}</h1>
         </template>
 
         <div class="px-4 py-6 md:px-8">
             <Heading
-                title="Ustawienia"
-                description="Zarządzaj ustawieniami aplikacji i swojego konta."
+                :title="t('settings.title')"
+                :description="t('settings.description')"
                 class="mb-8"
             />
 
@@ -62,7 +64,7 @@ const isActive = (href: string) => {
                             ]"
                         >
                             <component :is="item.icon" class="h-4 w-4" />
-                            {{ item.name }}
+                            {{ t(item.name) }}
                         </Link>
                     </nav>
 
@@ -76,7 +78,7 @@ const isActive = (href: string) => {
                             class="flex w-full items-center gap-3 rounded-lg px-0 py-2 text-sm font-medium text-red-500 hover:text-red-600 transition-colors"
                         >
                             <LogOut class="h-4 w-4" />
-                            Wyloguj
+                            {{ t('settings.nav.logout') }}
                         </Link>
                     </div>
                 </aside>

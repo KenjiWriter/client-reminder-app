@@ -52,6 +52,7 @@ class HandleInertiaRequests extends Middleware
                 [
                     'landing' => __('landing'),
                     'nav' => __('nav'),
+                    'settings' => __('settings'),
                 ]
             ),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',

@@ -1,0 +1,44 @@
+<?php
+
+return [
+    'title' => 'Ustawienia',
+    'description' => 'Zarządzaj ustawieniami aplikacji i swojego konta.',
+    'nav' => [
+        'account' => 'Konto',
+        'sms' => 'Konfiguracja SMS',
+        'appearance' => 'Wygląd',
+        'logout' => 'Wyloguj',
+    ],
+    'account' => [
+        'title' => 'Dane profilu',
+        'description' => 'Zaktualizuj swoje imię i adres email.',
+        'name' => 'Imię i nazwisko',
+        'email' => 'Email',
+        'save' => 'Zapisz',
+        'saved' => 'Zapisano.',
+        'password_title' => 'Zmiana hasła',
+        'password_description' => 'Dla bezpieczeństwa używaj długiego, unikalnego hasła.',
+        'current_password' => 'Aktualne hasło',
+        'new_password' => 'Nowe hasło',
+        'confirm_password' => 'Potwierdź hasło',
+        'change_password' => 'Zmień hasło',
+    ],
+    'sms' => [
+        'title' => 'Konfiguracja SMS',
+        'description' => 'Ustawienia integracji z SMSAPI i harmonogram wysyłki.',
+        'token_label' => 'Token SMSAPI',
+        'token_desc' => 'Token wygenerujesz w panelu SMSAPI.',
+        'sender_label' => 'Nadawca (Pole "Od")',
+        'sender_desc' => 'Nazwa nadawcy musi być zatwierdzona w SMSAPI.',
+        'time_label' => 'Godzina wysyłki przypomnień',
+        'time_desc' => 'O tej godzinie system będzie próbował wysłać przypomnienia na następny dzień.',
+        'save' => 'Zapisz konfigurację',
+        'saved' => 'Zapisano.',
+    ],
+    'appearance' => [
+        'title' => 'Wygląd',
+        'description' => 'Dostosuj wygląd aplikacji do swoich preferencji.',
+        'light' => 'Jasny',
+        'dark' => 'Ciemny',
+    ],
+];
