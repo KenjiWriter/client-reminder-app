@@ -58,11 +58,30 @@ onMounted(() => {
     document.querySelectorAll('[data-reveal-id]').forEach(el => observer.observe(el));
 });
 
-// Use requestAnimationFrame for smooth parallax
 const updateParallax = () => {
     // Limit offset to 80px max for subtle effect
     parallaxOffset.value = Math.min(y.value * 0.4, 80);
     requestAnimationFrame(updateParallax);
+};
+
+interface Service {
+    id: number;
+    name: string;
+    description: string | null;
+    duration_minutes: number;
+}
+
+const props = defineProps<{
+    services?: Service[];
+}>();
+
+const formatDuration = (minutes: number) => {
+    if (minutes >= 60) {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+    }
+    return `${minutes} min`;
 };
 </script>
 
@@ -171,6 +190,37 @@ const updateParallax = () => {
                      </div>
                 </div>
              </div>
+        </section>
+
+
+
+        <!-- Our Offer Section -->
+        <section v-if="services && services.length > 0" class="py-24 px-4 bg-secondary/10">
+            <div 
+                class="max-w-4xl mx-auto transition-all duration-1000 transform translate-y-12 opacity-0"
+                :class="{ 'translate-y-0 opacity-100': revealElements.has('offer') }"
+                data-reveal-id="offer"
+            >
+                <h2 class="text-3xl md:text-4xl font-bold mb-12 text-center">{{ t('landing.offer_title') }}</h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div 
+                        v-for="service in services" 
+                        :key="service.id"
+                        class="bg-card text-card-foreground rounded-xl p-6 shadow-sm border hover:shadow-md transition-shadow flex flex-col"
+                    >
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-xl">{{ service.name }}</h3>
+                            <span class="text-sm font-medium bg-secondary/50 px-2 py-1 rounded text-secondary-foreground whitespace-nowrap">
+                                {{ formatDuration(service.duration_minutes) }}
+                            </span>
+                        </div>
+                        <p v-if="service.description" class="text-muted-foreground whitespace-pre-line text-sm leading-relaxed mt-2 flex-grow">
+                            {{ service.description }}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section 

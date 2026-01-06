@@ -8,7 +8,13 @@ class LandingController extends Controller
 {
     public function index()
     {
-        return \Inertia\Inertia::render('Landing/Index');
+        $services = \App\Models\Service::where('is_active', true)
+            ->select('id', 'name', 'description', 'duration_minutes') // Explicitly selecting fields, excluding price just in case
+            ->get();
+
+        return \Inertia\Inertia::render('Landing/Index', [
+            'services' => $services,
+        ]);
     }
 
     public function store(\App\Http\Requests\StoreLeadRequest $request)
