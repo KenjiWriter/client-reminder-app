@@ -52,4 +52,9 @@ class Appointment extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
 }
