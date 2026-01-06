@@ -20,6 +20,8 @@ A small business appointment + SMS reminder system.
 - **Status Tracking**: Confirmed, Pending Approval, Canceled, Completed
 - **SMS Reminders**: Automated 24h reminders via queue/scheduler process
 
+![Calendar View](docs/screenshots/calendar.png)
+
 ### 👥 Client Management
 - **Profile**: Detailed client information and history
 - **Medical Card**: Dynamic medical history with contraindications and esthetic procedures
