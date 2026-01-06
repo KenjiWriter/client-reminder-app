@@ -75,7 +75,7 @@ const navItems = computed<NavItem[]>(() => [
     { name: 'nav.messages', href: route('messages.index'), icon: Mail },
     { name: 'nav.calendar', href: route('calendar.index'), icon: CalendarIcon },
     { name: 'nav.statistics', href: route('statistics.index'), icon: Activity },
-    { name: 'nav.settings', href: route('settings.index'), icon: Settings },
+    { name: 'nav.settings', href: route('settings.account'), icon: Settings },
 ]);
 
 const page = usePage<PageProps>();

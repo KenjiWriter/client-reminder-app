@@ -7,7 +7,13 @@ use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
-    protected $fillable = ['key', 'value'];
+    protected $fillable = [
+        'key', 
+        'value',
+        'sms_api_token',
+        'sms_sender_name',
+        'sms_send_time'
+    ];
 
     public static function get(string $key, $default = null)
     {

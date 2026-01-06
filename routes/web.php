@@ -48,8 +48,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/appointments/{appointment}', [\App\Http\Controllers\AppointmentController::class, 'destroy'])->name('appointments.destroy');
 
 
-    Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
-    Route::put('/settings/password', [\App\Http\Controllers\SettingsController::class, 'updatePassword'])->name('settings.password.update');
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/account', [\App\Http\Controllers\SettingsController::class, 'editAccount'])->name('account');
+        Route::get('/sms', [\App\Http\Controllers\SettingsController::class, 'editSms'])->name('sms');
+        Route::put('/sms', [\App\Http\Controllers\SettingsController::class, 'updateSms'])->name('sms.update');
+        Route::get('/appearance', [\App\Http\Controllers\SettingsController::class, 'editAppearance'])->name('appearance');
+    });
 
     Route::get('/messages', [\App\Http\Controllers\SmsMessageController::class, 'index'])->name('messages.index');
 
@@ -64,5 +68,3 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/statistics', [\App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics.index');
 });
-
-require __DIR__.'/settings.php';

@@ -1,0 +1,91 @@
+<script setup lang="ts">
+import AppShell from '@/layouts/AppShell.vue'; // Direct import from Layouts
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { User, MessageSquare, Monitor, LogOut } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import Heading from '@/components/Heading.vue';
+
+const page = usePage();
+const currentPath = computed(() => page.url);
+
+const navItems = [
+    {
+        name: 'Konto',
+        href: '/settings/account',
+        icon: User,
+    },
+    {
+        name: 'Konfiguracja SMS',
+        href: '/settings/sms',
+        icon: MessageSquare,
+    },
+    {
+        name: 'Wygląd',
+        href: '/settings/appearance',
+        icon: Monitor,
+    },
+];
+
+const isActive = (href: string) => {
+    return currentPath.value.startsWith(href);
+};
+</script>
+
+<template>
+    <AppShell>
+         <template #header-title>
+            <h1 class="text-xl lg:text-2xl font-semibold">Ustawienia</h1>
+        </template>
+
+        <div class="px-4 py-6 md:px-8">
+            <Heading
+                title="Ustawienia"
+                description="Zarządzaj ustawieniami aplikacji i swojego konta."
+                class="mb-8"
+            />
+
+            <div class="flex flex-col lg:flex-row lg:space-x-12">
+                <!-- Sidebar -->
+                <aside class="w-full lg:w-64 shrink-0 mb-8 lg:mb-0">
+                    <nav class="flex flex-col space-y-1">
+                        <Link
+                            v-for="item in navItems"
+                            :key="item.href"
+                            :href="item.href"
+                            :class="[
+                                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                                isActive(item.href)
+                                    ? 'bg-secondary text-secondary-foreground'
+                                    : 'text-muted-foreground hover:bg-secondary/50 hover:text-secondary-foreground',
+                            ]"
+                        >
+                            <component :is="item.icon" class="h-4 w-4" />
+                            {{ item.name }}
+                        </Link>
+                    </nav>
+
+                    <Separator class="my-6" />
+
+                    <div class="px-3">
+                         <Link
+                            method="post" 
+                            as="button" 
+                            href="/logout" 
+                            class="flex w-full items-center gap-3 rounded-lg px-0 py-2 text-sm font-medium text-red-500 hover:text-red-600 transition-colors"
+                        >
+                            <LogOut class="h-4 w-4" />
+                            Wyloguj
+                        </Link>
+                    </div>
+                </aside>
+
+                <!-- Content -->
+                <div class="flex-1 max-w-2xl">
+                    <slot />
+                </div>
+            </div>
+        </div>
+    </AppShell>
+</template>
