@@ -40,6 +40,7 @@ Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'inde
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('clients', \App\Http\Controllers\ClientController::class);
+    Route::put('/clients/{client}/medical-history', [\App\Http\Controllers\MedicalHistoryController::class, 'update'])->name('clients.medical-history.update');
 
     Route::get('/appointments/search', [\App\Http\Controllers\AppointmentController::class, 'search'])->name('appointments.search');
     Route::get('/calendar', [\App\Http\Controllers\AppointmentController::class, 'index'])->name('calendar.index');

@@ -39,4 +39,9 @@ class Client extends Model
     {
         return $this->hasMany(SiteVisit::class);
     }
+
+    public function medicalHistory()
+    {
+        return $this->hasOne(MedicalHistory::class);
+    }
 }
