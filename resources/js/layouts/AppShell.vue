@@ -75,7 +75,6 @@ const navItems = computed<NavItem[]>(() => [
     { name: 'nav.messages', href: route('messages.index'), icon: Mail },
     { name: 'nav.calendar', href: route('calendar.index'), icon: CalendarIcon },
     { name: 'nav.statistics', href: route('statistics.index'), icon: Activity },
-    { name: 'nav.settings', href: route('settings.account'), icon: Settings },
 ]);
 
 const page = usePage<PageProps>();
@@ -161,7 +160,7 @@ const switchLocale = (locale: string) => {
                 </Link>
             </nav>
 
-            <!-- User section -->
+            <!-- User section with Settings button -->
             <div class="border-t border-border p-4">
                 <div class="flex items-center gap-3">
                     <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -170,6 +169,10 @@ const switchLocale = (locale: string) => {
                     <div class="flex-1 text-sm">
                         <div class="font-medium">{{ user?.name || 'User' }}</div>
                     </div>
+                    <!-- Settings button -->
+                    <Link :href="route('settings.account')" class="p-2 rounded-md hover:bg-accent transition-colors">
+                        <Settings class="h-5 w-5 text-muted-foreground" />
+                    </Link>
                 </div>
             </div>
         </aside>
@@ -204,11 +207,6 @@ const switchLocale = (locale: string) => {
                             <SelectItem value="en">EN</SelectItem>
                         </SelectContent>
                     </Select>
-                    
-                    <span class="hidden md:block text-sm text-muted-foreground">Hi, {{ firstName }} 👋</span>
-                    <div class="relative h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span class="text-sm font-medium text-primary">{{ userInitials }}</span>
-                    </div>
                 </div>
             </header>
 
