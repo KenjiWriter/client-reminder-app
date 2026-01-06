@@ -68,7 +68,7 @@ class ClientController extends Controller
     public function show(Client $client)
     {
         $client->load(['medicalHistory', 'appointments' => function ($query) {
-            $query->orderBy('start_time', 'desc');
+            $query->orderBy('starts_at', 'desc');
         }]);
 
         return Inertia::render('Clients/Show', [

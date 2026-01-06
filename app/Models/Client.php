@@ -44,4 +44,14 @@ class Client extends Model
     {
         return $this->hasOne(MedicalHistory::class);
     }
+
+    /**
+     * Get all medical conditions for this client.
+     */
+    public function conditions()
+    {
+        return $this->belongsToMany(MedicalConditionType::class, 'client_medical_condition')
+            ->withPivot('occurred_at', 'notes', 'is_active')
+            ->withTimestamps();
+    }
 }
