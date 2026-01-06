@@ -22,6 +22,9 @@ A small business appointment + SMS reminder system.
 
 ### 👥 Client Management
 - **Profile**: Detailed client information and history
+- **Medical Card**: Dynamic medical history with contraindications and esthetic procedures
+- **Quick Add**: On-the-fly creation of new medical condition types from client profile
+- **Safety Badges**: Visual indicators for high-risk conditions (pregnancy, epilepsy) and recent procedures
 - **Public Page**: Unique public link for each client to check their appointments
 - **Self-Service**: Clients can request rescheduling or cancellation via their public page
 - **Reschedule Workflow**: Admin approval system for client-requested changes
@@ -29,6 +32,14 @@ A small business appointment + SMS reminder system.
 ### 💬 Communication
 - **SMS Logs**: Full history of sent messages with delivery status
 - **Templates**: Configurable SMS footer and content (via translations)
+
+### ⚕️ Medical Conditions Management
+- **Dynamic System**: Database-driven medical conditions instead of hardcoded fields
+- **Admin Panel**: CRUD interface for managing condition types (Settings > Medical)
+- **Categories**: Contraindications (high-risk) and Esthetic Procedures (tracking)
+- **Metadata**: Configurable severity levels, date requirements, and active status
+- **Client Integration**: Real-time condition management in client medical card
+- **Quick Add**: Create new condition types without leaving the client profile
 
 ## Setup
 
@@ -43,11 +54,18 @@ A small business appointment + SMS reminder system.
    cp .env.example .env
    php artisan key:generate
    ```
-4. **Database**
-   Configure your database credentials in `.env`.
+4. **Database and Seeding**
+   Configure your database credentials in `.env`, then run migrations with seed data:
    ```bash
-   php artisan migrate
+   php artisan migrate:fresh --seed
    ```
+   
+   This will create:
+   - **Admin User**: Email: `admin@admin.com` / Password: `secret`
+   - **Default Settings**: Timezone, SMS configuration placeholders
+   - **Medical Condition Types**: 8 base conditions (Pregnancy, Epilepsy, Botox, Fillers, etc.)
+   
+   > **Note**: You can change the admin credentials in Settings > Account after logging in.
 5. **Generate Routes**
    Required for frontend to access Laravel routes and typed route helpers (Ziggy + Wayfinder).
    ```bash
