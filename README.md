@@ -115,7 +115,7 @@ This application uses Laravel Queues and the Scheduler to send SMS reminders.
    * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
    ```
    
-   The scheduler runs the `reminders:send-bulk` command every 5 minutes.
+   The scheduler runs the `reminders:send` command every minute.
    
    Locally, you can run:
    ```bash
