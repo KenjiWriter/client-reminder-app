@@ -69,10 +69,14 @@ class ClientController extends Controller
     {
         $client->load(['medicalHistory', 'appointments' => function ($query) {
             $query->orderBy('starts_at', 'desc');
-        }]);
+        }, 'conditions']);
 
         return Inertia::render('Clients/Show', [
             'client' => $client,
+            'allConditionTypes' => \App\Models\MedicalConditionType::where('is_active', true)
+                ->orderBy('category')
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 

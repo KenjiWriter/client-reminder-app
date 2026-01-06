@@ -10,28 +10,30 @@ import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import QuickAddConditionModal from '@/components/QuickAddConditionModal.vue';
 import { route } from 'ziggy-js';
 import { ref, computed } from 'vue';
-import { AlertCircle, Calendar, Syringe, Heart } from 'lucide-vue-next';
+import { AlertCircle, Calendar, Syringe, Heart, Plus } from 'lucide-vue-next';
 
 const { t } = useTranslation();
 
-interface MedicalHistory {
-    id?: number;
-    client_id: number;
-    is_pregnant: boolean;
-    has_epilepsy: boolean;
-    has_thyroid_issues: boolean;
-    has_cancer: boolean;
-    has_herpes: boolean;
-    has_botox: boolean;
-    botox_last_date: string | null;
-    has_fillers: boolean;
-    fillers_last_date: string | null;
-    has_threads: boolean;
-    allergies: string | null;
-    medications: string | null;
-    additional_notes: string | null;
+interface MedicalConditionType {
+    id: number;
+    name: string;
+    category: 'contraindication' | 'esthetic';
+    severity: 'high' | 'medium' | 'info';
+    requires_date: boolean;
+    is_active: boolean;
+}
+
+interface ClientCondition {
+    id: number;
+    name: string;
+    pivot: {
+        occurred_at: string | null;
+        notes: string | null;
+        is_active: boolean;
+    };
 }
 
 interface Appointment {
@@ -48,34 +50,50 @@ interface Client {
     email: string | null;
     phone_e164: string;
     notes?: string | null;
-    medical_history?: MedicalHistory;
+    conditions?: ClientCondition[];
     appointments?: Appointment[];
 }
 
 const props = defineProps<{
     client: Client;
+    allConditionTypes: MedicalConditionType[];
 }>();
 
 // Active tab state
 const activeTab = ref<'basic' | 'medical' | 'appointments'>('basic');
 
-// Safety badge computation
+// Local state for condition types (will be updated when Quick Add creates new one)
+const localConditionTypes = ref<MedicalConditionType[]>([...props.allConditionTypes]);
+
+// Quick Add modal state
+const showQuickAdd = ref(false);
+const quickAddCategory = ref<'contraindication' | 'esthetic'>('contraindication');
+
+// Group conditions by category
+const contraindications = computed(() => 
+    localConditionTypes.value.filter(c => c.category === 'contraindication')
+);
+
+const estheticProcedures = computed(() => 
+    localConditionTypes.value.filter(c => c.category === 'esthetic')
+);
+
+// Safety badge computation (based on client's active conditions)
 const safetyBadges = computed(() => {
     const badges: { text: string; variant: 'destructive' | 'default'; icon: any }[] = [];
-    const medHistory = props.client.medical_history;
     
-    if (medHistory?.is_pregnant) {
-        badges.push({ text: 'Ciąża', variant: 'destructive', icon: AlertCircle });
-    }
-    if (medHistory?.has_epilepsy) {
-        badges.push({ text: 'Epilepsja', variant: 'destructive', icon: AlertCircle });
-    }
-    if (medHistory?.has_botox) {
-        badges.push({ text: 'Botox', variant: 'default', icon: Syringe });
-    }
-    if (medHistory?.has_fillers) {
-        badges.push({ text: 'Wypełniacze', variant: 'default', icon: Syringe });
-    }
+    if (!props.client.conditions) return badges;
+    
+    props.client.conditions.forEach(condition => {
+        const condType = localConditionTypes.value.find(ct => ct.name === condition.name);
+        if (!condType || !condition.pivot.is_active) return;
+        
+        if (condType.severity === 'high') {
+            badges.push({ text: condition.name, variant: 'destructive', icon: AlertCircle });
+        } else if (condType.category === 'esthetic') {
+            badges.push({ text: condition.name, variant: 'default', icon: Syringe });
+        }
+    });
     
     return badges;
 });
@@ -91,36 +109,58 @@ const basicForm = useForm({
 const submitBasicInfo = () => {
     basicForm.put(route('clients.update', props.client.id), {
         preserveScroll: true,
-        onSuccess: () => {
-            // Success feedback handled by backend flash message
-        }
     });
 };
 
-// Medical History Form
+// Medical Conditions Form (Dynamic)
+// Build form data: array of condition IDs that are checked, with metadata
+const selectedConditions = ref<Record<number, { checked: boolean; occurred_at: string; notes: string }>>({});
+
+// Initialize from client's existing conditions
+localConditionTypes.value.forEach(condType => {
+    const existing = props.client.conditions?.find(c => c.name === condType.name);
+    selectedConditions.value[condType.id] = {
+        checked: existing?.pivot.is_active ?? false,
+        occurred_at: existing?.pivot.occurred_at || '',
+        notes: existing?.pivot.notes || '',
+    };
+});
+
 const medicalForm = useForm({
-    is_pregnant: props.client.medical_history?.is_pregnant ?? false,
-    has_epilepsy: props.client.medical_history?.has_epilepsy ?? false,
-    has_thyroid_issues: props.client.medical_history?.has_thyroid_issues ?? false,
-    has_cancer: props.client.medical_history?.has_cancer ?? false,
-    has_herpes: props.client.medical_history?.has_herpes ?? false,
-    has_botox: props.client.medical_history?.has_botox ?? false,
-    botox_last_date: props.client.medical_history?.botox_last_date || '',
-    has_fillers: props.client.medical_history?.has_fillers ?? false,
-    fillers_last_date: props.client.medical_history?.fillers_last_date || '',
-    has_threads: props.client.medical_history?.has_threads ?? false,
-    allergies: props.client.medical_history?.allergies || '',
-    medications: props.client.medical_history?.medications || '',
-    additional_notes: props.client.medical_history?.additional_notes || '',
+    conditions: selectedConditions.value,
+    // Keep old fields for compatibility with existing backend
+    allergies: '',
+    medications: '',
+    additional_notes: '',
 });
 
 const submitMedicalHistory = () => {
+    // TODO: Update this to send to new endpoint that handles pivot table
+    // For now, send to existing endpoint
     medicalForm.put(route('clients.medical-history.update', props.client.id), {
         preserveScroll: true,
-        onSuccess: () => {
-            // Success feedback handled by backend flash message
-        }
     });
+};
+
+// Quick Add handlers
+const openQuickAdd = (category: 'contraindication' | 'esthetic') => {
+    quickAddCategory.value = category;
+    showQuickAdd.value = true;
+};
+
+const handleConditionCreated = (newCondition: MedicalConditionType) => {
+    // Add to local types array
+    localConditionTypes.value.push(newCondition);
+    
+    // Auto-check the new condition
+    selectedConditions.value[newCondition.id] = {
+        checked: true,
+        occurred_at: '',
+        notes: '',
+    };
+    
+    // Update form
+    medicalForm.conditions = selectedConditions.value;
 };
 
 // Format date for display
@@ -259,85 +299,76 @@ const formatStatus = (status: string) => {
                 </Card>
             </div>
 
-            <!-- Tab 2: Medical History -->
+            <!-- Tab 2: Medical History (DYNAMIC) -->
             <div v-show="activeTab === 'medical'">
                 <form @submit.prevent="submitMedicalHistory" class="space-y-6">
-                    <!-- Contraindications -->
+                    <!-- Contraindications (DYNAMIC) -->
                     <Card>
                         <CardHeader>
-                            <CardTitle class="flex items-center gap-2">
-                                <AlertCircle class="h-5 w-5 text-destructive" />
-                                Przeciwwskazania
-                            </CardTitle>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <AlertCircle class="h-5 w-5 text-destructive" />
+                                    <CardTitle>Przeciwwskazania</CardTitle>
+                                </div>
+                                <Button type="button" variant="outline" size="sm" @click="openQuickAdd('contraindication')">
+                                    <Plus class="h-4 w-4 mr-1" />
+                                    Dodaj nowy
+                                </Button>
+                            </div>
                             <CardDescription>Schorzenia stanowiące przeciwwskazanie do zabiegów</CardDescription>
                         </CardHeader>
                         <CardContent class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <Label for="is_pregnant">Ciąża</Label>
-                                <Checkbox id="is_pregnant" v-model:checked="medicalForm.is_pregnant" />
+                            <div v-for="condition in contraindications" :key="condition.id" class="flex items-center justify-between">
+                                <Label :for="`cond-${condition.id}`">{{ condition.name }}</Label>
+                                <Checkbox 
+                                    :id="`cond-${condition.id}`" 
+                                    v-model:checked="selectedConditions[condition.id].checked" 
+                                />
                             </div>
-
-                            <div class="flex items-center justify-between">
-                                <Label for="has_epilepsy">Epilepsja</Label>
-                                <Checkbox id="has_epilepsy" v-model:checked="medicalForm.has_epilepsy" />
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <Label for="has_cancer">Nowotwór</Label>
-                                <Checkbox id="has_cancer" v-model:checked="medicalForm.has_cancer" />
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <Label for="has_herpes">Opryszczka</Label>
-                                <Checkbox id="has_herpes" v-model:checked="medicalForm.has_herpes" />
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <Label for="has_thyroid_issues">Problemy z tarczycą</Label>
-                                <Checkbox id="has_thyroid_issues" v-model:checked="medicalForm.has_thyroid_issues" />
+                            <div v-if="contraindications.length === 0" class="text-sm text-muted-foreground text-center py-4">
+                                Brak przeciwwskazań. Kliknij "Dodaj nowy" aby dodać.
                             </div>
                         </CardContent>
                     </Card>
 
-                    <!-- Esthetic Procedures -->
+                    <!-- Esthetic Procedures (DYNAMIC) -->
                     <Card>
                         <CardHeader>
-                            <CardTitle class="flex items-center gap-2">
-                                <Syringe class="h-5 w-5 text-primary" />
-                                Zabiegi estetyczne
-                            </CardTitle>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <Syringe class="h-5 w-5 text-primary" />
+                                    <CardTitle>Zabiegi estetyczne</CardTitle>
+                                </div>
+                                <Button type="button" variant="outline" size="sm" @click="openQuickAdd('esthetic')">
+                                    <Plus class="h-4 w-4 mr-1" />
+                                    Dodaj nowy
+                                </Button>
+                            </div>
                             <CardDescription>Historia zabiegów medycyny estetycznej</CardDescription>
                         </CardHeader>
                         <CardContent class="space-y-4">
-                            <div class="space-y-2">
+                            <div v-for="condition in estheticProcedures" :key="condition.id" class="space-y-2">
                                 <div class="flex items-center justify-between">
-                                    <Label for="has_botox">Botox</Label>
-                                    <Checkbox id="has_botox" v-model:checked="medicalForm.has_botox" />
+                                    <Label :for="`cond-${condition.id}`">{{ condition.name }}</Label>
+                                    <Checkbox 
+                                        :id="`cond-${condition.id}`" 
+                                        v-model:checked="selectedConditions[condition.id].checked" 
+                                    />
                                 </div>
-                                <div v-if="medicalForm.has_botox" class="ml-4 grid gap-2">
-                                    <Label for="botox_last_date" class="text-sm text-muted-foreground">
+                                <!-- Show date picker if condition requires date and is checked -->
+                                <div v-if="condition.requires_date && selectedConditions[condition.id].checked" class="ml-4 grid gap-2">
+                                    <Label :for="`date-${condition.id}`" class="text-sm text-muted-foreground">
                                         Data ostatniego zabiegu
                                     </Label>
-                                    <Input id="botox_last_date" type="date" v-model="medicalForm.botox_last_date" />
+                                    <Input 
+                                        :id="`date-${condition.id}`" 
+                                        type="date" 
+                                        v-model="selectedConditions[condition.id].occurred_at" 
+                                    />
                                 </div>
                             </div>
-
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <Label for="has_fillers">Wypełniacze</Label>
-                                    <Checkbox id="has_fillers" v-model:checked="medicalForm.has_fillers" />
-                                </div>
-                                <div v-if="medicalForm.has_fillers" class="ml-4 grid gap-2">
-                                    <Label for="fillers_last_date" class="text-sm text-muted-foreground">
-                                        Data ostatniego zabiegu
-                                    </Label>
-                                    <Input id="fillers_last_date" type="date" v-model="medicalForm.fillers_last_date" />
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between">
-                                <Label for="has_threads">Nici liftingujące</Label>
-                                <Checkbox id="has_threads" v-model:checked="medicalForm.has_threads" />
+                            <div v-if="estheticProcedures.length === 0" class="text-sm text-muted-foreground text-center py-4">
+                                Brak zabiegów. Kliknij "Dodaj nowy" aby dodać.
                             </div>
                         </CardContent>
                     </Card>
@@ -421,5 +452,13 @@ const formatStatus = (status: string) => {
                 </Card>
             </div>
         </div>
+
+        <!-- Quick Add Modal -->
+        <QuickAddConditionModal
+            :open="showQuickAdd"
+            :preselectedCategory="quickAddCategory"
+            @close="showQuickAdd = false"
+            @created="handleConditionCreated"
+        />
     </AppShell>
 </template>

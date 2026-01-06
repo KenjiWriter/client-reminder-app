@@ -24,6 +24,11 @@ const navItems = computed(() => [
         icon: MessageSquare,
     },
     {
+        name: 'settings.nav.medical',
+        href: '/settings/medical',
+        icon: Monitor,
+    },
+    {
         name: 'settings.nav.appearance',
         href: '/settings/appearance',
         icon: Monitor,

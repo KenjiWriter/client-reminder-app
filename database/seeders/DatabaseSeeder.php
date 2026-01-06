@@ -20,5 +20,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@admin.com',
             'password' => \Illuminate\Support\Facades\Hash::make('secret'),
         ]);
+
+        // Seed medical condition types
+        $this->call(MedicalConditionTypeSeeder::class);
+        
+        // Seed default settings
+        $this->call(SettingsSeeder::class);
     }
 }

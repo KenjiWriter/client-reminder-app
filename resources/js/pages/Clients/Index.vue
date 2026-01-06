@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import debounce from 'lodash/debounce';
-import { Plus, Trash2, Edit, MoreHorizontal, Loader2, FileText } from 'lucide-vue-next';
+import { Plus, Trash2, MoreHorizontal, Loader2, FileText } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
 
 interface Client {
@@ -168,11 +168,6 @@ const deleteClient = (id: number) => {
                                         <DropdownMenuItem as-child>
                                             <Link :href="route('clients.show', client.id)">
                                                 <FileText class="mr-2 h-4 w-4" /> Zobacz profil
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem as-child>
-                                            <Link :href="route('clients.edit', client.id)">
-                                                <Edit class="mr-2 h-4 w-4" /> {{ t('common.edit') }}
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />

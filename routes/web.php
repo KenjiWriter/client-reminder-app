@@ -39,7 +39,7 @@ Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'inde
     ->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::resource('clients', \App\Http\Controllers\ClientController::class);
+    Route::resource('clients', \App\Http\Controllers\ClientController::class)->except(['edit']);
     Route::put('/clients/{client}/medical-history', [\App\Http\Controllers\MedicalHistoryController::class, 'update'])->name('clients.medical-history.update');
 
     Route::get('/appointments/search', [\App\Http\Controllers\AppointmentController::class, 'search'])->name('appointments.search');
@@ -54,7 +54,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/sms', [\App\Http\Controllers\SettingsController::class, 'editSms'])->name('sms');
         Route::put('/sms', [\App\Http\Controllers\SettingsController::class, 'updateSms'])->name('sms.update');
         Route::get('/appearance', [\App\Http\Controllers\SettingsController::class, 'editAppearance'])->name('appearance');
+        
+        // Medical Conditions Management
+        Route::get('/medical', [\App\Http\Controllers\MedicalConditionTypeController::class, 'index'])->name('medical');
     });
+
+    // Medical Condition Types API routes (for Quick Add feature)
+    Route::post('/medical-condition-types', [\App\Http\Controllers\MedicalConditionTypeController::class, 'store'])->name('medical-condition-types.store');
+    Route::put('/medical-condition-types/{medicalConditionType}', [\App\Http\Controllers\MedicalConditionTypeController::class, 'update'])->name('medical-condition-types.update');
+    Route::delete('/medical-condition-types/{medicalConditionType}', [\App\Http\Controllers\MedicalConditionTypeController::class, 'destroy'])->name('medical-condition-types.destroy');
 
     Route::get('/messages', [\App\Http\Controllers\SmsMessageController::class, 'index'])->name('messages.index');
 

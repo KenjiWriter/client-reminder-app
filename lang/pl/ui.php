@@ -58,6 +58,7 @@ return [
         'phone' => 'Telefon',
         'email' => 'E-mail',
         'optedOut' => 'Wyłączył SMS',
+        'noClientsFound' => 'Nie znaleziono klientów',
     ],
     
     'settings' => [

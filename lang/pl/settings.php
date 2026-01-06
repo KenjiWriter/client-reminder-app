@@ -6,6 +6,7 @@ return [
     'nav' => [
         'account' => 'Konto',
         'sms' => 'Konfiguracja SMS',
+        'medical' => 'Schorzenia medyczne',
         'appearance' => 'Wygląd',
         'logout' => 'Wyloguj',
     ],
