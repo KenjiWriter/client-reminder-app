@@ -45,6 +45,20 @@ A small business appointment + SMS reminder system.
 
 ![Medical Conditions Management](docs/screenshots/Medical_Conditions.png)
 
+### ⚙️ App Branding Configuration
+- **Custom App Name**: Set your business name displayed in:
+  - Page titles (Browser tabs)
+  - Sidebar navigation
+  - Application header
+- **Custom Logo**: Upload your logo (JPG, PNG, SVG, max 2MB) displayed as:
+  - Sidebar icon
+  - Browser favicon
+  - App icon on mobile devices
+- **Settings Location**: Settings > General
+- **Fallback**: Uses default values from `.env` if not configured
+
+![App Configuration](docs/screenshots/config-setting.png)
+
 ## Setup
 
 1. **Clone the repository**
