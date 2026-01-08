@@ -22,7 +22,8 @@ class PublicClientController extends Controller
         $client = Client::where('public_uid', $publicUid)->firstOrFail();
 
         $upcomingAppointments = $client->appointments()
-            ->where('starts_at', '>', Carbon::now()->subHours(24))
+            ->where('starts_at', '>', Carbon::now())
+            ->whereIn('status', [Appointment::STATUS_CONFIRMED, Appointment::STATUS_PENDING_APPROVAL])
             ->orderBy('starts_at', 'asc')
             ->get()
             ->map(fn ($appointment) => [
