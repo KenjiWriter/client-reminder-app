@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -38,6 +40,9 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        // Load settings once
+        $settings = Setting::first();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -59,6 +64,10 @@ class HandleInertiaRequests extends Middleware
             'pendingApprovalsCount' => \App\Models\Appointment::where('status', \App\Models\Appointment::STATUS_PENDING_APPROVAL)
                 ->whereNotNull('requested_starts_at')
                 ->count(),
+            'settings' => [
+                'app_name' => $settings?->app_name ?? config('app.name'),
+                'app_logo' => $settings?->app_logo ? Storage::url($settings->app_logo) : null,
+            ],
         ];
     }
 }

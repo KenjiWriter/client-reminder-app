@@ -2,7 +2,7 @@
 import AppShell from '@/layouts/AppShell.vue'; // Direct import from Layouts
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import { User, MessageSquare, Monitor, LogOut } from 'lucide-vue-next';
+import { User, MessageSquare, Monitor, LogOut, Settings } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import Heading from '@/components/Heading.vue';
@@ -13,6 +13,11 @@ const page = usePage();
 const currentPath = computed(() => page.url);
 
 const navItems = computed(() => [
+    {
+        name: 'settings.nav.general',
+        href: '/settings/general',
+        icon: Settings,
+    },
     {
         name: 'settings.nav.account',
         href: '/settings/account',

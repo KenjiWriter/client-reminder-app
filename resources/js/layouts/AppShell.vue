@@ -44,6 +44,10 @@ interface PageProps {
     translations: Record<string, string>;
     sidebarOpen: boolean;
     pendingApprovalsCount: number;
+    settings: {
+        app_name: string;
+        app_logo: string | null;
+    };
     [key: string]: unknown;
 }
 
@@ -124,10 +128,13 @@ const switchLocale = (locale: string) => {
             <!-- Logo -->
             <div class="flex h-16 items-center justify-between px-6">
                 <div class="flex items-center gap-2">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                    <div v-if="page.props.settings.app_logo" class="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden">
+                        <img :src="page.props.settings.app_logo" alt="App Logo" class="h-full w-full object-contain" />
+                    </div>
+                    <div v-else class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
                         <CalendarIcon class="h-6 w-6 text-primary-foreground" />
                     </div>
-                    <span class="text-lg font-semibold">Facemodeling 👋</span>
+                    <span class="text-lg font-semibold">{{ page.props.settings.app_name || 'Facemodeling' }}</span>
                 </div>
                 <!-- Close button for mobile -->
                 <button 

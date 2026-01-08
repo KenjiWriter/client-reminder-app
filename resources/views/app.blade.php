@@ -6,6 +6,9 @@
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
+            // Make app name available globally for Inertia title callback
+            window.APP_NAME = '{{ $page['props']['settings']['app_name'] ?? config('app.name', 'Laravel') }}';
+            
             (function() {
                 const appearance = '{{ $appearance ?? "system" }}';
 
@@ -30,11 +33,16 @@
             }
         </style>
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia></title>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        @if(!empty($page['props']['settings']['app_logo']))
+            <link rel="icon" href="{{ $page['props']['settings']['app_logo'] }}" type="image/png">
+            <link rel="apple-touch-icon" href="{{ $page['props']['settings']['app_logo'] }}">
+        @else
+            <link rel="icon" href="/favicon.ico" sizes="any">
+            <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+            <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        @endif
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />

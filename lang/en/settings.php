@@ -4,6 +4,7 @@ return [
     'title' => 'Settings',
     'description' => 'Manage your application and account settings.',
     'nav' => [
+        'general' => 'General',
         'account' => 'Account',
         'sms' => 'SMS Configuration',
         'medical' => 'Medical Conditions',
@@ -42,5 +43,15 @@ return [
         'description' => 'Customize the application appearance to your preferences.',
         'light' => 'Light',
         'dark' => 'Dark',
+    ],
+    'general' => [
+        'title' => 'General Settings',
+        'description' => 'Configure your application name and logo.',
+        'app_name' => 'Application Name',
+        'app_name_placeholder' => 'Enter application name',
+        'app_logo' => 'Application Logo',
+        'app_logo_hint' => 'JPG, PNG or SVG. Max 2MB.',
+        'save' => 'Save Settings',
+        'saved' => 'Settings saved successfully.',
     ],
 ];

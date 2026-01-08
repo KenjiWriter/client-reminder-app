@@ -12,7 +12,9 @@ class Setting extends Model
         'value',
         'sms_api_token',
         'sms_sender_name',
-        'sms_send_time'
+        'sms_send_time',
+        'app_name',
+        'app_logo',
     ];
 
     public static function get(string $key, $default = null)

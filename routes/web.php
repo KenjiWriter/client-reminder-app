@@ -50,6 +50,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/general', [\App\Http\Controllers\SettingsController::class, 'editGeneral'])->name('general');
+        Route::post('/general', [\App\Http\Controllers\SettingsController::class, 'updateGeneral'])->name('general.update');
         Route::get('/account', [\App\Http\Controllers\SettingsController::class, 'editAccount'])->name('account');
         Route::get('/sms', [\App\Http\Controllers\SettingsController::class, 'editSms'])->name('sms');
         Route::put('/sms', [\App\Http\Controllers\SettingsController::class, 'updateSms'])->name('sms.update');

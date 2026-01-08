@@ -4,6 +4,7 @@ return [
     'title' => 'Ustawienia',
     'description' => 'Zarządzaj ustawieniami aplikacji i swojego konta.',
     'nav' => [
+        'general' => 'Ogólne',
         'account' => 'Konto',
         'sms' => 'Konfiguracja SMS',
         'medical' => 'Schorzenia medyczne',
@@ -42,5 +43,15 @@ return [
         'description' => 'Dostosuj wygląd aplikacji do swoich preferencji.',
         'light' => 'Jasny',
         'dark' => 'Ciemny',
+    ],
+    'general' => [
+        'title' => 'Ustawienia Ogólne',
+        'description' => 'Skonfiguruj nazwę i logo aplikacji.',
+        'app_name' => 'Nazwa aplikacji',
+        'app_name_placeholder' => 'Wprowadź nazwę aplikacji',
+        'app_logo' => 'Logo aplikacji',
+        'app_logo_hint' => 'JPG, PNG lub SVG. Max 2MB.',
+        'save' => 'Zapisz ustawienia',
+        'saved' => 'Ustawienia zapisane pomyślnie.',
     ],
 ];

@@ -5,6 +5,7 @@ import SegmentedControl from '@/components/ui/segmented-control/SegmentedControl
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
 import { useTranslation } from '@/composables/useTranslation';
+import { usePageTitle } from '@/composables/usePageTitle';
 import { Button } from '@/components/ui/button';
 import Label from '@/components/ui/label/Label.vue';
 import Input from '@/components/ui/input/Input.vue';

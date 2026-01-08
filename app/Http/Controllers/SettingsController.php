@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 
@@ -83,5 +84,59 @@ class SettingsController extends Controller
         ]);
 
         return back()->with('success', 'Password updated successfully!');
+    }
+
+    public function editGeneral()
+    {
+        $settings = Setting::first();
+
+        return Inertia::render('Settings/General', [
+            'settings' => $settings ? [
+                'app_name' => $settings->app_name,
+                'app_logo' => $settings->app_logo ? Storage::url($settings->app_logo) : null,
+            ] : [
+                'app_name' => config('app.name'),
+                'app_logo' => null,
+            ],
+        ]);
+    }
+
+    public function updateGeneral(Request $request)
+    {
+        $validated = $request->validate([
+            'app_name' => ['nullable', 'string', 'max:255'],
+            'app_logo' => ['nullable', 'image', 'max:2048', 'mimes:jpg,jpeg,png,svg'],
+        ]);
+
+        // Use the first settings record (there should only be one)
+        $settings = Setting::first();
+        
+        if (!$settings) {
+            $settings = Setting::create([
+                'key' => 'app_settings',
+                'value' => null,
+            ]);
+        }
+
+        // Handle logo upload
+        if ($request->hasFile('app_logo')) {
+            // Delete old logo if exists
+            if ($settings->app_logo && Storage::disk('public')->exists($settings->app_logo)) {
+                Storage::disk('public')->delete($settings->app_logo);
+            }
+
+            // Store new logo
+            $path = $request->file('app_logo')->store('logos', 'public');
+            $settings->app_logo = $path;
+        }
+
+        // Update app name
+        if ($request->has('app_name')) {
+            $settings->app_name = $validated['app_name'];
+        }
+
+        $settings->save();
+
+        return back()->with('success', 'General settings updated successfully.');
     }
 }
