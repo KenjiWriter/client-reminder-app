@@ -864,7 +864,7 @@ const setHoverDay = (index: number) => {
 
                             <div class="grid gap-2">
                                 <Label for="duration">{{ t('appointments.duration') }}</Label>
-                                <Input id="duration" type="number" v-model="form.duration_minutes" min="15" step="15" />
+                                <Input id="duration" type="number" v-model="form.duration_minutes" min="15" step="5" />
                             </div>
 
                             <div class="grid gap-2">

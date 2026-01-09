@@ -206,7 +206,7 @@ const formatDuration = (minutes: number) => {
                                 id="duration" 
                                 v-model.number="form.duration_minutes" 
                                 type="number" 
-                                min="1"
+                                min="0"
                                 step="5"
                                 required 
                                 placeholder="60"
