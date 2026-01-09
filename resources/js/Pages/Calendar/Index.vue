@@ -244,6 +244,22 @@ watch(() => form.service_id, (newServiceId) => {
         const service = props.allServices.find(s => s.id === Number(newServiceId));
         if (service) {
             form.duration_minutes = service.duration_minutes;
+            // Auto-fill price if paid and price is not set
+            if (form.is_paid && (form.price === undefined || form.price === null)) {
+                form.price = service.price;
+            }
+        }
+    }
+});
+
+// Watch is_paid to auto-fill price from service
+watch(() => form.is_paid, (newIsPaid) => {
+    if (newIsPaid && (form.price === undefined || form.price === null)) {
+        if (form.service_id && form.service_id !== 'none' && props.allServices) {
+            const service = props.allServices.find(s => s.id === Number(form.service_id));
+            if (service) {
+                form.price = service.price;
+            }
         }
     }
 });
