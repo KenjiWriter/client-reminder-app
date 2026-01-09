@@ -2,6 +2,21 @@
 
 A small business appointment + SMS reminder system.
 
+## Documentation Navigation
+- [Features](#features)
+  - [Dashboard & Analytics](#-dashboard--analytics)
+  - [Appointment Management](#-appointment-management)
+  - [Client Management](#-client-management)
+  - [Communication](#-communication)
+  - [Medical Conditions Management](#%EF%B8%8F-medical-conditions-management)
+  - [App Branding Configuration](#%EF%B8%8F-app-branding-configuration)
+- [Setup](#setup)
+- [Configuration](#configuration)
+  - [Queue & Scheduler](#queue--scheduler)
+  - [SMS Configuration](#sms-configuration)
+- [Google Calendar Integration](#google-calendar-integration)
+
+
 ## Features
 
 ### 📊 Dashboard & Analytics
