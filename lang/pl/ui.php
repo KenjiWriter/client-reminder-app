@@ -47,6 +47,7 @@ return [
         'addAppointment' => 'Dodaj wizytę',
         'updateDetails' => 'Zaktualizuj szczegóły wizyty',
         'sendReminder' => 'Wyślij przypomnienie SMS',
+        'overlapError' => 'Wykryto konflikt! Wizyta została przywrócona.',
     ],
     
     'clients' => [

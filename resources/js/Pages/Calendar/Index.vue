@@ -5,7 +5,7 @@ import SegmentedControl from '@/components/ui/segmented-control/SegmentedControl
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
 import { useTranslation } from '@/composables/useTranslation';
-import { usePageTitle } from '@/composables/usePageTitle';
+
 import { Button } from '@/components/ui/button';
 import Label from '@/components/ui/label/Label.vue';
 import Input from '@/components/ui/input/Input.vue';
@@ -243,7 +243,14 @@ const openCreateModal = () => {
     isCreateOpen.value = true;
 };
 
+
 const openCreateModalAtTime = (day: Date, hour: number) => {
+    // If we just finished dragging, don't open the modal
+    if (dragState.value.wasDragging) {
+        dragState.value.wasDragging = false;
+        return;
+    }
+
     editingAppointmentId.value = null;
     form.reset();
 
@@ -275,6 +282,12 @@ const openCreateModalAtTime = (day: Date, hour: number) => {
 };
 
 const editAppointment = (event: typeof props.events[0]) => {
+    // If we just finished dragging, don't open the modal
+    if (dragState.value.wasDragging) {
+        dragState.value.wasDragging = false;
+        return;
+    }
+
     editingAppointmentId.value = event.id;
     form.client_id = String(event.client_id);
     form.service_id = event.service_id ? String(event.service_id) : 'none';
@@ -454,6 +467,267 @@ const selectSearchResult = (appointment: any) => {
 // Close search dropdown when clicking outside
 const closeSearch = () => {
     searchResults.value = [];
+};
+
+// --- Interactive DnD & Resize Logic ---
+
+const MIN_DURATION = 15;
+const PIXELS_PER_MINUTE = 1; // 60px per hour means 1px per minute
+const SNAP_MINUTES = 15;
+
+// State
+const dragState = ref({
+    isDragging: false,
+    eventId: null as number | null,
+    originalStart: null as Date | null,
+    originalDuration: 0,
+    startX: 0,
+    startY: 0,
+    initialTop: 0, // current top in pixels
+    newTop: 0,
+    newDayIndex: 0, // 0-6 relative to current view
+    ghostHeight: 0,
+    wasDragging: false,
+});
+
+const resizeState = ref({
+    isResizing: false,
+    isTopHandle: false,
+    eventId: null as number | null,
+    originalStart: null as Date | null,
+    originalDuration: 0,
+    startY: 0,
+    initialHeight: 0, // in pixels
+    initialTop: 0,
+    newHeight: 0,
+    newTop: 0, // only changes if top resizing
+});
+
+// Helper: Calculate pixels from start of day (8:00 AM)
+// We assume day starts at 8:00
+const DAY_START_HOUR = 8;
+
+const getTopFromTime = (date: Date): number => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const minutesFromStart = (hours - DAY_START_HOUR) * 60 + minutes;
+    return minutesFromStart * PIXELS_PER_MINUTE;
+};
+
+// Helper: Calculate Time from pixels
+const getTimeFromTop = (topPixels: number, dayDate: Date): Date => {
+    const minutesFromStart = Math.round(topPixels / PIXELS_PER_MINUTE);
+    // Snap
+    const snappedMinutes = Math.round(minutesFromStart / SNAP_MINUTES) * SNAP_MINUTES;
+    
+    const newDate = new Date(dayDate);
+    newDate.setHours(DAY_START_HOUR, 0, 0, 0);
+    newDate.setMinutes(snappedMinutes);
+    return newDate;
+};
+
+// Start Drag
+const startDrag = (event: MouseEvent, appointment: CalendarEvent, dayIndex: number) => {
+    if (resizeState.value.isResizing) return; // Priority to resize
+    
+    // Prevent dragging if clicking buttons/text
+    // (Checked via helper or just simple capture)
+    
+    const startDate = parseISO(appointment.start);
+    const top = getTopFromTime(startDate);
+    
+    dragState.value = {
+        isDragging: true,
+        eventId: appointment.id,
+        originalStart: startDate,
+        originalDuration: appointment.duration_minutes,
+        startX: event.clientX,
+        startY: event.clientY,
+        initialTop: top,
+        newTop: top,
+        newDayIndex: dayIndex,
+        ghostHeight: appointment.duration_minutes * PIXELS_PER_MINUTE,
+        wasDragging: false,
+    };
+
+    document.body.style.cursor = 'grabbing';
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+};
+
+// Start Resize
+const startResize = (event: MouseEvent, appointment: CalendarEvent, isTop: boolean) => {
+    event.stopPropagation(); // prevent drag
+    
+    const startDate = parseISO(appointment.start);
+    const top = getTopFromTime(startDate);
+    const height = appointment.duration_minutes * PIXELS_PER_MINUTE;
+
+    resizeState.value = {
+        isResizing: true,
+        isTopHandle: isTop,
+        eventId: appointment.id,
+        originalStart: startDate,
+        originalDuration: appointment.duration_minutes,
+        startY: event.clientY,
+        initialHeight: height,
+        initialTop: top,
+        newHeight: height,
+        newTop: top,
+    };
+    
+    document.body.style.cursor = 'ns-resize';
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+};
+
+const onMouseMove = (event: MouseEvent) => {
+    if (dragState.value.isDragging) {
+        const deltaY = event.clientY - dragState.value.startY;
+        
+        // Calculate new top (snapped visually for ghost?)
+        // Let's keep smooth for ghost, snap for logic
+        let rawTop = dragState.value.initialTop + deltaY;
+        
+        // Boundaries (0 to 16 hours * 60 = 960px)
+        // 8 AM to 11 PM = 15 hours? grid is 8..23 = 16 slots?
+        // Let's assume height is fixed
+        
+        dragState.value.newTop = rawTop;
+        
+        // Horizontal: Determine column
+        // This requires knowing column widths. 
+        // Simplification: We track which element we are hovering or just rely on standard cursor
+        // For now, simpler implementation: Drop is only valid if we hover a specific day column
+        // We can track `mouseover` on day columns to update `newDayIndex`.
+        
+    } else if (resizeState.value.isResizing) {
+        const deltaY = event.clientY - resizeState.value.startY;
+        
+        if (resizeState.value.isTopHandle) {
+             const newHeight = Math.max(MIN_DURATION * PIXELS_PER_MINUTE, resizeState.value.initialHeight - deltaY);
+             // When top resizing, Top moves, Height changes
+             // Delta positive (down) -> Top increases, Height decreases
+             
+             // Snap logic needed for UI feedback
+             resizeState.value.newHeight = newHeight;
+             resizeState.value.newTop = resizeState.value.initialTop + (resizeState.value.initialHeight - newHeight);
+             
+        } else {
+            // Bottom resizing
+            const newHeight = Math.max(MIN_DURATION * PIXELS_PER_MINUTE, resizeState.value.initialHeight + deltaY);
+            resizeState.value.newHeight = newHeight;
+        }
+    }
+};
+
+const onMouseUp = async (event: MouseEvent) => {
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
+    document.body.style.cursor = '';
+    
+    if (dragState.value.isDragging) {
+        // Calculate distance moved
+        const dist = Math.sqrt(Math.pow(event.clientX - dragState.value.startX, 2) + Math.pow(event.clientY - dragState.value.startY, 2));
+        const wasRealDrag = dist > 5;
+
+        // Set flag to prevent click event on grid if it was a real drag
+        if (wasRealDrag) {
+            dragState.value.wasDragging = true;
+            // Clear flag after a short delay to allow click event to fire and be ignored
+            setTimeout(() => { dragState.value.wasDragging = false; }, 100);
+            await handleDrop();
+        } else {
+             dragState.value.wasDragging = false;
+        }
+        
+        dragState.value.isDragging = false;
+    }
+    
+    if (resizeState.value.isResizing) {
+        await handleResizeEnd();
+        resizeState.value.isResizing = false;
+    }
+};
+
+const handleDrop = async () => {
+    const { newTop, newDayIndex, eventId } = dragState.value;
+    const day = days.value[newDayIndex]; // using the computed `days`
+    
+    const newStart = getTimeFromTop(newTop, day);
+    
+    // Check if changed
+    if (newStart.getTime() === dragState.value.originalStart?.getTime() && 
+        newDayIndex === days.value.findIndex(d => isSameDay(d, dragState.value.originalStart!))) {
+        return; // No change
+    }
+    
+    await updateAppointment(eventId!, newStart, dragState.value.originalDuration);
+};
+
+const handleResizeEnd = async () => {
+    const { newTop, newHeight, eventId, isTopHandle } = resizeState.value;
+    
+    let newStart = resizeState.value.originalStart!;
+    let newDuration = Math.round(newHeight / PIXELS_PER_MINUTE);
+    
+    // Snap duration
+    newDuration = Math.round(newDuration / SNAP_MINUTES) * SNAP_MINUTES;
+    
+    if (isTopHandle) {
+         // Start time changed
+         // We need to calculate start time based on the VISUAL new top
+         // NOTE: The `newTop` in state was calculated from (initialTop + delta)
+         // We should recalculate start based on that
+         
+         // Start date is same day
+         const day = startOfToday(); // Just need the hours
+         // Actually we need the real day
+         const currentDay = startOfDay(newStart); 
+         // Helper: getTimeFromTop uses 'hours' so it returns a date on "today". We should mix it with currentDay.
+         
+         const timePart = getTimeFromTop(resizeState.value.newTop, currentDay);
+         newStart = timePart;
+    }
+    
+    await updateAppointment(eventId!, newStart, newDuration);
+};
+
+const updateAppointment = async (id: number, start: Date, duration: number) => {
+    try {
+        const response = await axios.patch(route('appointments.quick-update', id), {
+            starts_at: format(start, 'yyyy-MM-dd HH:mm:00'),
+            duration_minutes: duration
+        });
+        
+        // Optimistic / Success update
+        // We can reload or just splice the event array
+        // Reloading is safer for full sync
+        router.reload({ only: ['events'] });
+        
+    } catch (error: any) {
+        console.error('Update failed', error);
+        // Snap back animation or alert
+        if (error.response?.status === 422) {
+             alert(t('calendar.overlapError') || 'Conflict detected! Appointment reverted.');
+        } else {
+             alert(t('common.error') || 'An error occurred.');
+        }
+    }
+};
+
+// Helper for date utils
+const startOfDay = (date: Date) => {
+    const d = new Date(date);
+    d.setHours(0,0,0,0);
+    return d;
+}
+
+// Track mouse hover over columns
+const setHoverDay = (index: number) => {
+    if (dragState.value.isDragging) {
+        dragState.value.newDayIndex = index;
+    }
 };
 
 </script>
@@ -674,15 +948,19 @@ const closeSearch = () => {
                 <div class="rounded-2xl border border-border bg-card shadow-sm p-4">
 
 
-                <!-- Week Grid -->
-                <div class="grid grid-cols-[80px_repeat(7,1fr)] gap-0">
-                    <!-- Header Row -->
-                    <div class="border-b border-border bg-muted/30"></div>
+                <!-- Week Grid (Column-based) -->
+                <div class="grid grid-cols-[80px_repeat(7,1fr)] bg-background select-none" 
+                     @mouseleave="() => { /* Optional: cancel drag if leaves component? */ }">
+                    
+                    <!-- Top Left Empty -->
+                    <div class="border-b border-r border-border p-3"></div>
+
+                    <!-- Header Row (Days) -->
                     <div
-                        v-for="day in days"
+                        v-for="(day, index) in days"
                         :key="day.toISOString()"
-                        class="border-b border-l border-border p-3 text-center"
-                        :class="{'bg-primary/5': isSameDay(day, new Date())}"
+                        class="border-b border-r border-border p-3 text-center bg-muted/30"
+                        :class="{'bg-primary/10': isSameDay(day, new Date())}"
                     >
                         <div class="text-sm font-semibold" :class="{'text-primary': isSameDay(day, new Date())}">
                             {{ formatDayName(day) }}
@@ -692,39 +970,104 @@ const closeSearch = () => {
                         </div>
                     </div>
 
-                    <!-- Time Grid Rows (8 AM - 11 PM) -->
-                    <template v-for="hour in Array.from({length: 16}, (_, i) => i + 8)" :key="hour">
-                        <!-- Time Label -->
-                        <div class="border-b border-border p-2 text-right text-xs text-muted-foreground">
-                            {{ formatHourLabel(hour) }}
+                    <!-- Time Labels Column -->
+                    <div class="border-r border-border">
+                         <div v-for="hour in Array.from({length: 16}, (_, i) => i + 8)" :key="hour" class="h-[60px] border-b border-border p-2 text-right text-xs text-muted-foreground relative">
+                            <span class="-top-3 relative">{{ formatHourLabel(hour) }}</span>
                         </div>
+                    </div>
 
-                        <!-- Day Cells -->
-                        <div
-                            v-for="day in days"
-                            :key="`${day.toISOString()}-${hour}`"
-                            class="relative border-b border-l border-border min-h-[60px] hover:bg-muted/50 transition-colors cursor-pointer"
-                            :class="{'bg-primary/5': isSameDay(day, new Date())}"
+                    <!-- Day Columns -->
+                    <!-- Note: We must track MouseOver for Drag Destination -->
+                    <div
+                        v-for="(day, index) in days"
+                        :key="`col-${day.toISOString()}`"
+                        class="relative border-r border-border"
+                        :class="{'bg-primary/5': isSameDay(day, new Date())}"
+                        @mouseenter="setHoverDay(index)"
+                    >
+                        <!-- Background Grid Lines (1 hour slots) -->
+                         <!-- Click to create new appointment -->
+                        <div 
+                            v-for="hour in Array.from({length: 16}, (_, i) => i + 8)" 
+                            :key="`slot-${hour}`" 
+                            class="h-[60px] border-b border-border/50 hover:bg-muted/50 transition-colors cursor-pointer box-border"
                             @click="openCreateModalAtTime(day, hour)"
+                        ></div>
+
+                        <!-- Ghost Element (Drag Preview) -->
+                         <div
+                            v-if="dragState.isDragging && dragState.newDayIndex === index"
+                            class="absolute w-[95%] left-[2.5%] rounded-md bg-primary/20 border-2 border-primary border-dashed z-20 pointer-events-none transition-all duration-75 ease-linear"
+                            :style="{
+                                top: `${dragState.newTop}px`,
+                                height: `${dragState.ghostHeight}px`
+                            }"
                         >
-                            <!-- Events for this hour/day -->
-                            <div
-                                v-for="event in getEventsForDay(day).filter(e => {
-                                    const startHour = parseISO(e.start).getHours();
-                                    return startHour === hour;
-                                })"
-                                :key="event.id"
-                                class="absolute left-1 right-1 top-1 rounded-md p-2 text-xs cursor-pointer hover:shadow-md transition-shadow bg-event-upcoming border-l-2 border-event-upcoming-dot"
-                                :style="{height: `${(event.duration_minutes / 60) * 60 - 4}px`}"
-                                @click.stop="editAppointment(event)"
-                            >
-                                <div class="font-medium text-event-upcoming-dot">{{ event.title }}</div>
-                                <div class="text-event-upcoming-dot/70 text-[10px] mt-0.5">
-                                    {{ formatTime(event.start) }}
-                                </div>
+                            <div class="text-xs font-semibold p-1 text-primary">
+                                {{ format(getTimeFromTop(dragState.newTop, day), 'HH:mm') }}
                             </div>
                         </div>
-                    </template>
+
+                        <!-- Events -->
+                        <!-- Filter events for this day -->
+                        <!-- NOTE: We need to filter and position them absolutely -->
+                        <template v-for="event in getEventsForDay(day)" :key="event.id">
+                            <!-- Helper to calculate top -->
+                            <!-- We must hide the event being dragged to show ghost instead? Or dim it? -->
+                            <!-- Let's dim it: opacity-50 -->
+                            <div
+                                v-if="getTopFromTime(parseISO(event.start)) >= 0"
+                                class="absolute w-[95%] left-[2.5%] rounded-md p-2 text-xs hover:shadow-lg transition-shadow bg-event-upcoming border-l-2 border-event-upcoming-dot select-none group z-10"
+                                :class="{
+                                    'opacity-30': dragState.isDragging && dragState.eventId === event.id,
+                                    'z-30': resizeState.isResizing && resizeState.eventId === event.id
+                                }"
+                                :style="{
+                                    top: `${resizeState.isResizing && resizeState.eventId === event.id && resizeState.isTopHandle ? resizeState.newTop : getTopFromTime(parseISO(event.start))}px`,
+                                    height: `${resizeState.isResizing && resizeState.eventId === event.id ? resizeState.newHeight : (event.duration_minutes * PIXELS_PER_MINUTE)}px`,
+                                    cursor: 'grab'
+                                }"
+                                @mousedown.stop="startDrag($event, event, index)"
+                                @click.stop="editAppointment(event)"
+                            >
+                                <!-- Top Resize Handle -->
+                                <div 
+                                    class="absolute top-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 hover:bg-primary/20 z-50 rounded-t-md"
+                                    @mousedown.stop="startResize($event, event, true)"
+                                    @click.stop
+                                ></div>
+
+                                <div class="font-medium text-event-upcoming-dot pointer-events-none truncate">
+                                    {{ event.title }}
+                                </div>
+                                <div class="text-event-upcoming-dot/70 text-[10px] mt-0.5 pointer-events-none flex items-center gap-1">
+                                    <Clock class="w-3 h-3" />
+                                    <!-- Dynamic Time Label during Resize/Drag -->
+                                    <span v-if="resizeState.isResizing && resizeState.eventId === event.id">
+                                        {{ resizeState.isTopHandle 
+                                            ? format(getTimeFromTop(resizeState.newTop, day), 'HH:mm')
+                                            : format(parseISO(event.start), 'HH:mm') 
+                                        }} - 
+                                        {{ resizeState.isTopHandle
+                                            ? format(parseISO(event.end), 'HH:mm')
+                                            : format(getTimeFromTop(getTopFromTime(parseISO(event.start)) + resizeState.newHeight, day), 'HH:mm')
+                                        }}
+                                    </span>
+                                    <span v-else>
+                                        {{ formatTime(event.start) }}
+                                    </span>
+                                </div>
+
+                                <!-- Bottom Resize Handle -->
+                                <div 
+                                    class="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 hover:bg-primary/20 z-50 rounded-b-md"
+                                    @mousedown.stop="startResize($event, event, false)"
+                                    @click.stop
+                                ></div>
+                            </div>
+                        </template>
+                    </div>
                 </div>
                 </div>
             </div>

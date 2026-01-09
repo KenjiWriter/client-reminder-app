@@ -134,6 +134,48 @@ class AppointmentController extends Controller
     }
 
     /**
+     * Quick update for Drag & Drop / Resize interactions.
+     * 
+     * @param Request $request
+     * @param Appointment $appointment
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function quickUpdate(Request $request, Appointment $appointment)
+    {
+        $validated = $request->validate([
+            'starts_at' => 'required|date|after:now',
+            'duration_minutes' => 'required|integer|min:15',
+        ]);
+
+        $startsAt = Carbon::parse($validated['starts_at']);
+        $duration = (int) $validated['duration_minutes'];
+
+        // Check availability
+        // We must exclude the current appointment from the overlap check
+        if (!$this->availability->isSlotAvailable($startsAt, $duration, $appointment->id)) {
+            return response()->json([
+                'message' => 'This slot is already booked.',
+                'code' => 'OVERLAP_DETECTED'
+            ], 422);
+        }
+
+        $appointment->update([
+            'starts_at' => $startsAt,
+            'duration_minutes' => $duration
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'appointment' => [
+                'id' => $appointment->id,
+                'start' => $appointment->starts_at->toIso8601String(),
+                'end' => $appointment->starts_at->addMinutes($appointment->duration_minutes)->toIso8601String(),
+                'duration_minutes' => $appointment->duration_minutes,
+            ]
+        ]);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Appointment $appointment)
