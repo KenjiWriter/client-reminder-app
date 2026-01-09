@@ -40,6 +40,7 @@ interface Props {
         sms: DataPoint[];
         reschedules: DataPoint[];
         canceled: DataPoint[];
+        unpaid: DataPoint[];
     };
     analytics: {
         projected_revenue: number;
@@ -187,6 +188,7 @@ const getPeriodLabel = () => {
 
             <!-- Charts Section -->
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                 <!-- Appointments & SMS -->
                  <div class="md:col-span-2 grid gap-6 md:grid-cols-2">
                     <DashboardChart
                         :title="t('dashboard.charts.appointmentsPerDay')"
@@ -200,6 +202,16 @@ const getPeriodLabel = () => {
                         type="line"
                         color="#10b981"
                     />
+                 </div>
+
+                 <!-- Service Breakdown -->
+                 <ServiceDistributionChart
+                    :title="t('dashboard.charts.serviceBreakdown')"
+                    :data="analytics.service_breakdown"
+                 />
+
+                 <!-- Secondary Metrics Row -->
+                 <div class="md:col-span-3 grid gap-6 md:grid-cols-3">
                     <DashboardChart
                         :title="t('dashboard.charts.newClientsPerDay')"
                         :data="timeseries.clients"
@@ -212,13 +224,13 @@ const getPeriodLabel = () => {
                         type="line"
                         color="#f59e0b"
                     />
+                    <DashboardChart
+                        :title="t('dashboard.charts.unpaidPerDay')"
+                        :data="timeseries.unpaid"
+                        type="bar"
+                        color="#ef4444"
+                    />
                  </div>
-                 
-                 <!-- Service Breakdown Chart -->
-                 <ServiceDistributionChart
-                    :title="t('dashboard.charts.serviceBreakdown')"
-                    :data="analytics.service_breakdown"
-                 />
             </div>
         </div>
     </AppShell>

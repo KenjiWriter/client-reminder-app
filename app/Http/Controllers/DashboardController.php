@@ -51,6 +51,7 @@ class DashboardController extends Controller
                     'sms' => $this->getSmsOverTime($startDate, $endDate, $timezone),
                     'reschedules' => $this->getReschedulesOverTime($startDate, $endDate, $timezone),
                     'canceled' => $this->getCanceledOverTime($startDate, $endDate, $timezone),
+                    'unpaid' => $this->getUnpaidOverTime($startDate, $endDate, $timezone),
                 ],
                 'analytics' => $this->getAnalytics($startDate, $endDate),
             ];
@@ -136,6 +137,17 @@ class DashboardController extends Controller
     private function getCanceledOverTime($start, $end, $timezone)
     {
         $data = Appointment::where('status', 'canceled')
+            ->whereBetween('starts_at', [$start, $end])
+            ->get()
+            ->groupBy(fn($item) => $item->starts_at->timezone($timezone)->format('Y-m-d'));
+
+        return $this->formatTimeSeries($data, $start, $end, $timezone);
+    }
+
+    private function getUnpaidOverTime($start, $end, $timezone)
+    {
+        $data = Appointment::where('is_paid', false)
+            ->where('status', '!=', 'canceled')
             ->whereBetween('starts_at', [$start, $end])
             ->get()
             ->groupBy(fn($item) => $item->starts_at->timezone($timezone)->format('Y-m-d'));

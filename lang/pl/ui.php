@@ -121,6 +121,7 @@ return [
             'smsSentPerDay' => 'Wysłane SMS dziennie',
             'newClientsPerDay' => 'Nowi klienci dziennie',
             'reschedulesPerDay' => 'Przełożone wizyty dziennie',
+            'unpaidPerDay' => 'Nieopłacone wizyty wg dni',
             'serviceBreakdown' => 'Rozkład usług',
         ],
     ],

@@ -119,6 +119,7 @@ return [
             'smsSentPerDay' => 'SMS sent per day',
             'newClientsPerDay' => 'New clients per day',
             'reschedulesPerDay' => 'Reschedules per day',
+            'unpaidPerDay' => 'Unpaid appointments per day',
             'serviceBreakdown' => 'Service Breakdown',
         ],
     ],
