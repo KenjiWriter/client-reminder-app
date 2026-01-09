@@ -20,7 +20,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus, Search } from 'lucide-vue-next';
+import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus, Search, RefreshCw } from 'lucide-vue-next';
 import { format, startOfWeek, addDays, getDay, isSameDay, parseISO, startOfToday, addWeeks, subWeeks } from 'date-fns';
 import { route } from 'ziggy-js';
 import { useDebounceFn } from '@vueuse/core';
@@ -503,9 +503,9 @@ const resizeState = ref({
     newTop: 0, // only changes if top resizing
 });
 
-// Helper: Calculate pixels from start of day (8:00 AM)
-// We assume day starts at 8:00
-const DAY_START_HOUR = 8;
+// Helper: Calculate pixels from start of day (6:00 AM)
+// We assume day starts at 6:00
+const DAY_START_HOUR = 6;
 
 const getTopFromTime = (date: Date): number => {
     const hours = date.getHours();
@@ -730,6 +730,20 @@ const setHoverDay = (index: number) => {
     }
 };
 
+const isSyncing = ref(false);
+
+const syncCalendar = () => {
+    if (isSyncing.value) return;
+    if (!confirm('Sync all future appointments to Google Calendar?')) return;
+
+    isSyncing.value = true;
+    router.post(route('settings.integrations.google.sync'), {}, {
+        onFinish: () => {
+            isSyncing.value = false;
+        }
+    });
+};
+
 </script>
 
 <template>
@@ -790,6 +804,9 @@ const setHoverDay = (index: number) => {
 
                 <!-- Actions -->
                 <div class="flex items-center gap-2">
+                     <Button variant="outline" @click="syncCalendar" title="Sync to Google Calendar">
+                        <RefreshCw class="h-4 w-4" :class="{ 'animate-spin': isSyncing }" />
+                    </Button>
                     <Button variant="outline" @click="goToToday">{{ t('common.today') }}</Button>
                     <Dialog v-model:open="isCreateOpen">
                         <DialogTrigger as-child>
@@ -972,7 +989,7 @@ const setHoverDay = (index: number) => {
 
                     <!-- Time Labels Column -->
                     <div class="border-r border-border">
-                         <div v-for="hour in Array.from({length: 16}, (_, i) => i + 8)" :key="hour" class="h-[60px] border-b border-border p-2 text-right text-xs text-muted-foreground relative">
+                         <div v-for="hour in Array.from({length: 18}, (_, i) => i + 6)" :key="hour" class="h-[60px] border-b border-border p-2 text-right text-xs text-muted-foreground relative">
                             <span class="-top-3 relative">{{ formatHourLabel(hour) }}</span>
                         </div>
                     </div>
@@ -989,7 +1006,7 @@ const setHoverDay = (index: number) => {
                         <!-- Background Grid Lines (1 hour slots) -->
                          <!-- Click to create new appointment -->
                         <div 
-                            v-for="hour in Array.from({length: 16}, (_, i) => i + 8)" 
+                            v-for="hour in Array.from({length: 18}, (_, i) => i + 6)" 
                             :key="`slot-${hour}`" 
                             class="h-[60px] border-b border-border/50 hover:bg-muted/50 transition-colors cursor-pointer box-border"
                             @click="openCreateModalAtTime(day, hour)"

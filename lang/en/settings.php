@@ -11,6 +11,21 @@ return [
         'services' => 'Service Catalog',
         'appearance' => 'Appearance',
         'logout' => 'Log Out',
+        'integrations' => 'Integrations',
+    ],
+    'integrations' => [
+        'title' => 'Integrations',
+        'description' => 'Manage external services connected to your account.',
+        'google' => [
+            'title' => 'Google Calendar',
+            'description' => 'Automatically sync your appointments to Google Calendar.',
+            'connected_as' => 'Connected as',
+            'connect_description' => 'Connect your Google Account to enable automatic appointment syncing. We request access to manage your calendar events.',
+            'connect_button' => 'Connect Google Calendar',
+            'sync_button' => 'Sync Now',
+            'disconnect_button' => 'Disconnect',
+            'confirm_disconnect' => 'Are you sure you want to disconnect Google Calendar?',
+        ],
     ],
     'account' => [
         'title' => 'Profile Information',

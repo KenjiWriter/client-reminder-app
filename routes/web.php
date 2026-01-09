@@ -63,6 +63,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // Services Management
         Route::get('/services', [\App\Http\Controllers\ServiceController::class, 'index'])->name('services');
+        
+        // Integrations (Google Calendar)
+        Route::get('/integrations', function () {
+            return Inertia::render('Settings/Integrations', [
+                'google_calendar_email' => Auth::user()->google_calendar_email,
+            ]);
+        })->name('integrations');
+        
+        Route::get('/integrations/google/connect', [\App\Http\Controllers\GoogleCalendarController::class, 'connect'])->name('integrations.google.connect');
+        Route::get('/integrations/google/callback', [\App\Http\Controllers\GoogleCalendarController::class, 'callback'])->name('integrations.google.callback');
+        Route::post('/integrations/google/disconnect', [\App\Http\Controllers\GoogleCalendarController::class, 'disconnect'])->name('integrations.google.disconnect');
+        Route::post('/integrations/google/sync', [\App\Http\Controllers\GoogleCalendarController::class, 'sync'])->name('integrations.google.sync');
     });
 
     // Medical Condition Types API routes (for Quick Add feature)

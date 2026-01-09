@@ -57,4 +57,16 @@ class Appointment extends Model
     {
         return $this->belongsTo(Service::class);
     }
+
+    public function getEndsAtAttribute()
+    {
+        if (!$this->starts_at) {
+            return null;
+        }
+        
+        // Default to 60 minutes if no service or duration
+        $duration = $this->service?->duration ?? 60; 
+        
+        return $this->starts_at->copy()->addMinutes($duration);
+    }
 }

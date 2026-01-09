@@ -2,7 +2,7 @@
 import AppShell from '@/layouts/AppShell.vue'; // Direct import from Layouts
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import { User, MessageSquare, Monitor, LogOut, Settings } from 'lucide-vue-next';
+import { User, MessageSquare, Monitor, LogOut, Settings, Calendar } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import Heading from '@/components/Heading.vue';
@@ -42,6 +42,11 @@ const navItems = computed(() => [
         name: 'settings.nav.appearance',
         href: '/settings/appearance',
         icon: Monitor,
+    },
+    {
+        name: 'settings.nav.integrations',
+        href: '/settings/integrations',
+        icon: Calendar,
     },
 ]);
 

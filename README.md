@@ -216,3 +216,38 @@ Both commands respect the logic defined in the `AppointmentReminderSender` servi
 4. The queue worker sends SMS via the configured provider
 5. `reminder_sent_at` is marked to prevent duplicates (idempotent)
 
+
+## Google Calendar Integration
+
+The application supports 2-way synchronization with Google Calendar.
+
+### Features
+- **One-click Connect**: Users can link their Google Account via OAuth 2.0.
+- **Auto-Sync**:
+  - **Create**: New appointments are automatically pushed to the primary Google Calendar.
+  - **Update**: Changes to time or details in the app reflect immediately in Google Calendar.
+  - **Delete**: Cancelled/deleted appointments are removed from Google Calendar.
+
+### Configuration Required
+
+To enable this feature, you must configure a Google Cloud Project and add credentials to your `.env` file.
+
+1.  **Google Cloud Console**:
+    - Create a project at [console.cloud.google.com](https://console.cloud.google.com/).
+    - Enable **Google Calendar API**.
+    - Configure **OAuth Consent Screen** (User Type: External/Internal).
+    - Create **OAuth 2.0 Credentials** (Web Application).
+    - add Redirect URI: `http://your-app-url/settings/integrations/google/callback`
+
+2.  **Environment Variables**:
+    Add the credentials to your `.env` file:
+    ```env
+    GOOGLE_CLIENT_ID=your-client-id
+    GOOGLE_CLIENT_SECRET=your-client-secret
+    GOOGLE_REDIRECT_URI=http://localhost:8000/settings/integrations/google/callback
+    ```
+
+3.  **Usage**:
+    - Go to **Settings > Integrations**.
+    - Click **Connect Google Calendar**.
+

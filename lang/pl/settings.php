@@ -11,6 +11,21 @@ return [
         'services' => 'Katalog Usług',
         'appearance' => 'Wygląd',
         'logout' => 'Wyloguj',
+        'integrations' => 'Integracje',
+    ],
+    'integrations' => [
+        'title' => 'Integracje',
+        'description' => 'Zarządzaj zewnętrznymi usługami połączonymi z Twoim kontem.',
+        'google' => [
+            'title' => 'Kalendarz Google',
+            'description' => 'Automatycznie synchronizuj wizyty z Kalendarzem Google.',
+            'connected_as' => 'Połączono jako',
+            'connect_description' => 'Połącz swoje konto Google, aby włączyć automatyczną synchronizację wizyt. Wymagamy dostępu do zarządzania wydarzeniami w kalendarzu.',
+            'connect_button' => 'Połącz Kalendarz Google',
+            'sync_button' => 'Synchronizuj',
+            'disconnect_button' => 'Rozłącz',
+            'confirm_disconnect' => 'Czy na pewno chcesz rozłączyć Kalendarz Google?',
+        ],
     ],
     'account' => [
         'title' => 'Dane profilu',
