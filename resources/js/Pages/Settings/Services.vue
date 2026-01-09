@@ -141,7 +141,7 @@ const formatDuration = (minutes: number) => {
                                 <TableCell>
                                     <div>
                                         <div class="font-medium">{{ service.name }}</div>
-                                        <div v-if="service.description" class="text-sm text-muted-foreground">
+                                        <div v-if="service.description" class="text-sm text-muted-foreground line-clamp-4 break-words max-w-[300px]">
                                             {{ service.description }}
                                         </div>
                                     </div>
