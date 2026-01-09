@@ -28,6 +28,7 @@ A small business appointment + SMS reminder system.
   - SMS Sent per day (Line chart)
   - New Clients per day (Bar chart)
   - Reschedules per day (Line chart)
+  - Unpaid Visits per day (Bar chart)
 - **Filters**: Date range filtering (7d, 30d, 90d, Month-to-Date, Custom Range)
 
 ### 📅 Appointment Management
@@ -35,6 +36,10 @@ A small business appointment + SMS reminder system.
   - **Drag & Drop**: Easily move appointments to new times or days
   - **Resizing**: Adjust duration with top/bottom handles (15-min increments)
 - **Status Tracking**: Confirmed, Pending Approval, Canceled, Completed
+- **Payment Tracking**:
+  - Mark appointments as Paid/Unpaid
+  - Track Payment Method (Cash, Card, Transfer) and Price
+  - Auto-fill price from service definition
 - **SMS Reminders**: Automated 24h reminders via queue/scheduler process
 
 ![Calendar View](docs/screenshots/calendar.png)
@@ -47,6 +52,7 @@ A small business appointment + SMS reminder system.
 - **Public Page**: Unique public link for each client to check their appointments
 - **Self-Service**: Clients can request rescheduling or cancellation via their public page
 - **Reschedule Workflow**: Admin approval system for client-requested changes
+- **Financial Overview**: Dedicated view for managing unpaid appointments and tracking payments
 
 ### 💬 Communication
 - **SMS Logs**: Full history of sent messages with delivery status
