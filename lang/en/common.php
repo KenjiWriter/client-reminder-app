@@ -10,4 +10,6 @@ return [
     'save' => 'Save',
     'newClient' => 'New Client',
     'optional' => 'optional',
+    'syncGoogle' => 'Sync Google',
+    'syncConfirm' => 'Sync all future appointments to Google Calendar?',
 ];

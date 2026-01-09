@@ -734,7 +734,7 @@ const isSyncing = ref(false);
 
 const syncCalendar = () => {
     if (isSyncing.value) return;
-    if (!confirm('Sync all future appointments to Google Calendar?')) return;
+    if (!confirm(t('common.syncConfirm'))) return;
 
     isSyncing.value = true;
     router.post(route('settings.integrations.google.sync'), {}, {
@@ -804,8 +804,9 @@ const syncCalendar = () => {
 
                 <!-- Actions -->
                 <div class="flex items-center gap-2">
-                     <Button variant="outline" @click="syncCalendar" title="Sync to Google Calendar">
-                        <RefreshCw class="h-4 w-4" :class="{ 'animate-spin': isSyncing }" />
+                     <Button variant="outline" @click="syncCalendar" :title="t('settings.sync_button')">
+                        <RefreshCw class="h-4 w-4 mr-2" :class="{ 'animate-spin': isSyncing }" />
+                        {{ t('common.syncGoogle') }}
                     </Button>
                     <Button variant="outline" @click="goToToday">{{ t('common.today') }}</Button>
                     <Dialog v-model:open="isCreateOpen">
