@@ -10,4 +10,5 @@ return [
     'statistics'=> 'Site Stats',
     'logout'    => 'Logout',
     'messages'  => 'Messages',
+    'financial' => 'Financial',
 ];

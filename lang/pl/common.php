@@ -12,4 +12,5 @@ return [
     'optional' => 'opcjonalne',
     'syncGoogle' => 'Synchronizuj Google',
     'syncConfirm' => 'Czy zsynchronizować wszystkie przyszłe wizyty z Kalendarzem Google?',
+    'search' => 'Szukaj',
 ];

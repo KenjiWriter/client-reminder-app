@@ -39,13 +39,19 @@ Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'inde
     ->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Financial Overview - Must be before 'clients' resource to avoid shadowing
+    Route::get('/clients/financial', [\App\Http\Controllers\FinancialController::class, 'index'])->name('clients.financial');
+
     Route::resource('clients', \App\Http\Controllers\ClientController::class)->except(['edit']);
     Route::put('/clients/{client}/medical-history', [\App\Http\Controllers\MedicalHistoryController::class, 'update'])->name('clients.medical-history.update');
+    
+    // Financial Overview (Removed from here)
 
     Route::get('/appointments/search', [\App\Http\Controllers\AppointmentController::class, 'search'])->name('appointments.search');
     Route::get('/calendar', [\App\Http\Controllers\AppointmentController::class, 'index'])->name('calendar.index');
     Route::post('/appointments', [\App\Http\Controllers\AppointmentController::class, 'store'])->name('appointments.store');
     Route::patch('/appointments/{appointment}/quick-update', [\App\Http\Controllers\AppointmentController::class, 'quickUpdate'])->name('appointments.quick-update');
+    Route::patch('/appointments/{appointment}/payment', [\App\Http\Controllers\AppointmentController::class, 'updatePayment'])->name('appointments.update-payment');
     Route::put('/appointments/{appointment}', [\App\Http\Controllers\AppointmentController::class, 'update'])->name('appointments.update');
     Route::delete('/appointments/{appointment}', [\App\Http\Controllers\AppointmentController::class, 'destroy'])->name('appointments.destroy');
 

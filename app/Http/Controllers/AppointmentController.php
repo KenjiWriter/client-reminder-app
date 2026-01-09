@@ -82,6 +82,10 @@ class AppointmentController extends Controller
                     'duration_minutes' => $appointment->duration_minutes,
                     'note' => $appointment->note,
                     'send_reminder' => $appointment->send_reminder,
+                    'is_paid' => $appointment->is_paid,
+                    'payment_method' => $appointment->payment_method,
+                    'price' => $appointment->price,
+                    'payment_date' => $appointment->payment_date,
                 ];
             });
 
@@ -106,6 +110,19 @@ class AppointmentController extends Controller
             return back()->withErrors(['starts_at' => 'This slot is already booked.']);
         }
 
+        // Auto-fill price from service if not provided but service is selected
+        if (!isset($validated['price']) && !empty($validated['service_id'])) {
+             $service = \App\Models\Service::find($validated['service_id']);
+             if ($service) {
+                 $validated['price'] = $service->price;
+             }
+        }
+        
+        // Auto-fill payment date if paid but not set
+        if (!empty($validated['is_paid']) && empty($validated['payment_date'])) {
+            $validated['payment_date'] = now();
+        }
+
         Appointment::create($validated);
 
         return redirect()->back()
@@ -128,9 +145,52 @@ class AppointmentController extends Controller
         }
 
         $appointment->update($validated);
+        
+        // Post-update logic: if paid just now and no date/price, fill them? 
+        // Actually, better to do it before update to save clean data.
+        
+        // Auto-fill price from service if not provided/null but service is selected AND (we are marking as paid OR just creating consistency)
+        // Let's rely on frontend sending price, but fallback if needed.
+        if (empty($validated['price']) && !empty($validated['service_id']) && isset($validated['is_paid']) && $validated['is_paid']) {
+             // Only auto-fill if we are marking as paid and price is missing.
+             // But if user explicitly cleared price, we might not want this? 
+             // Let's stick to: if price is missing in request but service is there, take from service.
+             
+             // Check if price was NOT in request (meaning null)
+             if (!array_key_exists('price', $validated) || $validated['price'] === null) {
+                  $service = \App\Models\Service::find($validated['service_id']);
+                  if ($service) { // && !$appointment->price -- overwrite or not? Let's overwrite so it matches service.
+                      $appointment->price = $service->price;
+                      $appointment->save();
+                  }
+             }
+        }
+        
+        // Auto-fill payment date
+        if ($appointment->is_paid && !$appointment->payment_date) {
+            $appointment->payment_date = now();
+            $appointment->save();
+        }
 
         return redirect()->back()
             ->with('success', 'Appointment updated.');
+    }
+
+    /**
+     * Update payment status.
+     */
+    public function updatePayment(Request $request, Appointment $appointment)
+    {
+        $validated = $request->validate([
+            'is_paid' => 'required|boolean',
+            'payment_method' => 'nullable|string|in:cash,card,transfer',
+            'payment_date' => 'nullable|date',
+            'price' => 'nullable|numeric|min:0',
+        ]);
+
+        $appointment->update($validated);
+
+        return back()->with('success', 'Payment status updated.');
     }
 
     /**

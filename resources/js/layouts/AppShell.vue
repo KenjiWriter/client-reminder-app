@@ -14,7 +14,8 @@ import {
     Inbox,
     Mail,
     Globe,
-    Activity
+    Activity,
+    DollarSign
 } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -77,6 +78,7 @@ const navItems = computed<NavItem[]>(() => [
     },
     { name: 'nav.clients', href: route('clients.index'), icon: Users },
     { name: 'nav.messages', href: route('messages.index'), icon: Mail },
+    { name: 'nav.financial', href: route('clients.financial'), icon: DollarSign },
     { name: 'nav.calendar', href: route('calendar.index'), icon: CalendarIcon },
     { name: 'nav.statistics', href: route('statistics.index'), icon: Activity },
 ]);

@@ -28,6 +28,10 @@ class StoreAppointmentRequest extends FormRequest
             'duration_minutes' => ['required', 'integer', 'min:5', 'max:480'], // 5 min to 8 hours
             'note' => ['nullable', 'string', 'max:1000'],
             'send_reminder' => ['boolean'],
+            'is_paid' => ['boolean'],
+            'payment_method' => ['nullable', 'string', 'in:cash,card,transfer'],
+            'payment_date' => ['nullable', 'date'],
+            'price' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 }

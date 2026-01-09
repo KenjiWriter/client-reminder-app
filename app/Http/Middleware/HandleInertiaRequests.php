@@ -63,6 +63,8 @@ class HandleInertiaRequests extends Middleware
                     'nav' => __('nav'),
                     'settings' => __('settings'),
                     'common' => __('common'),
+                    'calendar' => __('calendar'),
+                    'financial' => __('financial'),
                 ]
             ),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',

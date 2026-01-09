@@ -20,9 +20,10 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus, Search, RefreshCw } from 'lucide-vue-next';
+import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus, Search, RefreshCw, DollarSign } from 'lucide-vue-next';
 import { format, startOfWeek, addDays, getDay, isSameDay, parseISO, startOfToday, addWeeks, subWeeks } from 'date-fns';
 import { route } from 'ziggy-js';
+import { Link } from '@inertiajs/vue3';
 import { useDebounceFn } from '@vueuse/core';
 
 interface CalendarEvent {
@@ -35,7 +36,126 @@ interface CalendarEvent {
     duration_minutes: number;
     note: string | null;
     send_reminder: boolean;
+    is_paid: boolean;
+    payment_method: string | null;
+    price: number | null;
 }
+
+// ... inside script ...
+
+// Create/Edit Form State
+const isCreateOpen = ref(false);
+const editingAppointmentId = ref<number | null>(null);
+
+const form = useForm({
+    client_id: '',
+    service_id: 'none',
+    date: format(new Date(), 'yyyy-MM-dd'),
+    time: '12:00',
+    starts_at: '', // Synced from date + time
+    duration_minutes: 90,
+    note: '',
+    send_reminder: true,
+    is_paid: false,
+    payment_method: 'cash', // Default to cash if paid
+    price: undefined as number | string | undefined,
+});
+
+// ...
+
+const openCreateModal = () => {
+    editingAppointmentId.value = null;
+    form.reset();
+
+    // Select first service by default if available
+    if (props.allServices && props.allServices.length > 0) {
+        const defaultService = props.allServices[0];
+        form.service_id = String(defaultService.id);
+        form.duration_minutes = defaultService.duration_minutes;
+    } else {
+        form.service_id = 'none';
+        form.duration_minutes = 90;
+    }
+
+    form.date = format(new Date(), 'yyyy-MM-dd');
+    form.time = '12:00';
+    form.starts_at = `${format(new Date(), 'yyyy-MM-dd')} 12:00:00`;
+    form.send_reminder = true;
+    
+    // Reset payment fields
+    form.is_paid = false;
+    form.payment_method = 'cash';
+    form.price = undefined;
+    
+    isCreateOpen.value = true;
+};
+
+const openCreateModalAtTime = (day: Date, hour: number) => {
+    // If we just finished dragging, don't open the modal
+    if (dragState.value.wasDragging) {
+        dragState.value.wasDragging = false;
+        return;
+    }
+
+    editingAppointmentId.value = null;
+    form.reset();
+
+    // Select first service by default if available
+    if (props.allServices && props.allServices.length > 0) {
+        const defaultService = props.allServices[0];
+        form.service_id = String(defaultService.id);
+        form.duration_minutes = defaultService.duration_minutes;
+    } else {
+        form.service_id = 'none';
+        form.duration_minutes = 90;
+    }
+    
+    // Find the smart time slot considering existing appointments
+    const timeStr = `${hour.toString().padStart(2, '0')}:00`;
+    const smartDateTime = findNextAvailableTime(format(day, 'yyyy-MM-dd'), timeStr, null);
+    
+    // Use smart time if available, otherwise use clicked time
+    const finalDateTime = smartDateTime || day;
+    if (!smartDateTime) {
+        finalDateTime.setHours(hour, 0, 0, 0);
+    }
+    
+    form.date = format(finalDateTime, 'yyyy-MM-dd');
+    form.time = format(finalDateTime, 'HH:mm');
+    form.starts_at = `${format(finalDateTime, 'yyyy-MM-dd')} ${format(finalDateTime, 'HH:mm')}:00`;
+    form.send_reminder = true;
+    
+    // Reset payment fields
+    form.is_paid = false;
+    form.payment_method = 'cash';
+    form.price = undefined;
+    
+    isCreateOpen.value = true;
+};
+
+const editAppointment = (event: typeof props.events[0]) => {
+    editingAppointmentId.value = event.id;
+    form.reset();
+    
+    // Populate form with event data
+    form.client_id = String(event.client_id);
+    form.service_id = event.service_id ? String(event.service_id) : 'none';
+    form.duration_minutes = event.duration_minutes;
+    form.note = event.note || '';
+    
+    // Parse start time to populate date and time
+    const startDate = parseISO(event.start);
+    form.date = format(startDate, 'yyyy-MM-dd');
+    form.time = format(startDate, 'HH:mm');
+    form.starts_at = event.start;
+    form.send_reminder = event.send_reminder;
+
+    form.is_paid = !!event.is_paid;
+    form.payment_method = event.payment_method || 'cash';
+    form.price = event.price ?? undefined;
+
+    isCreateOpen.value = true;
+};
 
 interface CalendarClient {
     id: number;
@@ -117,20 +237,6 @@ const goToToday = () => {
     }), { preserveState: true, preserveScroll: true });
 };
 
-// Create/Edit Form State
-const isCreateOpen = ref(false);
-const editingAppointmentId = ref<number | null>(null);
-
-const form = useForm({
-    client_id: '',
-    service_id: 'none',
-    date: format(new Date(), 'yyyy-MM-dd'),
-    time: '12:00',
-    starts_at: '', // Synced from date + time
-    duration_minutes: 90,
-    note: '',
-    send_reminder: true,
-});
 
 // Watch service selection to auto-update duration
 watch(() => form.service_id, (newServiceId) => {
@@ -222,83 +328,6 @@ const findNextAvailableTime = (dateStr: string, timeStr: string, excludeAppointm
     }
 };
 
-const openCreateModal = () => {
-    editingAppointmentId.value = null;
-    form.reset();
-
-    // Select first service by default if available
-    if (props.allServices && props.allServices.length > 0) {
-        const defaultService = props.allServices[0];
-        form.service_id = String(defaultService.id);
-        form.duration_minutes = defaultService.duration_minutes;
-    } else {
-        form.service_id = 'none';
-        form.duration_minutes = 90;
-    }
-
-    form.date = format(new Date(), 'yyyy-MM-dd');
-    form.time = '12:00';
-    form.starts_at = `${format(new Date(), 'yyyy-MM-dd')} 12:00:00`;
-    form.send_reminder = true;
-    isCreateOpen.value = true;
-};
-
-
-const openCreateModalAtTime = (day: Date, hour: number) => {
-    // If we just finished dragging, don't open the modal
-    if (dragState.value.wasDragging) {
-        dragState.value.wasDragging = false;
-        return;
-    }
-
-    editingAppointmentId.value = null;
-    form.reset();
-
-    // Select first service by default if available
-    if (props.allServices && props.allServices.length > 0) {
-        const defaultService = props.allServices[0];
-        form.service_id = String(defaultService.id);
-        form.duration_minutes = defaultService.duration_minutes;
-    } else {
-        form.service_id = 'none';
-        form.duration_minutes = 90;
-    }
-    
-    // Find the smart time slot considering existing appointments
-    const timeStr = `${hour.toString().padStart(2, '0')}:00`;
-    const smartDateTime = findNextAvailableTime(format(day, 'yyyy-MM-dd'), timeStr, null);
-    
-    // Use smart time if available, otherwise use clicked time
-    const finalDateTime = smartDateTime || day;
-    if (!smartDateTime) {
-        finalDateTime.setHours(hour, 0, 0, 0);
-    }
-    
-    form.date = format(finalDateTime, 'yyyy-MM-dd');
-    form.time = format(finalDateTime, 'HH:mm');
-    form.starts_at = `${format(finalDateTime, 'yyyy-MM-dd')} ${format(finalDateTime, 'HH:mm')}:00`;
-    form.send_reminder = true;
-    isCreateOpen.value = true;
-};
-
-const editAppointment = (event: typeof props.events[0]) => {
-    // If we just finished dragging, don't open the modal
-    if (dragState.value.wasDragging) {
-        dragState.value.wasDragging = false;
-        return;
-    }
-
-    editingAppointmentId.value = event.id;
-    form.client_id = String(event.client_id);
-    form.service_id = event.service_id ? String(event.service_id) : 'none';
-    form.date = format(parseISO(event.start), 'yyyy-MM-dd');
-    form.time = format(parseISO(event.start), 'HH:mm');
-    form.starts_at = event.start; // Set starts_at directly
-    form.duration_minutes = event.duration_minutes;
-    form.note = event.note || '';
-    form.send_reminder = !!event.send_reminder;
-    isCreateOpen.value = true;
-};
 
 const closeDialog = () => {
     isCreateOpen.value = false;
@@ -766,6 +795,15 @@ const syncCalendar = () => {
                     </Button>
                 </div>
 
+                <div class="flex items-center gap-2">
+                     <Link :href="route('clients.financial')">
+                        <Button variant="outline" class="gap-2 text-red-600 border-red-200 hover:bg-red-50">
+                            <DollarSign class="h-4 w-4" />
+                            {{ t('calendar.unpaidVisits') }}
+                        </Button>
+                    </Link>
+                </div>
+
                 <!-- Search Input -->
                  <div class="relative w-full max-w-sm">
                     <div class="relative">
@@ -863,7 +901,40 @@ const syncCalendar = () => {
                                 <div v-if="form.errors.client_id" class="text-sm text-red-500">{{ form.errors.client_id }}</div>
                             </div>
                             
-                            <div class="flex items-center gap-2">
+        
+                    <!-- Payment Status -->
+                    <div class="flex items-center gap-2">
+                         <input
+                            type="checkbox"
+                            id="is_paid"
+                            v-model="form.is_paid"
+                            class="rounded border-gray-300 text-primary focus:ring-primary"
+                        />
+                        <Label for="is_paid">{{ t('calendar.payment.completed') }}</Label>
+                    </div>
+
+                    <!-- Payment Details (Conditional) -->
+                    <div v-if="form.is_paid" class="grid grid-cols-2 gap-4 border-l-2 border-primary/20 pl-4">
+                        <div class="grid gap-2">
+                             <Label>{{ t('calendar.payment.method') }}</Label>
+                             <Select v-model="form.payment_method">
+                                <SelectTrigger>
+                                    <SelectValue :placeholder="t('calendar.payment.selectMethod')" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="cash">{{ t('calendar.payment.methods.cash') }}</SelectItem>
+                                    <SelectItem value="card">{{ t('calendar.payment.methods.card') }}</SelectItem>
+                                    <SelectItem value="transfer">{{ t('calendar.payment.methods.transfer') }}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         <div class="grid gap-2">
+                            <Label>{{ t('calendar.payment.amount') }}</Label>
+                            <Input type="number" step="0.01" v-model="form.price" placeholder="0.00" />
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
                                 <input type="checkbox" id="send_reminder" v-model="form.send_reminder" class="h-4 w-4" />
                                 <Label for="send_reminder">{{ t('calendar.sendReminder') }}</Label>
                             </div>
@@ -1056,7 +1127,12 @@ const syncCalendar = () => {
                                     @click.stop
                                 ></div>
 
-                                <div class="font-medium text-event-upcoming-dot pointer-events-none truncate">
+                                <!-- Unpaid Indicator -->
+                                <div v-if="!event.is_paid && new Date(event.start) < new Date()" class="absolute top-1 right-1 flex items-center justify-center w-4 h-4 bg-red-100/80 text-red-600 rounded-full text-[10px] font-bold border border-red-200 z-50">
+                                    $
+                                </div>
+
+                                <div class="font-medium text-event-upcoming-dot pointer-events-none truncate mr-4">
                                     {{ event.title }}
                                 </div>
                                 <div class="text-event-upcoming-dot/70 text-[10px] mt-0.5 pointer-events-none flex items-center gap-1">

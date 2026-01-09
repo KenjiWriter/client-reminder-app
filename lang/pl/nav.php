@@ -10,4 +10,5 @@ return [
     'statistics'=> 'Statystyki',
     'logout'    => 'Wyloguj',
     'messages'  => 'Wiadomości',
+    'financial' => 'Finanse',
 ];

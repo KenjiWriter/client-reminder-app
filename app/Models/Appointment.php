@@ -26,6 +26,9 @@ class Appointment extends Model
         'requested_at' => 'datetime',
         'suggested_starts_at' => 'datetime',
         'suggestion_created_at' => 'datetime',
+        'is_paid' => 'boolean',
+        'payment_date' => 'datetime',
+        'price' => 'decimal:2',
     ];
 
     protected static function booted(): void
