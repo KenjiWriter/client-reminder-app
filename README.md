@@ -17,6 +17,8 @@ A small business appointment + SMS reminder system.
 
 ### 📅 Appointment Management
 - **Calendar View**: Visual overview of all scheduled visits
+  - **Drag & Drop**: Easily move appointments to new times or days
+  - **Resizing**: Adjust duration with top/bottom handles (15-min increments)
 - **Status Tracking**: Confirmed, Pending Approval, Canceled, Completed
 - **SMS Reminders**: Automated 24h reminders via queue/scheduler process
 
