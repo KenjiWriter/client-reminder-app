@@ -46,17 +46,17 @@ const markAsPaid = (id: number) => {
     <Head title="Financial Overview" />
 
     <AppShell>
-        <div class="space-y-6">
-            <div class="flex items-center justify-between">
+        <div class="space-y-6 pt-6 px-4 sm:px-6 w-full">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h2 class="text-3xl font-bold tracking-tight">{{ t('financial.title') }}</h2>
-                    <p class="text-muted-foreground">{{ t('financial.subtitle') }}</p>
+                    <h2 class="text-3xl font-bold tracking-tight text-foreground">{{ t('financial.title') }}</h2>
+                    <p class="text-muted-foreground mt-1">{{ t('financial.subtitle') }}</p>
                 </div>
                 
-                <Card class="w-auto border-red-200 bg-red-50/50">
+                <Card class="w-full md:w-auto min-w-[250px] border-red-200 bg-red-50/50 shadow-sm shrink-0">
                     <CardHeader class="pb-2">
-                        <CardDescription>{{ t('financial.totalOutstanding') }}</CardDescription>
-                        <CardTitle class="text-2xl text-red-600 flex items-center gap-2">
+                        <CardDescription class="text-red-700/80">{{ t('financial.totalOutstanding') }}</CardDescription>
+                        <CardTitle class="text-2xl text-red-600 flex items-center gap-2 whitespace-nowrap">
                             <DollarSign class="h-6 w-6" />
                             {{ Number(totalOutstanding).toFixed(2) }} PLN
                         </CardTitle>
