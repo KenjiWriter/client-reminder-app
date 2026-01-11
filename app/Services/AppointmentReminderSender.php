@@ -18,6 +18,7 @@ class AppointmentReminderSender
 
     public function send(Appointment $appointment, bool $force = false): SmsResult
     {
+        // If force is TRUE, we skip getGuardError completely.
         if (!$force) {
             $error = $this->getGuardError($appointment);
             if ($error) {
