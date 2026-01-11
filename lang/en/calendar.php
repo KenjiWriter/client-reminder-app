@@ -2,6 +2,7 @@
 
 return [
     'sendReminder' => 'Send SMS Reminder',
+    'addAppointment' => 'Add appointment'
     'unpaidVisits' => 'Unpaid Visits',
     'payment' => [
         'completed' => 'Payment Completed',

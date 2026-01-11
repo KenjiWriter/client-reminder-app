@@ -81,14 +81,19 @@ class RemindersSendCommand extends Command
         $settings = Setting::first();
         $sendTime = $settings->sms_send_time ?? '09:00';
         
-        // Time Check: Only run if current minute matches the configured send time
-        // We use wait/grace period or just strict check since it runs every minute
-        if (now()->format('H:i') !== $sendTime && !$this->option('force')) {
-            // Silently exit if not the right time
-            return 0;
+        $now = now();
+        $scheduledTime = Carbon::createFromFormat('H:i', $sendTime);
+        $windowEnd = $scheduledTime->copy()->addMinutes(60);
+
+        // Time Check: Run if current time is within 60 minutes after the scheduled time
+        // This handles cases where the worker might be slightly delayed or the exact minute is missed
+        if (! $this->option('force')) {
+            if ($now->lt($scheduledTime) || $now->gte($windowEnd)) {
+                return 0;
+            }
         }
 
-        $this->info("Time match ($sendTime)! Starting bulk reminder process...");
+        $this->info("Time match ({$scheduledTime->format('H:i')} - {$windowEnd->format('H:i')})! Starting bulk reminder process...");
 
         // Select all confirmed appointments for TOMORROW
         // We don't use 'reminder_hours' anymore for this daily batch logic

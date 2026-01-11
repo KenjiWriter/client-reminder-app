@@ -31,10 +31,11 @@ class AppointmentReminderSender
     public function sendReminder(Appointment $appointment, bool $force = false): SmsResult
     {
         return $this->sendInternal($appointment, 'appointment_reminder', function($appt) {
-            // Mark as sent logic only for periodic reminders
+            // Atomic check: only proceed if we can update the row where reminder_sent_at is NULL
             if (is_null($appt->reminder_sent_at)) {
                 Appointment::where('id', $appt->id)->whereNull('reminder_sent_at')->update(['reminder_sent_at' => now()]);
             }
+            return false;
         }, function($appt) {
             Appointment::where('id', $appt->id)->update(['reminder_sent_at' => null]);
         }, [], $force);
@@ -68,7 +69,14 @@ class AppointmentReminderSender
             return SmsResult::failure('Client has opted out of SMS reminders.');
         }
 
-        if ($beforeSend) $beforeSend($appointment);
+        // If beforeSend returns false explicitly, we stop.
+        // This is used for atomic locking (preventing double sends).
+        if ($beforeSend) {
+            $shouldProceed = $beforeSend($appointment);
+            if ($shouldProceed === false) {
+                return SmsResult::failure('Cancelled by beforeSend check (already sent or locked).');
+            }
+        }
 
         try {
             $message = $this->composeMessage($appointment, $template, $overrides);

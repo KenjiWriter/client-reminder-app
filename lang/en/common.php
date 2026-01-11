@@ -12,4 +12,6 @@ return [
     'optional' => 'optional',
     'syncGoogle' => 'Sync Google',
     'syncConfirm' => 'Sync all future appointments to Google Calendar?',
+    'all' => 'All',
+    'actions' => 'Actions',
 ];
