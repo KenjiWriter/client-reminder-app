@@ -84,17 +84,26 @@ class RemindersSendCommand extends Command
         $now = now();
         // Use parse instead of createFromFormat to be more flexible with seconds (e.g. 09:00:00)
         $scheduledTime = Carbon::parse($sendTime);
-        $windowEnd = $scheduledTime->copy()->addMinutes(60);
+        // Allow catch-up until 21:00 in case the cron missed the original window
+        $cutoffTime = $scheduledTime->copy()->setTime(21, 0, 0);
 
-        // Time Check: Run if current time is within 60 minutes after the scheduled time
-        // This handles cases where the worker might be slightly delayed or the exact minute is missed
+        $this->info("Current time: {$now->format('Y-m-d H:i:s')}");
+        $this->info("Scheduled time: {$scheduledTime->format('H:i:s')}, Cutoff: {$cutoffTime->format('H:i:s')}");
+
+        // Time Check: Run if current time is after scheduled time but before cutoff (21:00)
         if (! $this->option('force')) {
-            if ($now->lt($scheduledTime) || $now->gte($windowEnd)) {
+            if ($now->lt($scheduledTime)) {
+                $this->info("Too early to send reminders. Waiting for {$scheduledTime->format('H:i')}.");
+                return 0;
+            }
+
+            if ($now->gt($cutoffTime)) {
+                $this->info("Too late to send reminders today (Cutoff: 21:00). Skipping.");
                 return 0;
             }
         }
 
-        $this->info("Time match ({$scheduledTime->format('H:i')} - {$windowEnd->format('H:i')})! Starting bulk reminder process...");
+        $this->info("Time match! Starting bulk reminder process...");
 
         // Select all confirmed appointments for TOMORROW
         // We don't use 'reminder_hours' anymore for this daily batch logic
@@ -115,7 +124,7 @@ class RemindersSendCommand extends Command
 
         foreach ($appointments as $appointment) {
             $this->line("- Dispatching reminder for Appointment #{$appointment->id} (Client: {$appointment->client->full_name})");
-            SendAppointmentReminderJob::dispatch($appointment->id);
+            SendAppointmentReminderJob::dispatch($appointment->id, $this->option('force'));
         }
 
         $this->info("All reminder jobs dispatched.");
