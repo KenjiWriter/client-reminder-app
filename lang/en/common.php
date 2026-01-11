@@ -14,4 +14,5 @@ return [
     'syncConfirm' => 'Sync all future appointments to Google Calendar?',
     'all' => 'All',
     'actions' => 'Actions',
+    'minutes' => 'minutes',
 ];
