@@ -14,5 +14,6 @@ return [
     'syncConfirm' => 'Czy zsynchronizować wszystkie przyszłe wizyty z Kalendarzem Google?',
     'search' => 'Szukaj',
     'all' => 'Wszystkie',
-    'actions' => 'Akcje'
+    'actions' => 'Akcje',
+    'minutes' => 'minut',
 ];
