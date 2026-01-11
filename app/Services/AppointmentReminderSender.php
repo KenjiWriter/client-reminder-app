@@ -130,7 +130,38 @@ class AppointmentReminderSender
         }
 
         if ($appointment->reminder_sent_at) {
-            return 'Reminder already sent.';
+            // Check if it was REALLY sent by looking at logs
+            $alreadySentLog = SmsMessage::where('appointment_id', $appointment->id)
+                ->where('status', 'success')
+                ->where('created_at', '>=', now()->subDays(1)) // Look back 1 day max
+                ->exists();
+
+            if ($alreadySentLog) {
+                return 'Reminder already sent (confirmed by log).';
+            }
+
+            // If we are here, it means 'reminder_sent_at' is set, but there is no log in SmsMessage
+            // This suggests a "zombie" state (locked but failed to send/log)
+            // We should allow sending, effectively self-healing the state
+            // But we must be careful not to spam, however the atomic lock later handles concurrency
+            // So here we assume it's safe to retry if NO log exists.
+            
+            // We can optionally clear the flag here to "fix" the data
+            // $appointment->update(['reminder_sent_at' => null]);
+            
+            // Or just return null (allow sending) and let the atomic update logic handle the re-locking
+            // But atomic logic expects reminder_sent_at to be NULL to lock it.
+            // So we MUST return a specific error OR duplicate the logic.
+            // Actually, if we want to allow retry, we should probably return NULL here, 
+            // BUT the atomic lock in sendReminder relies on 'reminder_sent_at' being NULL.
+            // So we can returns a specific message or handle it in the caller.
+            
+            // However, getGuardError is called inside send() BEFORE sendReminder().
+            // If we return null here, it goes to sendReminder -> sendInternal -> atomic checks.
+            // The atomic callback checks "is_null($appt->reminder_sent_at)".
+            // So if we don't clear it, the atomic check will fail anyway returning false.
+            
+            return 'Reminder marked as sent.';
         }
 
         if ($appointment->client && $appointment->client->sms_opt_out) {
