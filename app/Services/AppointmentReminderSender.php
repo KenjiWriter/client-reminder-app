@@ -20,7 +20,7 @@ class AppointmentReminderSender
     {
         if (!$force) {
             $error = $this->getGuardError($appointment);
-            if ($error) {
+            if ($error != null) {
                 return SmsResult::failure($error);
             }
         }
@@ -115,7 +115,7 @@ class AppointmentReminderSender
         ], 'pl');
     }
 
-    protected function getGuardError(Appointment $appointment): ?string
+    protected function getGuardError(Appointment $appointment)
     {
         if (!$appointment->send_reminder) {
             return 'Reminder is disabled for this appointment.';
@@ -132,6 +132,8 @@ class AppointmentReminderSender
         if ($appointment->starts_at->isPast()) {
             return 'Appointment is in the past.';
         }
+
+        return null;
     }
 
     protected function logMessage(Appointment $appointment, string $message, SmsResult $result): void
