@@ -82,7 +82,8 @@ class RemindersSendCommand extends Command
         $sendTime = $settings->sms_send_time ?? '09:00';
         
         $now = now();
-        $scheduledTime = Carbon::createFromFormat('H:i', $sendTime);
+        // Use parse instead of createFromFormat to be more flexible with seconds (e.g. 09:00:00)
+        $scheduledTime = Carbon::parse($sendTime);
         $windowEnd = $scheduledTime->copy()->addMinutes(60);
 
         // Time Check: Run if current time is within 60 minutes after the scheduled time
