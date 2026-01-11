@@ -31,11 +31,10 @@ class AppointmentReminderSender
     public function sendReminder(Appointment $appointment, bool $force = false): SmsResult
     {
         return $this->sendInternal($appointment, 'appointment_reminder', function($appt) {
-            // Atomic check: only proceed if we can update the row where reminder_sent_at is NULL
+            // Mark as sent logic only for periodic reminders
             if (is_null($appt->reminder_sent_at)) {
                 Appointment::where('id', $appt->id)->whereNull('reminder_sent_at')->update(['reminder_sent_at' => now()]);
             }
-            return false;
         }, function($appt) {
             Appointment::where('id', $appt->id)->update(['reminder_sent_at' => null]);
         }, [], $force);
@@ -69,14 +68,7 @@ class AppointmentReminderSender
             return SmsResult::failure('Client has opted out of SMS reminders.');
         }
 
-        // If beforeSend returns false explicitly, we stop.
-        // This is used for atomic locking (preventing double sends).
-        if ($beforeSend) {
-            $shouldProceed = $beforeSend($appointment);
-            if ($shouldProceed === false) {
-                return SmsResult::failure('Cancelled by beforeSend check (already sent or locked).');
-            }
-        }
+        if ($beforeSend) $beforeSend($appointment);
 
         try {
             $message = $this->composeMessage($appointment, $template, $overrides);
@@ -130,15 +122,7 @@ class AppointmentReminderSender
         }
 
         if ($appointment->reminder_sent_at) {
-            // Check if it was REALLY sent by looking at logs
-            $alreadySentLog = SmsMessage::where('appointment_id', $appointment->id)
-                ->where('status', 'success')
-                ->where('created_at', '>=', now()->subDays(1)) // Look back 1 day max
-                ->exists();
-
-            if ($alreadySentLog) {
-                return 'Reminder already sent (confirmed by log).';
-            }
+            return 'Reminder already sent.';
         }
 
         if ($appointment->client && $appointment->client->sms_opt_out) {
@@ -148,8 +132,6 @@ class AppointmentReminderSender
         if ($appointment->starts_at->isPast()) {
             return 'Appointment is in the past.';
         }
-
-        return null;
     }
 
     protected function logMessage(Appointment $appointment, string $message, SmsResult $result): void
