@@ -45,6 +45,11 @@ class AppointmentReminderSender
         return $this->sendInternal($appointment, 'request_approved');
     }
 
+    public function sendAcceptanceNotification(Appointment $appointment): SmsResult
+    {
+        return $this->sendInternal($appointment, 'appointment_confirmed');
+    }
+
     public function sendSuggestion(Appointment $appointment): SmsResult
     {
         return $this->sendInternal($appointment, 'suggestion_proposed', null, null, [

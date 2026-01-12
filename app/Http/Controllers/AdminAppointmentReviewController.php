@@ -26,6 +26,7 @@ class AdminAppointmentReviewController extends Controller
                 $query->whereNotNull('requested_starts_at')
                       ->orWhereNull('requested_starts_at');
             })
+            ->whereNull('suggested_starts_at') // Exclude appointments where we already proposed a time (waiting for client)
             // Order by requested_at for reschedules, or created_at for new bookings
             ->orderByRaw('COALESCE(requested_at, created_at) ASC')
             ->get();

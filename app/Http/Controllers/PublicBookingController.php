@@ -60,23 +60,31 @@ class PublicBookingController extends Controller
             $service = Service::find($validated['service_id']);
             
             // 1. Find or Create Client
-            $client = Client::where('phone_e164', $validated['phone'])
-                ->orWhere('email', $validated['email'])
-                ->first();
+            $client = null;
 
-            if (!$client) {
+            // If "First Visit" is checked, user explicitly requests a NEW client record
+            if ($validated['first_visit']) {
                 $client = Client::create([
                     'full_name' => $validated['full_name'],
                     'phone_e164' => $validated['phone'],
                     'email' => $validated['email'],
-                    'notes' => $validated['first_visit'] ? 'Wizyta pierwszorazowa.' : null,
+                    'notes' => 'Wizyta pierwszorazowa.',
                 ]);
             } else {
-                // Append notes if client exists and marked as first visit (unlikely but possible)
-                if ($validated['first_visit']) {
-                    $newNote = "\n" . date('Y-m-d') . ": Zgłoszono jako wizyta pierwszorazowa.";
-                    $client->notes = $client->notes ? $client->notes . $newNote : $newNote;
-                    $client->save();
+                // Otherwise, try to match by phone or email
+                $client = Client::where('phone_e164', $validated['phone'])
+                    ->when($validated['email'], function($q) use ($validated) {
+                         return $q->orWhere('email', $validated['email']);
+                    })
+                    ->first();
+
+                if (!$client) {
+                    $client = Client::create([
+                        'full_name' => $validated['full_name'],
+                        'phone_e164' => $validated['phone'],
+                        'email' => $validated['email'],
+                        'notes' => $validated['first_visit'] ? 'Wizyta pierwszorazowa.' : null,
+                    ]);
                 }
             }
 

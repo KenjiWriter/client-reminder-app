@@ -12,7 +12,7 @@ import { Head } from '@inertiajs/vue3';
             <div class="space-y-6 text-sm leading-relaxed text-[#5A5A5A]">
                 <section>
                     <h2 class="text-lg font-semibold text-[#1A1A1A] mb-2">§1. Administrator Danych</h2>
-                    <p>Administratorem danych osobowych jest Emilia Wiśniewska Facemodeling Studio, z siedzibą przy [Adres Firmy], NIP: [Numer NIP], REGON: [Numer REGON]. Kontakt: kontakt@face-modeling.pl, tel. +48 793 173 748.</p>
+                    <p>Administratorem danych osobowych jest Emilia Wiśniewska Facemodeling Studio, z siedzibą przy Emilianów 8A, 96-330 Puszcza Mariańska, NIP: 8381777504, REGON: 140878412. Kontakt: kontakt@face-modeling.pl, tel. +48 793 173 748.</p>
                 </section>
 
                 <section>

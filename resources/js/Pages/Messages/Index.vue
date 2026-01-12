@@ -167,7 +167,7 @@ const formatDateTime = (dateStr: string) => {
                                         <Info class="h-4 w-4 text-destructive" />
                                     </Button>
                                     <Button v-if="msg.client" variant="ghost" size="icon" as-child>
-                                        <Link :href="route('clients.edit', msg.client.id)">
+                                        <Link :href="route('clients.show', msg.client.id)">
                                             <ExternalLink class="h-4 w-4" />
                                         </Link>
                                     </Button>

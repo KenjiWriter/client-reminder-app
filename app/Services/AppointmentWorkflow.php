@@ -47,11 +47,24 @@ class AppointmentWorkflow
         elseif ($appointment->status === Appointment::STATUS_PENDING_APPROVAL) {
              $appointment->update([
                 'status' => Appointment::STATUS_CONFIRMED,
-                // starts_at is already set for new bookings
             ]);
-            // TODO: Send specific confirmation SMS for new booking?
-            // For now, reusing approval or generic confirmation
-             $this->smsService->sendApproval($appointment);
+            
+            // Intelligent SMS Notification Flow
+            
+            // 1. Always send "Appointment Confirmed" SMS
+            $this->smsService->sendAcceptanceNotification($appointment);
+
+            // 2. "Double SMS" Prevention Logic
+            $startsAt = $appointment->starts_at;
+            $isVeryClose = $startsAt->diffInHours(now()) < 24;
+
+            if ($isVeryClose) {
+                // If accepted within 24h of start, mark standard reminder as sent to avoid spam
+                $appointment->reminder_sent_at = now();
+                $appointment->save();
+            } else {
+                // If more than 24h away, leave reminder_sent_at null (standard scheduler will pick it up)
+            }
         }
     }
 
