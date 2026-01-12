@@ -35,6 +35,10 @@ interface Client {
 const props = withDefaults(defineProps<{
     client: Client;
     appointments: Appointment[];
+    settings: {
+        app_name: string;
+        app_logo: string | null;
+    };
 }>(), {
     appointments: () => [],
 });
@@ -174,9 +178,24 @@ const slotsByDate = computed(() => {
     <div class="min-h-screen bg-background">
         <div class="max-w-3xl mx-auto p-6 space-y-8">
             <!-- Header -->
-            <div class="text-center space-y-2">
-                <h1 class="text-3xl font-bold">{{ t('public.hello', { name: client.full_name }) }}</h1>
-                <p class="text-muted-foreground">{{ t('public.viewUpcoming') }}</p>
+            <div class="text-center space-y-4">
+                <div class="flex justify-center">
+                    <div v-if="settings.app_logo" class="h-24 w-auto max-w-[200px]">
+                        <img 
+                            :src="settings.app_logo" 
+                            :alt="settings.app_name" 
+                            class="h-full w-full object-contain"
+                        />
+                    </div>
+                    <div v-else class="h-12 w-12 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg">
+                        <CalendarIcon class="h-7 w-7" />
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <h2 class="text-xl font-medium text-foreground tracking-tight">{{ settings.app_name }}</h2>
+                    <h1 class="text-3xl font-bold">{{ t('public.hello', { name: client.full_name }) }}</h1>
+                    <p class="text-muted-foreground">{{ t('public.viewUpcoming') }}</p>
+                </div>
             </div>
 
             <!-- SMS Opt-Out Toggle -->
@@ -243,6 +262,21 @@ const slotsByDate = computed(() => {
                                     </Badge>
                                 </div>
 
+                                <!-- Client Rejected Suggestion / Needs Action -->
+                                <div v-if="appointment.status === 'pending_approval' && !appointment.requested_starts_at && !appointment.suggested_starts_at"
+                                     class="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-2">
+                                     <div class="flex items-center gap-2 text-amber-800 font-medium">
+                                         <AlertCircle class="h-5 w-5" />
+                                         Wymagana akcja
+                                     </div>
+                                     <p class="text-sm text-amber-700">
+                                         Odrzuciłeś propozycję zmiany terminu. Proszę wybierz inny termin wizyty lub skontaktuj się z nami.
+                                     </p>
+                                     <Button size="sm" class="w-full sm:w-auto mt-2" @click="openRescheduleDialog(appointment)">
+                                         Wybierz inny termin
+                                     </Button>
+                                </div>
+
                                 <!-- Pending approval: Client's request -->
                                 <div v-if="appointment.status === 'pending_approval' && appointment.requested_starts_at" 
                                     class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-3">
@@ -278,7 +312,7 @@ const slotsByDate = computed(() => {
                                 </p>
 
                                 <!-- Reschedule Button -->
-                                <div v-if="appointment.can_reschedule" class="pt-2">
+                                <div v-if="appointment.can_reschedule && !(!appointment.requested_starts_at && !appointment.suggested_starts_at && appointment.status === 'pending_approval')" class="pt-2">
                                     <Button variant="outline" size="sm" @click="openRescheduleDialog(appointment)">
                                         {{ t('public.reschedule.button') }}
                                     </Button>
@@ -302,7 +336,12 @@ const slotsByDate = computed(() => {
             </div>
 
             <!-- Footer -->
-            <div class="text-center text-sm text-muted-foreground pt-8">
+            <div class="border-t pt-8 mt-12 text-center text-sm text-muted-foreground space-y-4">
+                 <div class="flex flex-wrap justify-center gap-6">
+                    <a href="/regulamin" target="_blank" class="hover:text-primary transition-colors">Regulamin</a>
+                    <a href="/polityka-prywatnosci" target="_blank" class="hover:text-primary transition-colors">Polityka Prywatności</a>
+                </div>
+                <p>&copy; {{ new Date().getFullYear() }} Emilia Wiśniewska. Wszelkie prawa zastrzeżone.</p>
                 <p>{{ t('public.footerContact') }}</p>
             </div>
         </div>

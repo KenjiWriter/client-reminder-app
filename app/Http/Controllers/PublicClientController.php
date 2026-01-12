@@ -34,8 +34,15 @@ class PublicClientController extends Controller
                 'status' => $appointment->status,
                 'requested_starts_at' => $appointment->requested_starts_at?->timezone(config('app.timezone', 'UTC')),
                 'suggested_starts_at' => $appointment->suggested_starts_at?->timezone(config('app.timezone', 'UTC')),
-                'can_reschedule' => $appointment->status === Appointment::STATUS_CONFIRMED && now()->lt($appointment->starts_at->subHours(24)),
+                'can_reschedule' => 
+                    ($appointment->status === Appointment::STATUS_CONFIRMED && now()->lt($appointment->starts_at->subHours(24))) ||
+                    ($appointment->status === Appointment::STATUS_PENDING_APPROVAL && is_null($appointment->requested_starts_at) && is_null($appointment->suggested_starts_at)),
             ]);
+
+        // Load settings
+        $settings = \App\Models\Setting::first();
+        $appLogo = $settings?->app_logo ? \Illuminate\Support\Facades\Storage::url($settings->app_logo) : null;
+        $appName = $settings?->app_name ?? config('app.name');
 
         return Inertia::render('Public/Client/Show', [
             'client' => [
@@ -44,6 +51,10 @@ class PublicClientController extends Controller
                 'sms_opt_out' => $client->sms_opt_out,
             ],
             'appointments' => $upcomingAppointments,
+            'settings' => [
+                'app_name' => $appName,
+                'app_logo' => $appLogo,
+            ],
         ]);
     }
 
