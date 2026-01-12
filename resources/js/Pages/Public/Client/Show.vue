@@ -30,6 +30,8 @@ interface Client {
     full_name: string;
     public_uid: string;
     sms_opt_out: boolean;
+    email: string | null;
+    phone: string | null;
 }
 
 const props = withDefaults(defineProps<{
@@ -42,6 +44,17 @@ const props = withDefaults(defineProps<{
 }>(), {
     appointments: () => [],
 });
+
+const bookNow = () => {
+    const url = route('home');
+    const params = new URLSearchParams();
+    
+    if (props.client.full_name) params.append('client_name', props.client.full_name);
+    if (props.client.phone) params.append('client_phone', props.client.phone);
+    if (props.client.email) params.append('client_email', props.client.email);
+    
+    window.location.href = `${url}?${params.toString()}#booking`;
+};
 
 const isOptedOut = ref(props.client.sms_opt_out);
 
@@ -336,8 +349,19 @@ const slotsByDate = computed(() => {
                 </Card>
             </div>
 
+            <!-- Footer Action: Book Now -->
+            <div class="flex justify-center pt-8 pb-4">
+                <Button
+                    size="lg"
+                    @click="bookNow"
+                    class="w-full sm:w-auto text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 bg-primary text-primary-foreground"
+                >
+                    Umów kolejną wizytę
+                </Button>
+            </div>
+
             <!-- Footer -->
-            <div class="border-t pt-8 mt-12 text-center text-sm text-muted-foreground space-y-4">
+            <div class="border-t pt-8 mt-4 text-center text-sm text-muted-foreground space-y-4">
                  <div class="flex flex-wrap justify-center gap-6">
                     <a href="/regulamin" target="_blank" class="hover:text-primary transition-colors">Regulamin</a>
                     <a href="/polityka-prywatnosci" target="_blank" class="hover:text-primary transition-colors">Polityka Prywatności</a>

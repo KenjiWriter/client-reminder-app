@@ -49,6 +49,8 @@ class PublicClientController extends Controller
                 'full_name' => $client->full_name,
                 'public_uid' => $client->public_uid,
                 'sms_opt_out' => $client->sms_opt_out,
+                'email' => $client->email,
+                'phone' => $client->phone_e164,
             ],
             'appointments' => $upcomingAppointments,
             'settings' => [

@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils'; // Assuming this util exists, or I'll implemen
 // Props
 const props = defineProps<{
     services: Record<string, any[]>; // Grouped by category
+    initialClientData?: { full_name?: string; phone?: string; email?: string };
 }>();
 
 // Steps
@@ -37,6 +38,15 @@ const form = useForm({
     email: '',
     terms_accepted: false,
 });
+
+// Watch for initial client data (e.g. from URL params passed via parent)
+watch(() => props.initialClientData, (newData) => {
+    if (newData) {
+        if (newData.full_name) form.full_name = newData.full_name;
+        if (newData.phone) form.phone = newData.phone;
+        if (newData.email) form.email = newData.email;
+    }
+}, { immediate: true, deep: true });
 
 const isSubmitting = ref(false);
 const submittedSuccess = ref(false);

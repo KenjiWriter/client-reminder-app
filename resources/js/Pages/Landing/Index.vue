@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import BookingPanel from '@/components/Booking/BookingPanel.vue';
@@ -8,6 +8,24 @@ import { ChevronDown } from 'lucide-vue-next';
 const props = defineProps<{
     services: Record<string, any[]>;
 }>();
+
+const initialClientData = ref<{ full_name?: string; phone?: string; email?: string }>({});
+
+onMounted(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('client_name')) {
+        initialClientData.value = {
+            full_name: params.get('client_name') || '',
+            phone: params.get('client_phone') || '',
+            email: params.get('client_email') || '',
+        };
+        
+        // Auto-scroll to booking if hash is present
+        if (window.location.hash === '#booking') {
+            document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+});
 
 const scrollToBooking = () => {
     document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
@@ -158,7 +176,7 @@ const formatCurrency = (amount: number) => {
                 <p class="text-white/60">Wybierz dogodny termin i zadbaj o siebie. Rezerwacja zajmie Ci mniej niż minutę.</p>
             </div>
             
-            <BookingPanel :services="services" class="bg-[#222] text-white border-white/10" />
+            <BookingPanel :services="services" :initial-client-data="initialClientData" class="bg-[#222] text-white border-white/10" />
             
             <div class="text-center mt-12 space-y-2">
                  <p class="text-sm text-white/40">Masz pytania? Zadzwoń lub napisz.</p>
