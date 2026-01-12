@@ -79,6 +79,7 @@ class AppointmentController extends Controller
                     'start' => $appointment->starts_at->toIso8601String(),
                     'end' => $appointment->starts_at->addMinutes($appointment->duration_minutes)->toIso8601String(),
                     'client_id' => $appointment->client_id,
+                    'service_id' => $appointment->service_id,
                     'duration_minutes' => $appointment->duration_minutes,
                     'note' => $appointment->note,
                     'send_reminder' => $appointment->send_reminder,
