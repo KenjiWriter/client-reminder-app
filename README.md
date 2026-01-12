@@ -36,6 +36,11 @@ A small business appointment + SMS reminder system.
   - **Drag & Drop**: Easily move appointments to new times or days
   - **Resizing**: Adjust duration with top/bottom handles (15-min increments)
 - **Status Tracking**: Confirmed, Pending Approval, Canceled, Completed
+- **Online Booking (Landing Page)**: Public-facing page where clients can:
+  - Default: `https://your-domain.com/`
+  - View services grouped by category
+  - Select date and time (Smart Availability logic)
+  - Book appointments (Requires Admin Approval)
 - **Payment Tracking**:
   - Mark appointments as Paid/Unpaid
   - Track Payment Method (Cash, Card, Transfer) and Price
@@ -50,11 +55,13 @@ A small business appointment + SMS reminder system.
 - **Quick Add**: On-the-fly creation of new medical condition types from client profile
 - **Safety Badges**: Visual indicators for high-risk conditions (pregnancy, epilepsy) and recent procedures
 - **Public Page**: Unique public link for each client to check their appointments
+- **SMS Opt-Out**: Clients can manage their SMS preferences directly from their public profile. Admins are blocked from sending notifications to opted-out users.
 - **Self-Service**: Clients can request rescheduling or cancellation via their public page
 - **Reschedule Workflow**: Admin approval system for client-requested changes
 - **Financial Overview**: Dedicated view for managing unpaid appointments and tracking payments
 
 ### 💬 Communication
+- **Instant Confirmation**: Automatic SMS sent to client immediately after Appointment Approval or Creation.
 - **SMS Logs**: Full history of sent messages with delivery status
 - **Templates**: Configurable SMS footer and content (via translations)
 
