@@ -109,8 +109,8 @@
 }
 
 :root {
-    /* Brand: Warm Sand Background #F9F7F2 */
-    --background: hsl(43 33% 96%);
+    /* Brand: Warm Sand Background #FDFBF7 (Lighter than sidebar) */
+    --background: hsl(43 33% 98%);
     /* Brand: Dark Text #2C2C2C */
     --foreground: hsl(0 0% 17%);
 
@@ -127,21 +127,18 @@
     --primary-foreground: hsl(0 0% 100%);
 
     /* Brand: Secondary Soft Sage #94B0A7 (as accent mainly) */
-    --secondary: hsl(162 16% 85%); /* A lighter version for bg */
-    --secondary-foreground: hsl(182 38% 27%); /* Teal text on secondary */
+    --secondary: hsl(162 16% 85%);
+    /* A lighter version for bg */
+    --secondary-foreground: hsl(182 38% 27%);
+    /* Teal text on secondary */
 
     /* Muted - Slightly darker sand/gray #F0EFE9 approx */
     --muted: hsl(43 14% 93%);
     --muted-foreground: hsl(0 0% 45%);
 
     /* Brand: Accent Sand #D4C5B3 */
-    --accent: hsl(34 26% 77%); 
-    /* Or keep accent as light hover state? 
-       Let's use the requested #D4C5B3 as border/accent-strong, 
-       but for UI hover states (accent), we usually want lightness.
-       Let's stick to the requested hex for proper 'brand' feel. 
-    */
-    --accent: hsl(43 33% 94%); /* Hover state (slightly darker than bg) */
+    --accent: hsl(43 33% 94%);
+    /* Hover state (slightly darker than bg) */
     --accent-foreground: hsl(182 38% 27%);
 
     /* Destructive - Soft Red */
@@ -149,45 +146,52 @@
     --destructive-foreground: hsl(0 0% 100%);
 
     /* Borders - Brand Accent #D4C5B3 or lighter */
-    --border: hsl(34 26% 85%); 
+    --border: hsl(34 26% 85%);
     --input: hsl(34 26% 85%);
     --ring: hsl(182 38% 27%);
 
     /* Chart colors - Adapted to palette */
-    --chart-1: hsl(182 38% 27%); /* Teal */
-    --chart-2: hsl(162 16% 64%); /* Sage */
-    --chart-3: hsl(34 26% 77%);  /* Sand */
-    --chart-4: hsl(43 33% 85%);  
+    --chart-1: hsl(182 38% 27%);
+    /* Teal */
+    --chart-2: hsl(162 16% 64%);
+    /* Sage */
+    --chart-3: hsl(34 26% 77%);
+    /* Sand */
+    --chart-4: hsl(43 33% 85%);
     --chart-5: hsl(200 20% 40%);
 
     /* Border radius - more rounded */
     --radius: 0.75rem;
 
-    /* Sidebar - White or Sand? "Mix of brand-primary and brand-background"
-       Let's keep Sidebar white/sand light, with Teal accents. */
-    --sidebar-background: hsl(43 33% 98%); /* Very light sand */
+    /* Sidebar - Warm Beige #F5F2EB */
+    --sidebar-background: hsl(42 33% 94%);
     --sidebar-foreground: hsl(0 0% 17%);
     --sidebar-primary: hsl(182 38% 27%);
     --sidebar-primary-foreground: hsl(0 0% 100%);
-    --sidebar-accent: hsl(34 26% 90%);
+    --sidebar-accent: hsl(42 33% 90%);
+    /* Slightly darker beige for hover */
     --sidebar-accent-foreground: hsl(182 38% 27%);
-    --sidebar-border: hsl(34 20% 90%);
+    --sidebar-border: hsl(34 20% 85%);
     --sidebar-ring: hsl(182 38% 27%);
-    --sidebar: hsl(43 33% 98%);
+    --sidebar: hsl(42 33% 94%);
 
     /* Event status colors - Refined */
-    --event-upcoming: hsl(182 38% 93%); /* Very light Teal */
+    --event-upcoming: hsl(182 38% 93%);
+    /* Very light Teal */
     --event-upcoming-dot: hsl(182 38% 40%);
-    
-    --event-completed: hsl(162 16% 90%); /* Very light Sage */
+
+    --event-completed: hsl(162 16% 90%);
+    /* Very light Sage */
     --event-completed-dot: hsl(162 16% 50%);
-    
-    --event-rescheduled: hsl(34 30% 90%); /* Light Sand/Orange */
+
+    --event-rescheduled: hsl(34 30% 90%);
+    /* Light Sand/Orange */
     --event-rescheduled-dot: hsl(34 40% 60%);
-    
-    --event-canceled: hsl(0 20% 95%); /* Very light red/gray */
+
+    --event-canceled: hsl(0 20% 95%);
+    /* Very light red/gray */
     --event-canceled-dot: hsl(0 40% 60%);
-    
+
     --event-noshow: hsl(0 0% 95%);
     --event-noshow-dot: hsl(0 0% 50%);
 }
@@ -196,38 +200,39 @@
     /* Dark mode - Deep Teal/Gray mix? */
     --background: hsl(182 20% 10%);
     --foreground: hsl(43 33% 96%);
-    
+
     --card: hsl(182 20% 12%);
     --card-foreground: hsl(43 33% 96%);
-    
+
     --popover: hsl(182 20% 12%);
     --popover-foreground: hsl(43 33% 96%);
-    
-    --primary: hsl(162 16% 64%); /* Sage as primary in dark? */
+
+    --primary: hsl(162 16% 64%);
+    /* Sage as primary in dark? */
     --primary-foreground: hsl(182 38% 20%);
-    
+
     --secondary: hsl(182 20% 20%);
     --secondary-foreground: hsl(43 33% 96%);
-    
+
     --muted: hsl(182 20% 15%);
     --muted-foreground: hsl(162 10% 70%);
-    
+
     --accent: hsl(182 20% 20%);
     --accent-foreground: hsl(43 33% 96%);
-    
+
     --destructive: hsl(0 62% 30%);
     --destructive-foreground: hsl(0 0% 96%);
-    
+
     --border: hsl(182 20% 20%);
     --input: hsl(182 20% 20%);
     --ring: hsl(162 16% 64%);
-    
+
     --chart-1: hsl(182 38% 50%);
     --chart-2: hsl(162 16% 64%);
     --chart-3: hsl(34 26% 77%);
     --chart-4: hsl(43 33% 60%);
     --chart-5: hsl(200 20% 60%);
-    
+
     --sidebar-background: hsl(182 20% 8%);
     --sidebar-foreground: hsl(43 33% 96%);
     --sidebar-primary: hsl(162 16% 64%);
