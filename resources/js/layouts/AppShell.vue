@@ -65,11 +65,7 @@ const sidebarOpen = ref(false);
 
 const navItems = computed<NavItem[]>(() => [
     { name: 'nav.dashboard', href: route('dashboard'), icon: LayoutDashboard },
-    {
-        name: 'nav.leads',
-        href: route('admin.leads.index'),
-        icon: Inbox,
-    },
+    // Leads removed as requested
     {
         name: 'nav.review',
         href: route('admin.appointments.review.index'),

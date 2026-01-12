@@ -68,9 +68,7 @@ class HandleInertiaRequests extends Middleware
                 ]
             ),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'pendingApprovalsCount' => \App\Models\Appointment::where('status', \App\Models\Appointment::STATUS_PENDING_APPROVAL)
-                ->whereNotNull('requested_starts_at')
-                ->count(),
+            'pendingApprovalsCount' => \App\Models\Appointment::where('status', \App\Models\Appointment::STATUS_PENDING_APPROVAL)->count(),
             'settings' => [
                 'app_name' => $settings?->app_name ?? config('app.name'),
                 'app_logo' => $settings?->app_logo ? Storage::url($settings->app_logo) : null,
