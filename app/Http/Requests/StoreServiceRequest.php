@@ -26,6 +26,7 @@ class StoreServiceRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'duration_minutes' => ['required', 'integer', 'min:1'],
             'price' => ['required', 'numeric', 'min:0'],
+            'max_price' => ['nullable', 'numeric', 'min:0', 'gte:price'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }
@@ -43,6 +44,8 @@ class StoreServiceRequest extends FormRequest
             'duration_minutes.min' => 'Czas trwania musi być większy niż 0.',
             'price.required' => 'Cena jest wymagana.',
             'price.min' => 'Cena nie może być ujemna.',
+            'max_price.min' => 'Cena maksymalna nie może być ujemna.',
+            'max_price.gte' => 'Cena maksymalna musi być większa lub równa cenie podstawowej.',
         ];
     }
 }

@@ -18,6 +18,7 @@ interface Service {
     description: string | null;
     duration_minutes: number;
     price: number;
+    max_price: number | null;
     is_active: boolean;
 }
 
@@ -35,6 +36,7 @@ const form = useForm({
     description: '',
     duration_minutes: 60,
     price: 0,
+    max_price: null as number | null,
 });
 
 const openCreateModal = () => {
@@ -50,6 +52,7 @@ const openEditModal = (service: Service) => {
     form.description = service.description || '';
     form.duration_minutes = service.duration_minutes;
     form.price = service.price;
+    form.max_price = service.max_price;
     showModal.value = true;
 };
 
@@ -87,9 +90,15 @@ const deleteService = (id: number) => {
     }
 };
 
-const formatPrice = (price: number | string) => {
-    return `${Number(price).toFixed(2)} PLN`;
+const formatPrice = (price: number | string, maxPrice: number | string | null = null) => {
+    const formattedPrice = Number(price).toFixed(2);
+    if (maxPrice) {
+        return `${formattedPrice} - ${Number(maxPrice).toFixed(2)} PLN`;
+    }
+    return `${formattedPrice} PLN`;
 };
+
+
 
 const formatDuration = (minutes: number) => {
     if (minutes >= 60) {
@@ -147,7 +156,7 @@ const formatDuration = (minutes: number) => {
                                     </div>
                                 </TableCell>
                                 <TableCell>{{ formatDuration(service.duration_minutes) }}</TableCell>
-                                <TableCell class="font-medium">{{ formatPrice(service.price) }}</TableCell>
+                                <TableCell class="font-medium">{{ formatPrice(service.price, service.max_price) }}</TableCell>
                                 <TableCell class="text-right">
                                     <div class="flex justify-end gap-2">
                                         <Button variant="outline" size="sm" @click="openEditModal(service)">
@@ -229,6 +238,22 @@ const formatDuration = (minutes: number) => {
                             />
                             <div v-if="form.errors.price" class="text-sm text-destructive">
                                 {{ form.errors.price }}
+                            </div>
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="max_price">Cena maksymalna (opcjonalnie)</Label>
+                            <Input 
+                                id="max_price" 
+                                v-model.number="form.max_price" 
+                                type="number" 
+                                :min="form.price"
+                                step="0.01"
+                                placeholder="300.00"
+                            />
+                            <p class="text-[0.8rem] text-muted-foreground">Jeśli wypełnione, wyświetlą się widełki cenowe.</p>
+                            <div v-if="form.errors.max_price" class="text-sm text-destructive">
+                                {{ form.errors.max_price }}
                             </div>
                         </div>
                     </div>

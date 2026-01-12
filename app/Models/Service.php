@@ -20,6 +20,7 @@ class Service extends Model
         'description',
         'duration_minutes',
         'price',
+        'max_price',
         'is_active',
     ];
 
@@ -30,6 +31,7 @@ class Service extends Model
      */
     protected $casts = [
         'price' => 'decimal:2',
+        'max_price' => 'decimal:2',
         'is_active' => 'boolean',
         'duration_minutes' => 'integer',
     ];

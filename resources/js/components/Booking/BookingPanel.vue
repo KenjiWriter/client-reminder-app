@@ -207,7 +207,7 @@ const submitBooking = async () => {
                             </div>
                             <p class="text-white/60 text-sm line-clamp-2 mb-3">{{ service.description }}</p>
                             <div class="font-semibold text-white/90">
-                                {{ formatCurrency(Number(service.price)) }}
+                                {{ formatCurrency(Number(service.price), service.max_price ? Number(service.max_price) : null) }}
                             </div>
                         </button>
                     </div>
@@ -330,7 +330,7 @@ const submitBooking = async () => {
                     </div>
                     <div class="flex justify-between py-2 text-lg font-bold">
                         <span class="text-white/90">Do zapłaty (na miejscu)</span>
-                        <span class="text-white">{{ formatCurrency(Number(selectedService?.price)) }}</span>
+                        <span class="text-white">{{ formatCurrency(Number(selectedService?.price), selectedService?.max_price ? Number(selectedService.max_price) : null) }}</span>
                     </div>
                 </div>
 

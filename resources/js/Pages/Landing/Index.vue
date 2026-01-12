@@ -40,8 +40,12 @@ const formatDuration = (minutes: number) => {
     }
     return `${minutes} min`;
 };
-const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(amount);
+const formatCurrency = (amount: number, maxAmount: number | null = null) => {
+    const formatter = new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' });
+    if (maxAmount) {
+        return `${formatter.format(amount)} - ${formatter.format(maxAmount)}`;
+    }
+    return formatter.format(amount);
 };
 </script>
 
@@ -143,31 +147,31 @@ const formatCurrency = (amount: number) => {
             </div>
         </section>
 
-        <!-- Cennik (Full Menu) Section -->
-        <section class="py-24 px-4 bg-white">
-            <div class="max-w-4xl mx-auto">
-                <h2 class="text-3xl md:text-4xl font-serif text-center mb-16">Cennik Usług</h2>
-                
-                <div v-for="(categoryServices, categoryName) in services" :key="categoryName" class="mb-12 last:mb-0">
-                    <h3 class="text-xl uppercase tracking-widest text-[#8A8A8A] border-b border-[#F0F0F0] pb-4 mb-8">{{ categoryName || 'Pozostałe' }}</h3>
-                    <div class="space-y-8">
-                        <div v-for="service in categoryServices" :key="service.id" class="flex flex-col md:flex-row md:items-baseline justify-between gap-4 group cursor-default">
-                             <div class="flex-1">
-                                 <div class="flex items-baseline justify-between">
-                                     <h4 class="text-xl font-medium text-[#1A1A1A] group-hover:text-[#D4C3A3] transition-colors">{{ service.name }}</h4>
-                                     <span class="md:hidden text-lg font-serif">{{ formatCurrency(Number(service.price)) }}</span>
-                                 </div>
-                                 <p class="text-[#888] text-sm mt-2 max-w-xl">{{ service.description }}</p>
-                                 <p class="text-xs text-[#AAA] mt-1">{{ formatDuration(service.duration_minutes) }}</p>
-                             </div>
-                             <div class="hidden md:block w-32 text-right">
-                                 <span class="text-xl font-serif text-[#1A1A1A]">{{ formatCurrency(Number(service.price)) }}</span>
-                             </div>
-                        </div>
+    <!-- Cennik (Full Menu) Section -->
+    <section class="py-24 px-4 bg-white">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-serif text-center mb-16">Cennik Usług</h2>
+            
+            <div v-for="(categoryServices, categoryName) in services" :key="categoryName" class="mb-12 last:mb-0">
+                <h3 class="text-xl uppercase tracking-widest text-[#8A8A8A] border-b border-[#F0F0F0] pb-4 mb-8">{{ categoryName || 'Pozostałe' }}</h3>
+                <div class="space-y-8">
+                    <div v-for="service in categoryServices" :key="service.id" class="flex flex-col md:flex-row md:items-baseline justify-between gap-4 group cursor-default">
+                            <div class="flex-1">
+                                <div class="flex items-baseline justify-between">
+                                    <h4 class="text-xl font-medium text-[#1A1A1A] group-hover:text-[#D4C3A3] transition-colors">{{ service.name }}</h4>
+                                    <span class="md:hidden text-lg font-serif">{{ formatCurrency(Number(service.price), service.max_price ? Number(service.max_price) : null) }}</span>
+                                </div>
+                                <p class="text-[#888] text-sm mt-2 max-w-xl">{{ service.description }}</p>
+                                <p class="text-xs text-[#AAA] mt-1">{{ formatDuration(service.duration_minutes) }}</p>
+                            </div>
+                            <div class="hidden md:block w-32 text-right">
+                                <span class="text-xl font-serif text-[#1A1A1A]">{{ formatCurrency(Number(service.price), service.max_price ? Number(service.max_price) : null) }}</span>
+                            </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
         <!-- Booking Section -->
         <section id="booking" class="py-24 px-4 bg-[#1A1A1A] text-white">
