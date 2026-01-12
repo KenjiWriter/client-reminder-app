@@ -80,6 +80,7 @@ class DashboardController extends Controller
                 break;
             case 'mtd':
                 $startDate = $now->copy()->startOfMonth()->utc();
+                $endDate = $now->copy()->endOfMonth()->utc();
                 break;
             case 'custom':
                 if ($from && $to) {
