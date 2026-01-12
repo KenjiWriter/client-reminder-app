@@ -27,21 +27,32 @@ class AppointmentWorkflow
     /**
      * Mother (Admin) approves the client's requested change.
      */
+    /**
+     * Mother (Admin) approves the client's requested change OR confirms a new booking.
+     */
     public function approveRequestedChange(Appointment $appointment): void
     {
-        if (!$appointment->requested_starts_at) {
-            throw new \RuntimeException('No requested time to approve.');
+        // Case 1: Reschedule Request
+        if ($appointment->requested_starts_at) {
+            $appointment->update([
+                'status' => Appointment::STATUS_CONFIRMED,
+                'starts_at' => $appointment->requested_starts_at,
+                'requested_starts_at' => null,
+                'requested_at' => null,
+                'reminder_sent_at' => null, // Reset reminder
+            ]);
+            $this->smsService->sendApproval($appointment);
         }
-
-        $appointment->update([
-            'status' => Appointment::STATUS_CONFIRMED,
-            'starts_at' => $appointment->requested_starts_at,
-            'requested_starts_at' => null,
-            'requested_at' => null,
-            'reminder_sent_at' => null, // Reset reminder
-        ]);
-
-        $this->smsService->sendApproval($appointment);
+        // Case 2: New Booking Pending Confirmation
+        elseif ($appointment->status === Appointment::STATUS_PENDING_APPROVAL) {
+             $appointment->update([
+                'status' => Appointment::STATUS_CONFIRMED,
+                // starts_at is already set for new bookings
+            ]);
+            // TODO: Send specific confirmation SMS for new booking?
+            // For now, reusing approval or generic confirmation
+             $this->smsService->sendApproval($appointment);
+        }
     }
 
     /**

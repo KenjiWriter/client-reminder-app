@@ -35,6 +35,20 @@ Route::prefix('/c/{publicUid}/appointments')->name('public.client.')->group(func
         ->name('cancel-appointment');
 });
 
+// Use 'api' prefix or just public prefix for the booking wizard
+Route::prefix('/api/booking')->name('api.booking.')->group(function () {
+    Route::get('/availability', [\App\Http\Controllers\PublicBookingController::class, 'availability'])->name('availability');
+    Route::post('/store', [\App\Http\Controllers\PublicBookingController::class, 'store'])->name('store');
+});
+
+Route::get('/regulamin', function () {
+    return \Inertia\Inertia::render('Terms');
+})->name('terms');
+
+Route::get('/polityka-prywatnosci', function () {
+    return \Inertia\Inertia::render('Privacy');
+})->name('privacy');
+
 Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 

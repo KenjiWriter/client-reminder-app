@@ -1,299 +1,184 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { Head, Link, useForm, usePage, router } from '@inertiajs/vue3';
-import { useTranslation } from '@/composables/useTranslation';
+import { ref } from 'vue';
+import { Head, Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { useWindowScroll } from '@vueuse/core';
-import { CheckCircle2 } from 'lucide-vue-next';
-import { route } from 'ziggy-js';
-
-const { t } = useTranslation();
-const { y } = useWindowScroll();
-const page = usePage();
-
-const flashMessage = computed(() => (page.props.flash as any)?.message);
-
-const parallaxOffset = ref(0);
-const formSubmitted = ref(false);
-
-const form = useForm({
-    full_name: '',
-    phone: '',
-    email: '',
-    note: '',
-});
-
-const submit = () => {
-    form.post(route('consultation.store'), {
-        preserveScroll: true,
-        onSuccess: () => {
-             formSubmitted.value = true;
-             form.reset();
-        }
-    });
-};
-
-// Scroll Reveal Logic
-const revealElements = ref<Set<string>>(new Set());
-
-onMounted(() => {
-    requestAnimationFrame(updateParallax);
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                // Add the id or a unique key to the set to trigger animation class
-                revealElements.value.add((entry.target as HTMLElement).dataset.revealId || '');
-                observer.unobserve(entry.target); // Reveal only once
-            }
-        });
-    }, {
-        threshold: 0.1,
-        rootMargin: '50px'
-    });
-
-    document.querySelectorAll('[data-reveal-id]').forEach(el => observer.observe(el));
-});
-
-const updateParallax = () => {
-    // Limit offset to 80px max for subtle effect
-    parallaxOffset.value = Math.min(y.value * 0.4, 80);
-    requestAnimationFrame(updateParallax);
-};
-
-interface Service {
-    id: number;
-    name: string;
-    description: string | null;
-    duration_minutes: number;
-}
+import BookingPanel from '@/components/Booking/BookingPanel.vue';
+import { ChevronDown } from 'lucide-vue-next';
 
 const props = defineProps<{
-    services?: Service[];
+    services: Record<string, any[]>;
 }>();
 
+const scrollToBooking = () => {
+    document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
+};
+
+// Pricing Section Helpers
 const formatDuration = (minutes: number) => {
     if (minutes >= 60) {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+        return m > 0 ? `${h}h ${m}min` : `${h}h`;
     }
     return `${minutes} min`;
+};
+const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(amount);
 };
 </script>
 
 <template>
     <Head>
-        <title>{{ t('landing.hero_title') }} - Facemodeling Studio</title>
-        <meta name="description" :content="t('landing.hero_subtitle')" />
-        <meta property="og:title" :content="t('landing.hero_title') + ' - Facemodeling Studio'" />
-        <meta property="og:description" :content="t('landing.hero_subtitle')" />
-        <meta property="og:image" content="/img/bg.png" />
+        <title>Emilia Wiśniewska - Face Modeling & Body Therapy</title>
+        <meta name="description" content="Terapie manualne twarzy i ciała. Odzyskaj spokój i naturalne piękno." />
     </Head>
-    
-    <div class="min-h-screen bg-background text-foreground overflow-x-hidden font-sans scroll-smooth relative">
-        <!-- Language Switcher -->
-        <div class="absolute top-4 right-4 z-50 flex gap-2">
-            <Button 
-                v-for="l in ['pl', 'en']" 
-                :key="l"
-                variant="ghost" 
-                size="sm"
-                class="uppercase font-semibold text-white/80 hover:text-white hover:bg-white/10"
-                :class="{ 'text-white bg-white/20': $page.props.locale === l }"
-                @click="router.post('/locale', { locale: l })"
-            >
-                {{ l }}
-            </Button>
-        </div>
 
+    <div class="min-h-screen bg-[#FDFBF7] text-[#2C2C2C] font-sans selection:bg-[#EDE5D8]">
+        
         <!-- Hero Section -->
-        <section class="relative h-screen w-full overflow-hidden flex items-center justify-center">
-            <!-- Background Parallax Layer -->
-            <div 
-                class="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-75 ease-out"
-                :style="{
-                    backgroundImage: 'url(/img/bg.png)',
-                    transform: `translateY(${parallaxOffset}px) scale(1.1)`,
-                }"
-            ></div>
-             
-             <!-- Overlay Gradient -->
-            <div class="absolute inset-0 z-10 bg-gradient-to-b from-black/40 via-black/20 to-background"></div>
+        <section class="relative min-h-screen flex flex-col justify-center items-center text-center px-4 overflow-hidden">
+            <!-- Background Decoration (Subtle) -->
+            <div class="absolute inset-0 z-0 opacity-10 pointer-events-none">
+                <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4C3A3] rounded-full blur-[100px] translate-x-1/3 -translate-y-1/3"></div>
+                <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#A3B1D4] rounded-full blur-[80px] -translate-x-1/3 translate-y-1/3"></div>
+            </div>
 
-            <!-- Hero Content -->
-            <div class="relative z-20 text-center px-4 max-w-4xl mx-auto space-y-6 flex flex-col items-center">
-                <h1 
-                    class="text-4xl md:text-7xl font-bold text-white tracking-tight drop-shadow-lg opacity-0 translate-y-8 animate-in"
-                    style="animation-delay: 0ms;"
-                >
-                    {{ t('landing.hero_title') }}
+            <div class="relative z-10 space-y-8 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                <p class="text-xs md:text-sm uppercase tracking-[0.3em] text-[#8A8A8A]">Holistyczna Praca z Ciałem</p>
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif text-[#1A1A1A] leading-tight">
+                    Emilia Wiśniewska
                 </h1>
-                <p 
-                    class="text-xl md:text-2xl text-white/90 max-w-2xl drop-shadow opacity-0 translate-y-8 animate-in"
-                     style="animation-delay: 200ms;"
-                >
-                     {{ t('landing.hero_subtitle') }}
+                <p class="text-xl md:text-2xl font-light text-[#5A5A5A] max-w-2xl mx-auto leading-relaxed">
+                    Face Modeling. Terapia Czaszkowo-Krzyżowa. <br class="hidden md:block" />
+                    Powrót do równowagi.
                 </p>
                 
-                <div 
-                    class="pt-8 opacity-0 translate-y-8 animate-in"
-                     style="animation-delay: 400ms;"
-                >
+                <div class="pt-8">
                     <Button 
+                        @click="scrollToBooking" 
                         size="lg" 
-                        class="text-lg px-8 py-6 rounded-full shadow-lg hover:scale-105 transition-transform duration-300 bg-white text-black hover:bg-white/90"
-                        as-child
+                        class="bg-[#1A1A1A] text-white hover:bg-[#333] rounded-full px-10 py-7 text-lg uppercase tracking-widest transition-all hover:scale-105 duration-300 shadow-xl"
                     >
-                        <Link href="#consultation">
-                             {{ t('landing.cta_button') }}
-                        </Link>
+                        Umów sesję
                     </Button>
+                </div>
+            </div>
+
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce duration-[2000ms] text-[#8A8A8A]">
+                <ChevronDown class="w-6 h-6" />
+            </div>
+        </section>
+
+        <!-- "Dla kogo" Section -->
+        <section class="py-24 md:py-32 px-4 bg-white">
+            <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+                <div class="space-y-6">
+                    <h2 class="text-sm uppercase tracking-[0.2em] text-[#8A8A8A] mb-2">Dla kogo jest ta praca?</h2>
+                    <h3 class="text-3xl md:text-4xl font-serif mb-6">Gdy Twoje ciało mówi "dość"</h3>
+                    <p class="text-[#5A5A5A] leading-loose">
+                        Moje terapie są dla osób, które czują, że stres zapisał się w ich twarzy i ciele. 
+                        Dla tych, którzy szukają naturalnych metod odmładzania, ale także głębokiego relaksu i uwolnienia od napięć.
+                    </p>
+                </div>
+                <ul class="space-y-4">
+                    <li v-for="item in ['Przewlekłe napięcie mięśniowe', 'Bruksizm i zaciskanie szczęki', 'Obrzęki i zmęczona twarz', 'Migreny i bóle głowy', 'Potrzeba głębokiego wyciszenia']" 
+                        :key="item"
+                        class="flex items-center space-x-4 p-4 border-b border-[#F0F0F0]"
+                    >
+                        <span class="w-2 h-2 rounded-full bg-[#D4C3A3]"></span>
+                        <span class="text-lg text-[#333]">{{ item }}</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- "Jak wygląda sesja" Section -->
+        <section class="py-24 md:py-32 px-4 bg-[#F5F2EB]">
+            <div class="max-w-5xl mx-auto space-y-16">
+                <div class="text-center space-y-4">
+                    <h2 class="text-3xl md:text-4xl font-serif">Jak wygląda sesja?</h2>
+                    <p class="text-[#8A8A8A] max-w-xl mx-auto">To nie tylko zabieg, to proces przywracania harmonii.</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8 md:gap-12">
+                     <div class="space-y-4 text-center">
+                        <div class="w-16 h-16 rounded-full bg-[#E0D8CC] flex items-center justify-center mx-auto text-xl font-serif">I</div>
+                        <h4 class="text-xl font-medium">Konsultacja</h4>
+                        <p class="text-[#666] text-sm leading-relaxed">Rozmawiamy o Twoich potrzebach, dolegliwościach i oczekiwaniach. Analizuję anatomię Twojej twarzy i postawę ciała.</p>
+                     </div>
+                     <div class="space-y-4 text-center">
+                        <div class="w-16 h-16 rounded-full bg-[#E0D8CC] flex items-center justify-center mx-auto text-xl font-serif">II</div>
+                        <h4 class="text-xl font-medium">Terapia Manualna</h4>
+                        <p class="text-[#666] text-sm leading-relaxed">Praca na tkankach głębokich, powięziach i mięśniach. Wykorzystuję techniki masażu transbukalnego, kobido i osteopatii estetycznej.</p>
+                     </div>
+                     <div class="space-y-4 text-center">
+                        <div class="w-16 h-16 rounded-full bg-[#E0D8CC] flex items-center justify-center mx-auto text-xl font-serif">III</div>
+                        <h4 class="text-xl font-medium">Integracja</h4>
+                        <p class="text-[#666] text-sm leading-relaxed">Czas na wyciszenie i integrację zmian w ciele. Zalecenia do domu i plan dalszej terapii.</p>
+                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Placeholder for Benefits, About, Form (Next Tasks) -->
-        <section class="py-24 px-4 bg-background">
-             <div 
-                class="max-w-4xl mx-auto text-center transition-all duration-1000 transform translate-y-12 opacity-0"
-                :class="{ 'translate-y-0 opacity-100': revealElements.has('features') }"
-                data-reveal-id="features"
-             >
-                <h2 class="text-3xl md:text-4xl font-bold mb-12">{{ t('landing.features_title') }}</h2>
-                <div class="grid md:grid-cols-3 gap-8">
-                    <!-- Cards will go here -->
-                     <div class="p-8 border rounded-2xl bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow">
-                        <div class="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-                            <!-- Icon placeholder -->
-                            <span class="text-2xl">✨</span>
-                        </div>
-                        <h3 class="font-semibold text-xl mb-3">{{ t('landing.feature_1_title') }}</h3>
-                        <p class="text-muted-foreground leading-relaxed">{{ t('landing.feature_1_desc') }}</p>
-                     </div>
-                     <div class="p-8 border rounded-2xl bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow delay-100">
-                        <div class="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-                            <span class="text-2xl">🌿</span>
-                        </div>
-                        <h3 class="font-semibold text-xl mb-3">{{ t('landing.feature_2_title') }}</h3>
-                        <p class="text-muted-foreground leading-relaxed">{{ t('landing.feature_2_desc') }}</p>
-                     </div>
-                     <div class="p-8 border rounded-2xl bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow delay-200">
-                        <div class="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-                             <span class="text-2xl">💆‍♀️</span>
-                        </div>
-                        <h3 class="font-semibold text-xl mb-3">{{ t('landing.feature_3_title') }}</h3>
-                        <p class="text-muted-foreground leading-relaxed">{{ t('landing.feature_3_desc') }}</p>
-                     </div>
-                </div>
-             </div>
-        </section>
-
-
-
-        <!-- Our Offer Section -->
-        <section v-if="services && services.length > 0" class="py-24 px-4 bg-secondary/10">
-            <div 
-                class="max-w-4xl mx-auto transition-all duration-1000 transform translate-y-12 opacity-0"
-                :class="{ 'translate-y-0 opacity-100': revealElements.has('offer') }"
-                data-reveal-id="offer"
-            >
-                <h2 class="text-3xl md:text-4xl font-bold mb-12 text-center">{{ t('landing.offer_title') }}</h2>
+        <!-- Cennik (Full Menu) Section -->
+        <section class="py-24 px-4 bg-white">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-serif text-center mb-16">Cennik Usług</h2>
                 
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div 
-                        v-for="service in services" 
-                        :key="service.id"
-                        class="bg-card text-card-foreground rounded-xl p-6 shadow-sm border hover:shadow-md transition-shadow flex flex-col"
-                    >
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-bold text-xl">{{ service.name }}</h3>
-                            <span class="text-sm font-medium bg-secondary/50 px-2 py-1 rounded text-secondary-foreground whitespace-nowrap">
-                                {{ formatDuration(service.duration_minutes) }}
-                            </span>
+                <div v-for="(categoryServices, categoryName) in services" :key="categoryName" class="mb-12 last:mb-0">
+                    <h3 class="text-xl uppercase tracking-widest text-[#8A8A8A] border-b border-[#F0F0F0] pb-4 mb-8">{{ categoryName || 'Pozostałe' }}</h3>
+                    <div class="space-y-8">
+                        <div v-for="service in categoryServices" :key="service.id" class="flex flex-col md:flex-row md:items-baseline justify-between gap-4 group cursor-default">
+                             <div class="flex-1">
+                                 <div class="flex items-baseline justify-between">
+                                     <h4 class="text-xl font-medium text-[#1A1A1A] group-hover:text-[#D4C3A3] transition-colors">{{ service.name }}</h4>
+                                     <span class="md:hidden text-lg font-serif">{{ formatCurrency(Number(service.price)) }}</span>
+                                 </div>
+                                 <p class="text-[#888] text-sm mt-2 max-w-xl">{{ service.description }}</p>
+                                 <p class="text-xs text-[#AAA] mt-1">{{ formatDuration(service.duration_minutes) }}</p>
+                             </div>
+                             <div class="hidden md:block w-32 text-right">
+                                 <span class="text-xl font-serif text-[#1A1A1A]">{{ formatCurrency(Number(service.price)) }}</span>
+                             </div>
                         </div>
-                        <p v-if="service.description" class="text-muted-foreground whitespace-pre-line text-sm leading-relaxed mt-2 flex-grow">
-                            {{ service.description }}
-                        </p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section 
-            id="consultation" 
-            class="py-24 bg-secondary/30 scroll-mt-0 relative overflow-hidden"
-        >
-             <div 
-                class="max-w-xl mx-auto px-4 relative z-10 transition-all duration-1000 transform translate-y-12 opacity-0"
-                :class="{ 'translate-y-0 opacity-100': revealElements.has('form') }"
-                data-reveal-id="form"
-             >
-                  <div class="text-center mb-12">
-                      <h2 class="text-3xl md:text-4xl font-bold mb-4">{{ t('landing.form_title') }}</h2>
-                      <p class="text-lg text-muted-foreground">{{ t('landing.form_subtitle') }}</p>
-                  </div>
-
-                  <div v-if="formSubmitted" class="bg-emerald-50 border border-emerald-200 rounded-lg p-8 text-center animate-in">
-                        <div class="flex justify-center mb-4">
-                            <CheckCircle2 class="h-16 w-16 text-emerald-600" />
-                        </div>
-                        <h3 class="text-2xl font-semibold text-emerald-900 mb-2">{{ t('landing.form_success_title') || 'Dziękujemy za kontakt!' }}</h3>
-                        <p class="text-emerald-700 text-lg">{{ t('landing.form_success_desc') || 'Skontaktujemy się z Tobą wkrótce.' }}</p>
-                  </div>
-
-                  <form v-else @submit.prevent="submit" class="bg-card p-8 rounded-xl shadow-sm border space-y-6">
-                        <div class="space-y-2">
-                            <Label for="full_name">{{ t('landing.form_name') }}</Label>
-                            <Input id="full_name" v-model="form.full_name" required placeholder="np. Anna Kowalska" />
-                            <p v-if="form.errors.full_name" class="text-sm text-destructive">{{ form.errors.full_name }}</p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <Label for="phone">{{ t('landing.form_phone') }}</Label>
-                            <Input id="phone" v-model="form.phone" required type="tel" placeholder="np. 500 600 700" />
-                            <p v-if="form.errors.phone" class="text-sm text-destructive">{{ form.errors.phone }}</p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <Label for="email">{{ t('landing.form_email') }}</Label>
-                            <Input id="email" v-model="form.email" type="email" placeholder="email@example.com" />
-                            <p v-if="form.errors.email" class="text-sm text-destructive">{{ form.errors.email }}</p>
-                        </div>
-                        
-                        <div class="space-y-2">
-                             <Label for="note">{{ t('landing.form_note') }}</Label>
-                             <Textarea id="note" v-model="form.note" placeholder="" />
-                             <p v-if="form.errors.note" class="text-sm text-destructive">{{ form.errors.note }}</p>
-                        </div>
-
-                        <Button type="submit" class="w-full text-lg h-12" :disabled="form.processing">
-                             <span v-if="form.processing">{{ t('landing.form_sending') }}</span>
-                             <span v-else>{{ t('landing.form_submit') }}</span>
-                        </Button>
-                  </form>
-             </div>
+        <!-- Booking Section -->
+        <section id="booking" class="py-24 px-4 bg-[#1A1A1A] text-white">
+            <div class="max-w-4xl mx-auto text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-serif mb-4">Rezerwacja Online</h2>
+                <p class="text-white/60">Wybierz dogodny termin i zadbaj o siebie. Rezerwacja zajmie Ci mniej niż minutę.</p>
+            </div>
+            
+            <BookingPanel :services="services" class="bg-[#222] text-white border-white/10" />
+            
+            <div class="text-center mt-12 space-y-2">
+                 <p class="text-sm text-white/40">Masz pytania? Zadzwoń lub napisz.</p>
+                 <p class="text-lg">+48 793 173 748 &bull; kontakt@face-modeling.pl</p>
+                 <div class="flex justify-center gap-6 mt-6">
+                     <!-- Instagram -->
+                     <a href="https://www.instagram.com/facemodeling.expert?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="w-12 h-12 bg-[#1A1A1A] border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all hover:scale-110 group">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                     </a>
+                     <!-- Facebook -->
+                     <a href="https://www.facebook.com/profile.php?id=100064131938944" target="_blank" class="w-12 h-12 bg-[#1A1A1A] border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all hover:scale-110 group">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                     </a>
+                 </div>
+            </div>
         </section>
         
-        <footer class="py-8 text-center text-sm text-muted-foreground">
-            &copy; {{ new Date().getFullYear() }} Facemodeling Studio. {{ t('landing.footer_rights') }}
+        <footer class="py-8 bg-[#111] text-white/20 text-center text-xs">
+            <div class="mb-2 space-x-4">
+                <a href="/regulamin" class="hover:text-white/40 transition-colors">Regulamin</a>
+                <a href="/polityka-prywatnosci" class="hover:text-white/40 transition-colors">Polityka Prywatności</a>
+            </div>
+            &copy; {{ new Date().getFullYear() }} Emilia Wiśniewska. Wszelkie prawa zastrzeżone.
         </footer>
     </div>
 </template>
 
-<style scoped>
-.animate-in {
-    animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-</style>
 

@@ -20,8 +20,14 @@ class AdminAppointmentReviewController extends Controller
     {
         $pendingAppointments = Appointment::with('client')
             ->where('status', Appointment::STATUS_PENDING_APPROVAL)
-            ->whereNotNull('requested_starts_at')
-            ->orderBy('requested_at', 'asc')
+            ->where(function ($query) {
+                // Include reschedule requests (have requested_starts_at)
+                // OR new bookings (have starts_at but status is pending, requested_starts_at is null)
+                $query->whereNotNull('requested_starts_at')
+                      ->orWhereNull('requested_starts_at');
+            })
+            // Order by requested_at for reschedules, or created_at for new bookings
+            ->orderByRaw('COALESCE(requested_at, created_at) ASC')
             ->get();
 
         return Inertia::render('Admin/Appointments/Review', [

@@ -37,7 +37,7 @@ class AvailabilityService
 
         // Business hours
         $startHour = 9;
-        $endHour = 17;
+        $endHour = 21;
         $stepMinutes = 30;
 
         $availableSlots = [];
