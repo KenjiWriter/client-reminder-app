@@ -17,7 +17,7 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $range = $request->input('range', '30d');
+        $range = $request->input('range', 'mtd');
         $from = $request->input('from');
         $to = $request->input('to');
         
