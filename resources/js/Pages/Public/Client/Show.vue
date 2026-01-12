@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import { useTranslation } from '@/composables/useTranslation';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,11 @@ import { Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, AlertCircle, Lo
 import { format, addDays, startOfDay } from 'date-fns';
 import { route } from 'ziggy-js';
 import axios from 'axios';
+
+onMounted(() => {
+    // Force light mode for this public page
+    document.documentElement.classList.remove('dark');
+});
 
 const { t, locale } = useTranslation();
 
