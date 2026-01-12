@@ -37,10 +37,15 @@ const formatCurrency = (amount: number) => {
         
         <!-- Hero Section -->
         <section class="relative min-h-screen flex flex-col justify-center items-center text-center px-4 overflow-hidden">
-            <!-- Background Decoration (Subtle) -->
-            <div class="absolute inset-0 z-0 opacity-10 pointer-events-none">
-                <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4C3A3] rounded-full blur-[100px] translate-x-1/3 -translate-y-1/3"></div>
-                <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#A3B1D4] rounded-full blur-[80px] -translate-x-1/3 translate-y-1/3"></div>
+            <!-- Hero Background Image -->
+            <div class="absolute inset-0 z-0">
+                <img 
+                    src="/img/background.jpg" 
+                    alt="Background" 
+                    class="w-full h-full object-cover"
+                />
+                <!-- Overlay to ensure text readability -->
+                <div class="absolute inset-0 bg-white/40"></div>
             </div>
 
             <div class="relative z-10 space-y-8 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
