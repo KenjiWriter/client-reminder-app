@@ -71,13 +71,13 @@ const isActive = (href: string) => {
             <div class="flex flex-col lg:flex-row lg:space-x-12">
                 <!-- Sidebar -->
                 <aside class="w-full lg:w-64 shrink-0 mb-8 lg:mb-0">
-                    <nav class="flex flex-col space-y-1">
+                    <nav class="flex flex-row flex-wrap gap-2 lg:flex-col lg:space-y-1 lg:gap-0 pb-4 lg:pb-0">
                         <Link
                             v-for="item in navItems"
                             :key="item.href"
                             :href="item.href"
                             :class="[
-                                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap',
                                 isActive(item.href)
                                     ? 'bg-secondary text-secondary-foreground'
                                     : 'text-muted-foreground hover:bg-secondary/50 hover:text-secondary-foreground',
