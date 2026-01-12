@@ -93,7 +93,7 @@ class AppointmentController extends Controller
         return Inertia::render('Calendar/Index', [
             'events' => $events,
             // Pass clients for the "Add Appointment" modal/quick-add
-            'clients' => Client::select('id', 'full_name', 'phone_e164')->orderBy('full_name')->get(),
+            'clients' => Client::select('id', 'full_name', 'phone_e164', 'sms_opt_out')->orderBy('full_name')->get(),
             // Pass active services for service selection
             'allServices' => \App\Models\Service::where('is_active', true)->orderBy('name')->get(),
         ]);

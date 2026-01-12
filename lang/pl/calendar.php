@@ -5,6 +5,7 @@ return [
     'unpaidVisits' => 'Nieopłacone wizyty',
     'addAppointment' => 'Dodaj wizytę',
     'editAppointment' => 'Edytuj wizytę',
+    'updateDetails' => 'Zaktualizuj szczegóły',
     'payment' => [
         'completed' => 'Płatność zrealizowana',
         'status' => 'Status płatności',

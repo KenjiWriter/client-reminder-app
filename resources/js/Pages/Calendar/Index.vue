@@ -20,7 +20,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus, Search, RefreshCw, DollarSign } from 'lucide-vue-next';
+import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus, Search, RefreshCw, DollarSign, AlertCircle } from 'lucide-vue-next';
 import { format, startOfWeek, addDays, getDay, isSameDay, parseISO, startOfToday, addWeeks, subWeeks } from 'date-fns';
 import { route } from 'ziggy-js';
 import { Link } from '@inertiajs/vue3';
@@ -161,6 +161,7 @@ interface CalendarClient {
     id: number;
     full_name: string;
     phone_e164: string;
+    sms_opt_out: boolean;
 }
 
 interface Service {
@@ -423,6 +424,29 @@ const closeClientModal = () => {
 
 
 
+// Watch client selection to auto-update allow/disallow reminder
+watch(() => form.client_id, (newClientId) => {
+    if (newClientId && props.clients) {
+        const client = props.clients.find(c => String(c.id) === newClientId);
+        if (client) {
+             // If client opted out, uncheck and keep unchecked (disabled by template)
+             if (client.sms_opt_out) {
+                 form.send_reminder = false;
+             } else {
+                 // Reset to true if client allows it, likely desired behavior for new appointments
+                 // But if we are editing and it was manually unchecked, we might want to respect that?
+                 // However, "editingAppointmentId" check is safer.
+                 // If creating new (no ID), set to true. If editing, maybe preserve? 
+                 // Current logic: simple auto-check to true for convenience.
+                 // If user wants to disable, they can uncheck it manually.
+                 if (!editingAppointmentId.value) {
+                    form.send_reminder = true;
+                 }
+             }
+        }
+    }
+});
+
 const submitClient = async () => {
     if (isSubmittingClient.value) return;
     
@@ -444,6 +468,7 @@ const submitClient = async () => {
                 id: data.client.id,
                 full_name: data.client.full_name,
                 phone_e164: data.client.phone_e164,
+                sms_opt_out: data.client.sms_opt_out ?? false,
             });
             
             // Auto-select the new client
@@ -950,9 +975,23 @@ const syncCalendar = () => {
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                                <input type="checkbox" id="send_reminder" v-model="form.send_reminder" class="h-4 w-4" />
-                                <Label for="send_reminder">{{ t('calendar.sendReminder') }}</Label>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <input 
+                                        type="checkbox" 
+                                        id="send_reminder" 
+                                        v-model="form.send_reminder" 
+                                        class="h-4 w-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        :disabled="clients.find(c => String(c.id) === form.client_id)?.sms_opt_out"
+                                    />
+                                    <Label for="send_reminder" :class="{'opacity-50': clients.find(c => String(c.id) === form.client_id)?.sms_opt_out}">
+                                        {{ t('calendar.sendReminder') }}
+                                    </Label>
+                                </div>
+                                <p v-if="clients.find(c => String(c.id) === form.client_id)?.sms_opt_out" class="text-xs text-amber-600 flex items-center gap-1">
+                                    <AlertCircle class="h-3 w-3" />
+                                    Klient nie wyraził zgody na powiadomienia SMS
+                                </p>
                             </div>
 
                             <div class="grid grid-cols-2 gap-4">

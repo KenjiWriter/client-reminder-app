@@ -45,26 +45,18 @@ const props = withDefaults(defineProps<{
 
 const isOptedOut = ref(props.client.sms_opt_out);
 
-const toggleOptOut = (checked: boolean) => {
+const setOptOut = (shouldOptOut: boolean) => {
     // Optimistic update
-    isOptedOut.value = !checked;
-    
-    // Explicitly send the current button state to backend
-    // If button is CHECKED (true), user wants reminders -> opt_out should be FALSE
-    // If button is UNCHECKED (false), user disables -> opt_out should be TRUE
+    isOptedOut.value = shouldOptOut;
     
     router.post(route('public.client.toggle-opt-out', props.client.public_uid), {
-        opt_out: !checked // Send the explicit status
+        opt_out: shouldOptOut
     }, {
         preserveScroll: true,
         onError: () => {
              // Revert on error
-             isOptedOut.value = !isOptedOut.value;
+             isOptedOut.value = !shouldOptOut;
         },
-        onFinish: () => {
-            // No-op, props will update automatically if we wanted to rely on them, 
-            // but local ref is smoother for 'clicked' behavior
-        }
     });
 };
 
@@ -210,15 +202,24 @@ const slotsByDate = computed(() => {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div class="flex items-center space-x-2">
-                        <Checkbox 
-                            id="sms-opt-in"
-                            :checked="!isOptedOut" 
-                            @update:checked="toggleOptOut"
-                        />
-                        <Label for="sms-opt-in" class="cursor-pointer">
-                            {{ t('public.enableReminders') }}
-                        </Label>
+                    <div v-if="!isOptedOut" class="space-y-3">
+                         <div class="flex items-center gap-2 text-emerald-700 bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                            <CheckCircle2 class="h-5 w-5 flex-shrink-0" />
+                            <p class="text-sm font-medium">Otrzymasz przypomienie dzień przed terminem wizyty</p>
+                         </div>
+                         <Button variant="outline" size="sm" class="text-muted-foreground hover:text-foreground" @click="setOptOut(true)">
+                            Wyłącz powiadomienia
+                         </Button>
+                    </div>
+                    <div v-else class="space-y-3">
+                         <div class="flex items-center gap-2 text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-100">
+                            <XCircle class="h-5 w-5 flex-shrink-0" />
+                            <p class="text-sm font-medium">Wyłączyłeś powiadomienia SMS dzień przed terminem wizyty</p>
+                         </div>
+                         <p class="text-sm text-muted-foreground">Aby otrzymywać powiadomienia, naciśnij przycisk poniżej.</p>
+                         <Button variant="default" size="sm" @click="setOptOut(false)">
+                            Włącz powiadomienia
+                         </Button>
                     </div>
                 </CardContent>
             </Card>

@@ -4,6 +4,7 @@ return [
     'error' => 'Error',
     'success' => 'Success',
     'today' => 'Today',
+    'updateDetails' => 'Update Details',
     'newAppointment' => 'New Appointment',
     'delete' => 'Delete',
     'cancel' => 'Cancel',
