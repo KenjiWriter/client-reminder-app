@@ -20,12 +20,11 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/vue';
-import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus, Search, RefreshCw, DollarSign, AlertCircle, Check } from 'lucide-vue-next';
+import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus, Search, RefreshCw, DollarSign, AlertCircle, X } from 'lucide-vue-next';
 import { format, startOfWeek, addDays, getDay, isSameDay, parseISO, startOfToday, addWeeks, subWeeks } from 'date-fns';
 import { route } from 'ziggy-js';
 import { Link } from '@inertiajs/vue3';
-import { useDebounceFn } from '@vueuse/core';
+import { useDebounceFn, onClickOutside } from '@vueuse/core';
 
 interface CalendarEvent {
     id: number;
@@ -62,8 +61,13 @@ const form = useForm({
     price: undefined as number | string | undefined,
 });
 
-// Client searchable combobox state
+// Client searchable dropdown state
+const clientDropdownRef = ref<HTMLElement | null>(null);
+const clientInputValue = ref('');
 const clientSearchQuery = ref('');
+const isClientDropdownOpen = ref(false);
+const clientHighlightedIndex = ref(-1);
+
 const filteredClients = computed(() => {
     if (!clientSearchQuery.value) return props.clients;
     const q = clientSearchQuery.value.toLowerCase();
@@ -72,13 +76,64 @@ const filteredClients = computed(() => {
         c.phone_e164.toLowerCase().includes(q)
     );
 });
-const selectedClient = computed({
-    get: () => props.clients.find(c => String(c.id) === form.client_id) ?? null,
-    set: (val: CalendarClient | null) => { form.client_id = val ? String(val.id) : ''; },
-});
-const onClientSearch = (event: Event) => {
-    clientSearchQuery.value = (event.target as HTMLInputElement).value;
+
+const onClientFocus = () => {
+    clientInputValue.value = '';
+    clientSearchQuery.value = '';
+    isClientDropdownOpen.value = true;
+    clientHighlightedIndex.value = -1;
 };
+
+const onClientInput = (event: Event) => {
+    const val = (event.target as HTMLInputElement).value;
+    clientInputValue.value = val;
+    clientSearchQuery.value = val;
+    isClientDropdownOpen.value = true;
+    clientHighlightedIndex.value = -1;
+};
+
+const selectClient = (client: CalendarClient) => {
+    form.client_id = String(client.id);
+    clientInputValue.value = `${client.full_name} (${client.phone_e164})`;
+    clientSearchQuery.value = '';
+    isClientDropdownOpen.value = false;
+    clientHighlightedIndex.value = -1;
+};
+
+const clearClient = () => {
+    form.client_id = '';
+    clientInputValue.value = '';
+    clientSearchQuery.value = '';
+    isClientDropdownOpen.value = true;
+};
+
+const closeClientDropdown = () => {
+    isClientDropdownOpen.value = false;
+    if (form.client_id) {
+        const client = props.clients.find(c => String(c.id) === form.client_id);
+        if (client) clientInputValue.value = `${client.full_name} (${client.phone_e164})`;
+    } else {
+        clientInputValue.value = '';
+    }
+};
+
+const onClientKeydown = (event: KeyboardEvent) => {
+    if (!isClientDropdownOpen.value) return;
+    if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        clientHighlightedIndex.value = Math.min(clientHighlightedIndex.value + 1, filteredClients.value.length - 1);
+    } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        clientHighlightedIndex.value = Math.max(clientHighlightedIndex.value - 1, 0);
+    } else if (event.key === 'Enter' && clientHighlightedIndex.value >= 0) {
+        event.preventDefault();
+        selectClient(filteredClients.value[clientHighlightedIndex.value]);
+    } else if (event.key === 'Escape') {
+        closeClientDropdown();
+    }
+};
+
+onClickOutside(clientDropdownRef, closeClientDropdown);
 
 // ...
 
@@ -86,6 +141,7 @@ const openCreateModal = () => {
     editingAppointmentId.value = null;
     form.reset();
     clientSearchQuery.value = '';
+    clientInputValue.value = '';
 
     // Select first service by default if available
     if (props.allServices && props.allServices.length > 0) {
@@ -120,6 +176,7 @@ const openCreateModalAtTime = (day: Date, hour: number) => {
     editingAppointmentId.value = null;
     form.reset();
     clientSearchQuery.value = '';
+    clientInputValue.value = '';
 
     // Select first service by default if available
     if (props.allServices && props.allServices.length > 0) {
@@ -161,6 +218,8 @@ const editAppointment = (event: typeof props.events[0]) => {
     
     // Populate form with event data
     form.client_id = String(event.client_id);
+    const editedClient = props.clients.find(c => c.id === event.client_id);
+    clientInputValue.value = editedClient ? `${editedClient.full_name} (${editedClient.phone_e164})` : '';
     form.service_id = event.service_id ? String(event.service_id) : 'none';
     form.duration_minutes = event.duration_minutes;
     form.note = event.note || '';
@@ -951,33 +1010,46 @@ const syncCalendar = () => {
                                         <UserPlus class="mr-1 h-3 w-3" /> {{ t('common.newClient') || 'New Client' }}
                                     </Button>
                                 </div>
-                                <div class="relative">
-                                    <Combobox v-model="selectedClient">
-                                        <ComboboxInput
-                                            class="border-input focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 h-9 placeholder:text-muted-foreground"
-                                            :display-value="(client: any) => client ? `${client.full_name} (${client.phone_e164})` : ''"
-                                            @change="onClientSearch"
-                                            :placeholder="t('calendar.searchClient') || 'Search client...'"
+                                <div class="relative" ref="clientDropdownRef">
+                                    <div class="relative flex items-center">
+                                        <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                                        <input
+                                            type="text"
+                                            autocomplete="off"
+                                            :value="clientInputValue"
+                                            @focus="onClientFocus"
+                                            @input="onClientInput"
+                                            @keydown="onClientKeydown"
+                                            placeholder="Wpisz imię, nazwisko lub telefon..."
+                                            class="border-input focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border bg-transparent pl-9 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px] h-9 placeholder:text-muted-foreground"
+                                            :class="form.client_id ? 'pr-8' : 'pr-3'"
                                         />
-                                        <ComboboxOptions class="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md p-1">
-                                            <div v-if="filteredClients.length === 0" class="py-2 px-3 text-sm text-muted-foreground">
-                                                {{ t('calendar.noClientsFound') || 'No clients found.' }}
-                                            </div>
-                                            <ComboboxOption
-                                                v-for="client in filteredClients"
-                                                :key="client.id"
-                                                :value="client"
-                                                v-slot="{ active, selected }"
-                                                as="template"
-                                            >
-                                                <li :class="['flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none', active ? 'bg-accent text-accent-foreground' : '']">
-                                                    <Check v-if="selected" class="mr-2 h-4 w-4 shrink-0" />
-                                                    <span v-else class="mr-2 h-4 w-4 shrink-0" />
-                                                    {{ client.full_name }} ({{ client.phone_e164 }})
-                                                </li>
-                                            </ComboboxOption>
-                                        </ComboboxOptions>
-                                    </Combobox>
+                                        <button
+                                            v-if="form.client_id"
+                                            type="button"
+                                            @click="clearClient"
+                                            tabindex="-1"
+                                            class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                        >
+                                            <X class="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                    <ul
+                                        v-if="isClientDropdownOpen"
+                                        class="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md p-1"
+                                    >
+                                        <li v-if="filteredClients.length === 0" class="py-2 px-3 text-sm text-muted-foreground">
+                                            {{ t('calendar.noClientsFound') || 'Nie znaleziono klientów.' }}
+                                        </li>
+                                        <li
+                                            v-for="(client, i) in filteredClients"
+                                            :key="client.id"
+                                            @mousedown.prevent="selectClient(client)"
+                                            :class="['flex cursor-pointer select-none items-center rounded-sm px-3 py-1.5 text-sm outline-none', clientHighlightedIndex === i ? 'bg-accent text-accent-foreground' : 'hover:bg-accent hover:text-accent-foreground']"
+                                        >
+                                            {{ client.full_name }} ({{ client.phone_e164 }})
+                                        </li>
+                                    </ul>
                                 </div>
                                 <div v-if="form.errors.client_id" class="text-sm text-red-500">{{ form.errors.client_id }}</div>
                             </div>
