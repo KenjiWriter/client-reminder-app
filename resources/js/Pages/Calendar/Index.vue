@@ -20,7 +20,8 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus, Search, RefreshCw, DollarSign, AlertCircle } from 'lucide-vue-next';
+import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/vue';
+import { Plus, ChevronLeft, ChevronRight, Calculator, Calendar as CalendarIcon, Clock, Trash2, UserPlus, Search, RefreshCw, DollarSign, AlertCircle, Check } from 'lucide-vue-next';
 import { format, startOfWeek, addDays, getDay, isSameDay, parseISO, startOfToday, addWeeks, subWeeks } from 'date-fns';
 import { route } from 'ziggy-js';
 import { Link } from '@inertiajs/vue3';
@@ -61,11 +62,30 @@ const form = useForm({
     price: undefined as number | string | undefined,
 });
 
+// Client searchable combobox state
+const clientSearchQuery = ref('');
+const filteredClients = computed(() => {
+    if (!clientSearchQuery.value) return props.clients;
+    const q = clientSearchQuery.value.toLowerCase();
+    return props.clients.filter(c =>
+        c.full_name.toLowerCase().includes(q) ||
+        c.phone_e164.toLowerCase().includes(q)
+    );
+});
+const selectedClient = computed({
+    get: () => props.clients.find(c => String(c.id) === form.client_id) ?? null,
+    set: (val: CalendarClient | null) => { form.client_id = val ? String(val.id) : ''; },
+});
+const onClientSearch = (event: Event) => {
+    clientSearchQuery.value = (event.target as HTMLInputElement).value;
+};
+
 // ...
 
 const openCreateModal = () => {
     editingAppointmentId.value = null;
     form.reset();
+    clientSearchQuery.value = '';
 
     // Select first service by default if available
     if (props.allServices && props.allServices.length > 0) {
@@ -99,6 +119,7 @@ const openCreateModalAtTime = (day: Date, hour: number) => {
 
     editingAppointmentId.value = null;
     form.reset();
+    clientSearchQuery.value = '';
 
     // Select first service by default if available
     if (props.allServices && props.allServices.length > 0) {
@@ -136,6 +157,7 @@ const openCreateModalAtTime = (day: Date, hour: number) => {
 const editAppointment = (event: typeof props.events[0]) => {
     editingAppointmentId.value = event.id;
     form.reset();
+    clientSearchQuery.value = '';
     
     // Populate form with event data
     form.client_id = String(event.client_id);
@@ -929,16 +951,34 @@ const syncCalendar = () => {
                                         <UserPlus class="mr-1 h-3 w-3" /> {{ t('common.newClient') || 'New Client' }}
                                     </Button>
                                 </div>
-                                <Select v-model="form.client_id">
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a client" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem v-for="client in clients" :key="client.id" :value="String(client.id)">
-                                            {{ client.full_name }} ({{ client.phone_e164 }})
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <div class="relative">
+                                    <Combobox v-model="selectedClient">
+                                        <ComboboxInput
+                                            class="border-input focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 h-9 placeholder:text-muted-foreground"
+                                            :display-value="(client: any) => client ? `${client.full_name} (${client.phone_e164})` : ''"
+                                            @change="onClientSearch"
+                                            :placeholder="t('calendar.searchClient') || 'Search client...'"
+                                        />
+                                        <ComboboxOptions class="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md p-1">
+                                            <div v-if="filteredClients.length === 0" class="py-2 px-3 text-sm text-muted-foreground">
+                                                {{ t('calendar.noClientsFound') || 'No clients found.' }}
+                                            </div>
+                                            <ComboboxOption
+                                                v-for="client in filteredClients"
+                                                :key="client.id"
+                                                :value="client"
+                                                v-slot="{ active, selected }"
+                                                as="template"
+                                            >
+                                                <li :class="['flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none', active ? 'bg-accent text-accent-foreground' : '']">
+                                                    <Check v-if="selected" class="mr-2 h-4 w-4 shrink-0" />
+                                                    <span v-else class="mr-2 h-4 w-4 shrink-0" />
+                                                    {{ client.full_name }} ({{ client.phone_e164 }})
+                                                </li>
+                                            </ComboboxOption>
+                                        </ComboboxOptions>
+                                    </Combobox>
+                                </div>
                                 <div v-if="form.errors.client_id" class="text-sm text-red-500">{{ form.errors.client_id }}</div>
                             </div>
                             
