@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import SettingsLayout from '@/layouts/SettingsLayout.vue';
 import { useForm, Head } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/InputError.vue';
 import { ref } from 'vue';
+import { useTranslation } from '@/composables/useTranslation';
+
+const { t } = useTranslation();
 
 const props = defineProps<{
     settings?: {
@@ -71,59 +75,59 @@ const handleQuillReady = (quill: any) => {
 </script>
 
 <template>
-    <Head title="Ustawienia Poczty" />
+    <Head :title="t('settings.email.title')" />
     <SettingsLayout>
         <div class="space-y-6 max-w-2xl">
             <div>
-                <h3 class="text-lg font-medium">Ustawienia Poczty Email (IMAP/SMTP)</h3>
+                <h3 class="text-lg font-medium">{{ t('settings.email.title') }}</h3>
                 <p class="text-sm text-muted-foreground">
-                    Skonfiguruj połączenie z serwerem poczty. Pamiętaj, aby wprowadzić poprawne porty i poświadczenia dostępu dla IMAP (odbieranie) oraz SMTP (wysyłanie).
+                    {{ t('settings.email.description') }}
                 </p>
             </div>
 
             <form @submit.prevent="submit" class="space-y-8">
                 <!-- General Email Settings -->
                 <div class="space-y-4">
-                    <h4 class="text-sm font-semibold border-b pb-2">Dane Nadawcy</h4>
+                    <h4 class="text-sm font-semibold border-b pb-2">{{ t('settings.email.sender_section') }}</h4>
                     
                     <div class="space-y-2">
-                        <Label for="email_sender_name">Nazwa Nadawcy (Opcjonalnie)</Label>
-                        <Input id="email_sender_name" v-model="form.email_sender_name" placeholder="np. Gabinet XYZ" />
+                        <Label for="email_sender_name">{{ t('settings.email.sender_name') }}</Label>
+                        <Input id="email_sender_name" v-model="form.email_sender_name" :placeholder="t('settings.email.sender_name_placeholder')" />
                         <InputError :message="form.errors.email_sender_name" />
                         <p class="text-xs text-muted-foreground mt-1">
-                            Ta nazwa będzie widoczna jako wysyłający w skrzynce odbiorczej klienta. Jeśli puste, użyty zostanie adres email.
+                            {{ t('settings.email.sender_name_hint') }}
                         </p>
                     </div>
 
                     <div class="space-y-2 ql-custom-wrapper">
-                        <Label for="email_signature">Stopka HTML</Label>
+                        <Label for="email_signature">{{ t('settings.email.signature') }}</Label>
                         <!-- Note: No v-model here. Sync is manual via @ready and text-change listener -->
                         <QuillEditor 
                             contentType="html"
                             theme="snow" 
-                            placeholder="Twoja stopka pojawi się tutaj po uruchomieniu seedera lub ręcznym wpisaniu..."
+                            :placeholder="t('settings.email.signature_placeholder')"
                             class="min-h-[200px]"
                             @ready="handleQuillReady"
                         />
                         <InputError :message="form.errors.email_signature" />
                         <p class="text-xs text-muted-foreground mt-1">
-                            Stopka będzie automatycznie dołączana do każdej wysyłanej wiadomości.
+                            {{ t('settings.email.signature_hint') }}
                         </p>
                     </div>
                 </div>
 
                 <!-- IMAP Settings -->
                 <div class="space-y-4">
-                    <h4 class="text-sm font-semibold border-b pb-2">Poczta Przychodząca (IMAP)</h4>
+                    <h4 class="text-sm font-semibold border-b pb-2">{{ t('settings.email.imap_section') }}</h4>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-2 md:col-span-2">
-                            <Label for="imap_host">Serwer IMAP (Host)</Label>
-                            <Input id="imap_host" v-model="form.imap_host" placeholder="np. imap.zoho.eu" />
+                            <Label for="imap_host">{{ t('settings.email.imap_host') }}</Label>
+                            <Input id="imap_host" v-model="form.imap_host" :placeholder="t('settings.email.imap_host_placeholder')" />
                             <InputError :message="form.errors.imap_host" />
                         </div>
                         <div class="space-y-2">
-                            <Label for="imap_port">Port IMAP</Label>
+                            <Label for="imap_port">{{ t('settings.email.imap_port') }}</Label>
                             <Input id="imap_port" type="number" v-model="form.imap_port" placeholder="993" />
                             <InputError :message="form.errors.imap_port" />
                         </div>
@@ -131,24 +135,24 @@ const handleQuillReady = (quill: any) => {
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-2">
-                            <Label for="imap_username">Nazwa użytkownika (Email)</Label>
-                            <Input id="imap_username" v-model="form.imap_username" placeholder="kontakt@domena.pl" />
+                            <Label for="imap_username">{{ t('settings.email.imap_username') }}</Label>
+                            <Input id="imap_username" v-model="form.imap_username" placeholder="email@domena.com" />
                             <InputError :message="form.errors.imap_username" />
                         </div>
                         <div class="space-y-2">
-                            <Label for="imap_password">Hasło IMAP</Label>
-                            <Input id="imap_password" type="password" v-model="form.imap_password" :placeholder="settings?.has_imap_password ? '******** (Zapisane - wprowadź by zmienić)' : 'Wprowadź hasło'" />
+                            <Label for="imap_password">{{ t('settings.email.imap_password') }}</Label>
+                            <Input id="imap_password" type="password" v-model="form.imap_password" :placeholder="settings?.has_imap_password ? t('settings.email.imap_password_placeholder') : t('settings.email.imap_password_empty')" />
                             <InputError :message="form.errors.imap_password" />
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 gap-4">
                         <div class="space-y-2">
-                            <Label for="imap_sent_folder">Nazwa folderu wysłanych (IMAP)</Label>
-                            <Input id="imap_sent_folder" v-model="form.imap_sent_folder" placeholder="np. Sent, Wysłane, INBOX.Sent" />
+                            <Label for="imap_sent_folder">{{ t('settings.email.imap_sent_folder') }}</Label>
+                            <Input id="imap_sent_folder" v-model="form.imap_sent_folder" :placeholder="t('settings.email.imap_sent_folder_placeholder')" />
                             <InputError :message="form.errors.imap_sent_folder" />
                             <p class="text-xs text-muted-foreground mt-1">
-                                Pozostaw puste aby użyć domyślnego ('Sent'). Na serwerach polskich często to 'Wysłane' lub 'INBOX.Sent'.
+                                {{ t('settings.email.imap_sent_folder_hint') }}
                             </p>
                         </div>
                     </div>
@@ -156,16 +160,16 @@ const handleQuillReady = (quill: any) => {
 
                 <!-- SMTP Settings -->
                 <div class="space-y-4">
-                    <h4 class="text-sm font-semibold border-b pb-2">Poczta Wychodząca (SMTP)</h4>
+                    <h4 class="text-sm font-semibold border-b pb-2">{{ t('settings.email.smtp_section') }}</h4>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-2 md:col-span-2">
-                            <Label for="smtp_host">Serwer SMTP (Host)</Label>
-                            <Input id="smtp_host" v-model="form.smtp_host" placeholder="np. smtp.zoho.eu" />
+                            <Label for="smtp_host">{{ t('settings.email.smtp_host') }}</Label>
+                            <Input id="smtp_host" v-model="form.smtp_host" :placeholder="t('settings.email.smtp_host_placeholder')" />
                             <InputError :message="form.errors.smtp_host" />
                         </div>
                         <div class="space-y-2">
-                            <Label for="smtp_port">Port SMTP</Label>
+                            <Label for="smtp_port">{{ t('settings.email.smtp_port') }}</Label>
                             <Input id="smtp_port" type="number" v-model="form.smtp_port" placeholder="465" />
                             <InputError :message="form.errors.smtp_port" />
                         </div>
@@ -173,21 +177,21 @@ const handleQuillReady = (quill: any) => {
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-2">
-                            <Label for="smtp_username">Nazwa użytkownika (Email)</Label>
-                            <Input id="smtp_username" v-model="form.smtp_username" placeholder="kontakt@domena.pl" />
+                            <Label for="smtp_username">{{ t('settings.email.smtp_username') }}</Label>
+                            <Input id="smtp_username" v-model="form.smtp_username" placeholder="email@domena.com" />
                             <InputError :message="form.errors.smtp_username" />
                         </div>
                         <div class="space-y-2">
-                            <Label for="smtp_password">Hasło SMTP</Label>
-                            <Input id="smtp_password" type="password" v-model="form.smtp_password" :placeholder="settings?.has_smtp_password ? '******** (Zapisane - wprowadź by zmienić)' : 'Wprowadź hasło'" />
+                            <Label for="smtp_password">{{ t('settings.email.smtp_password') }}</Label>
+                            <Input id="smtp_password" type="password" v-model="form.smtp_password" :placeholder="settings?.has_smtp_password ? t('settings.email.smtp_password_placeholder') : t('settings.email.smtp_password_empty')" />
                             <InputError :message="form.errors.smtp_password" />
                         </div>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-4 pt-4">
-                    <Button :disabled="form.processing">Zapisz Ustawienia Poczty</Button>
-                    <span v-if="form.recentlySuccessful" class="text-sm text-green-600">Zapisano pomyślnie.</span>
+                    <Button :disabled="form.processing">{{ t('settings.email.save') }}</Button>
+                    <span v-if="form.recentlySuccessful" class="text-sm text-green-600">{{ t('settings.email.saved') }}</span>
                 </div>
             </form>
         </div>

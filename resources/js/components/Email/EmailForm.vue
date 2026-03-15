@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ref } from 'vue';
+import { useTranslation } from '@/composables/useTranslation';
+
+const { t } = useTranslation();
 
 import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
@@ -56,7 +59,7 @@ const handleQuillReady = (quill: any) => {
     
     if (props.mode === 'reply') {
         const quotedBody = props.initialData?.body ?? '';
-        blocks.push(`<br><hr><br><strong>Oryginalna wiadomość:</strong><br>${quotedBody}`);
+        blocks.push(`<br><hr><br><strong>${t('email.original_message')}</strong><br>${quotedBody}`);
     }
 
     // Join pieces and clean up any accidental "undefined" strings leaking from somewhere
@@ -106,7 +109,7 @@ const submit = () => {
             <div class="px-6 py-4 border-b border-border flex flex-col gap-4 flex-shrink-0">
                 <!-- To -->
                 <div class="grid grid-cols-[auto_1fr] gap-4 items-center">
-                    <Label for="to" class="text-muted-foreground w-16 whitespace-nowrap">Do</Label>
+                    <Label for="to" class="text-muted-foreground w-16 whitespace-nowrap">{{ t('email.to') }}</Label>
                     <div class="w-full">
                         <Input 
                             id="to" 
@@ -122,7 +125,7 @@ const submit = () => {
 
                 <!-- CC -->
                 <div class="grid grid-cols-[auto_1fr] gap-4 items-center border-t border-border/50 pt-4">
-                    <Label for="cc" class="text-muted-foreground w-16 whitespace-nowrap">DW (CC)</Label>
+                    <Label for="cc" class="text-muted-foreground w-16 whitespace-nowrap">{{ t('email.cc') }}</Label>
                     <div class="w-full">
                         <Input 
                             id="cc" 
@@ -137,13 +140,13 @@ const submit = () => {
                 
                 <!-- Subject -->
                 <div class="grid grid-cols-[auto_1fr] gap-4 items-center border-t border-border/50 pt-4">
-                    <Label for="subject" class="text-muted-foreground w-16 whitespace-nowrap">Temat</Label>
+                    <Label for="subject" class="text-muted-foreground w-16 whitespace-nowrap">{{ t('email.subject') }}</Label>
                     <div class="w-full">
                         <Input 
                             id="subject" 
                             v-model="form.subject" 
                             type="text" 
-                            placeholder="Wpisz temat..." 
+                            placeholder="..." 
                             class="border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 rounded-none bg-transparent font-medium"
                             :readonly="mode === 'reply'"
                         />
@@ -159,7 +162,7 @@ const submit = () => {
                     <QuillEditor 
                         contentType="html"
                         theme="snow" 
-                        placeholder="Treść wiadomości..."
+                        :placeholder="t('email.body_placeholder')"
                         class="flex-1 min-h-[300px]"
                         @ready="handleQuillReady"
                     />
@@ -169,7 +172,7 @@ const submit = () => {
 
             <!-- Attachments -->
             <div class="px-6 py-4 border-t border-border flex flex-col gap-2 flex-shrink-0 bg-muted/5">
-                <Label for="attachments" class="text-sm font-medium">Załączniki</Label>
+                <Label for="attachments" class="text-sm font-medium">{{ t('email.attachments') }}</Label>
                 <Input 
                     id="attachments" 
                     type="file" 
@@ -193,7 +196,7 @@ const submit = () => {
                     :disabled="form.processing"
                     @click="emit('cancel')"
                 >
-                    Anuluj
+                    {{ t('email.cancel') }}
                 </Button>
                 <Button
                     type="submit"
@@ -201,7 +204,7 @@ const submit = () => {
                     :disabled="form.processing || !form.to.trim()"
                 >
                     <Send class="h-4 w-4 mr-2" />
-                    {{ form.processing ? 'Wysyłanie…' : (mode === 'reply' ? 'Wyślij odpowiedź' : 'Wyślij') }}
+                    {{ form.processing ? t('email.sending') : (mode === 'reply' ? t('email.send') : t('email.send')) }}
                 </Button>
             </div>
         </form>

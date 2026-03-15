@@ -5,6 +5,9 @@ import { route } from 'ziggy-js';
 import { ArrowLeft } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import EmailForm from '@/components/Email/EmailForm.vue';
+import { useTranslation } from '@/composables/useTranslation';
+
+const { t } = useTranslation();
 
 // Receive the signature directly from EmailController@create()
 const props = defineProps<{
@@ -21,7 +24,7 @@ const handleSuccess = () => {
 </script>
 
 <template>
-    <Head title="Nowa wiadomość" />
+    <Head :title="t('email.compose')" />
 
     <AppShell>
         <template #header-title>
@@ -31,7 +34,7 @@ const handleSuccess = () => {
                         <ArrowLeft class="h-4 w-4" />
                     </Button>
                 </Link>
-                <h1 class="text-xl font-semibold truncate">Nowa wiadomość</h1>
+                <h1 class="text-xl font-semibold truncate">{{ t('email.compose') }}</h1>
             </div>
         </template>
 

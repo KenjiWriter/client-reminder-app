@@ -6,6 +6,9 @@ import { route } from 'ziggy-js';
 import { Inbox, RefreshCw, ChevronLeft, ChevronRight, AlertCircle, Mail, MailOpen, Edit, Trash, Loader2, Send, Settings } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from '@/composables/useTranslation';
+
+const { t } = useTranslation();
 
 interface Email {
     uid: string;
@@ -28,7 +31,7 @@ const props = defineProps<{
 }>();
 
 const activeFolder = computed(() => props.currentFolder || 'INBOX');
-const sentFolderName = computed(() => usePage().props.settings?.imap_sent_folder || 'Sent');
+const sentFolderName = computed(() => (usePage().props.settings as any)?.imap_sent_folder || 'Sent');
 
 const isRefreshing = ref(false);
 
@@ -44,7 +47,7 @@ const goToPage = (page: number) => {
 const deletingId = ref<string | null>(null);
 
 const deleteEmail = (uid: string) => {
-    if (!confirm('Czy na pewno chcesz usunąć tę wiadomość?')) return;
+    if (!confirm(t('common.confirm_delete') || 'Czy na pewno chcesz usunąć tę wiadomość?')) return;
     
     router.delete(route('emails.destroy', uid), {
         onStart: () => deletingId.value = uid,
@@ -69,13 +72,13 @@ const hasNext = computed(() => props.current_page < props.last_page);
 </script>
 
 <template>
-    <Head title="Poczta" />
+    <Head :title="t('email.inbox')" />
 
     <AppShell>
         <template #header-title>
             <div>
-                <h1 class="text-2xl font-semibold">Poczta</h1>
-                <p class="text-sm text-muted-foreground">{{ activeFolder === 'INBOX' ? 'Skrzynka odbiorcza' : 'Wysłane wiadomości' }} ({{ total }} wiadomości)</p>
+                <h1 class="text-2xl font-semibold">{{ t('email.inbox') }}</h1>
+                <p class="text-sm text-muted-foreground">{{ activeFolder === 'INBOX' ? t('email.inbox') : t('email.sent') }} ({{ t('email.total_messages', { total: total }) }})</p>
             </div>
         </template>
 
@@ -85,12 +88,12 @@ const hasNext = computed(() => props.current_page < props.last_page);
             <div v-if="imapError" class="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-destructive flex items-start gap-3">
                 <AlertCircle class="h-5 w-5 flex-shrink-0 mt-0.5" />
                 <div class="flex-1 text-sm">
-                    <p class="font-semibold text-lg">Błąd połączenia z serwerem poczty</p>
+                    <p class="font-semibold text-lg">{{ t('email.connection_error') }}</p>
                     <p class="mt-1 opacity-90 truncate max-w-full">
                         <template v-if="imapError && imapError.includes('Skonfiguruj')">
-                            Skonfiguruj ustawienia poczty w zakładce 
+                            {{ t('email.configure_settings') }}
                             <Link :href="route('settings.email')" class="text-blue-500 underline hover:text-blue-600 transition-colors">
-                                Ustawienia
+                                {{ t('email.settings_link') }}
                             </Link>
                         </template>
                         <template v-else-if="imapError">
@@ -107,7 +110,7 @@ const hasNext = computed(() => props.current_page < props.last_page);
                     class="pb-3 border-b-2 transition-colors font-medium text-sm flex items-center gap-2"
                     :class="activeFolder === 'INBOX' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
                 >
-                    <Inbox class="w-4 h-4" /> Odebrane
+                    <Inbox class="w-4 h-4" /> {{ t('email.inbox') }}
                 </Link>
                 <!-- Dynamic Sent folder -->
                 <Link
@@ -115,7 +118,7 @@ const hasNext = computed(() => props.current_page < props.last_page);
                     class="pb-3 border-b-2 transition-colors font-medium text-sm flex items-center gap-2"
                     :class="activeFolder === sentFolderName ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
                 >
-                    <Send class="w-4 h-4" /> Wysłane
+                    <Send class="w-4 h-4" /> {{ t('email.sent') }}
                 </Link>
             </div>
 
@@ -123,7 +126,7 @@ const hasNext = computed(() => props.current_page < props.last_page);
             <div class="flex items-center justify-between mt-2">
                 <div class="flex items-center gap-2 text-sm text-muted-foreground">
                     <component :is="activeFolder === 'INBOX' ? Inbox : Send" class="h-4 w-4" />
-                    <span>Strona {{ current_page }} z {{ last_page }}</span>
+                    <span>{{ t('email.page_info', { current: current_page, last: last_page }) }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <Button variant="ghost" size="icon" as-child class="h-9 w-9 text-muted-foreground hover:text-foreground">
@@ -133,12 +136,12 @@ const hasNext = computed(() => props.current_page < props.last_page);
                     </Button>
                     <Button variant="outline" size="sm" @click="refresh" :disabled="isRefreshing">
                         <RefreshCw class="h-4 w-4 mr-2" :class="{ 'animate-spin': isRefreshing }" />
-                        Odśwież
+                        {{ t('email.refresh') }}
                     </Button>
                     <Button size="sm" as-child>
                         <Link :href="route('emails.create')">
                             <Edit class="h-4 w-4 mr-2" />
-                            Nowa wiadomość
+                            {{ t('email.compose') }}
                         </Link>
                     </Button>
                 </div>
@@ -149,8 +152,8 @@ const hasNext = computed(() => props.current_page < props.last_page);
                 <!-- Empty state -->
                 <div v-if="emails.length === 0" class="flex flex-col items-center justify-center py-20 text-center text-muted-foreground gap-3">
                     <Inbox class="h-12 w-12 opacity-30" />
-                    <p class="text-lg font-medium">Brak wiadomości</p>
-                    <p class="text-sm">Twoja skrzynka odbiorcza jest pusta.</p>
+                    <p class="text-lg font-medium">{{ t('email.empty_inbox') }}</p>
+                    <p class="text-sm">{{ t('email.empty_inbox_desc') }}</p>
                 </div>
 
                 <!-- Email rows -->
@@ -187,7 +190,7 @@ const hasNext = computed(() => props.current_page < props.last_page);
                                     {{ email.subject }}
                                 </span>
                                 <Badge v-if="!email.is_seen" variant="default" class="text-[10px] py-0 px-1.5 h-4 flex-shrink-0">
-                                    Nowa
+                                    {{ t('email.new') }}
                                 </Badge>
                             </div>
                             <!-- Snippet -->
@@ -217,14 +220,14 @@ const hasNext = computed(() => props.current_page < props.last_page);
             <!-- Pagination -->
             <div v-if="last_page > 1" class="flex items-center justify-between py-2">
                 <p class="text-sm text-muted-foreground">
-                    Łącznie {{ total }} wiadomości
+                    {{ t('email.total_messages', { total: total }) }}
                 </p>
                 <div class="flex items-center gap-2">
                     <Button variant="outline" size="sm" :disabled="!hasPrev" @click="goToPage(current_page - 1)">
-                        <ChevronLeft class="h-4 w-4 mr-1" /> Poprzednia
+                        <ChevronLeft class="h-4 w-4 mr-1" /> {{ t('email.prev') }}
                     </Button>
                     <Button variant="outline" size="sm" :disabled="!hasNext" @click="goToPage(current_page + 1)">
-                        Następna <ChevronRight class="h-4 w-4 ml-1" />
+                        {{ t('email.next') }} <ChevronRight class="h-4 w-4 ml-1" />
                     </Button>
                 </div>
             </div>

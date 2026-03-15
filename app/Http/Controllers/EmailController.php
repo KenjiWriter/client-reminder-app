@@ -99,7 +99,7 @@ class EmailController extends Controller
         ]);
 
         if (!$this->configureSmtp()) {
-            return back()->withInput()->with('error', 'Skonfiguruj połączenie SMTP w ustawieniach poczty (brak danych logowania).');
+            return back()->withInput()->with('error', __('email.errors.smtp_not_configured'));
         }
 
         // Parse recipients
@@ -109,12 +109,12 @@ class EmailController extends Controller
         // Basic sanity check for valid emails
         foreach (array_merge($toArray, $ccArray) as $email) {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return back()->withInput()->withErrors(['to' => "Nieprawidłowy format adresu e-mail: {$email}"]);
+                return back()->withInput()->withErrors(['to' => __('email.errors.invalid_format', ['email' => $email])]);
             }
         }
 
         if (empty($toArray)) {
-            return back()->withInput()->withErrors(['to' => 'Pole "Do" jest wymagane.']);
+            return back()->withInput()->withErrors(['to' => __('email.errors.to_required')]);
         }
 
 
@@ -139,7 +139,7 @@ class EmailController extends Controller
                 }
             });
 
-            session()->flash('success', 'Wiadomość została wysłana.');
+            session()->flash('success', __('email.messages.sent_success'));
             return redirect()->route('emails.index');
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('SMTP send failed', [
@@ -147,7 +147,7 @@ class EmailController extends Controller
                 'error' => $e->getMessage(),
             ]);
             
-            return back()->withInput()->with('error', 'Wystąpił błąd podczas wysyłania wiadomości. Spróbuj ponownie.');
+            return back()->withInput()->with('error', __('email.errors.send_failed'));
         }
     }
 
@@ -211,7 +211,7 @@ class EmailController extends Controller
         $originalMsgId  = $validated['message_id'] ?? '';
 
         if (!$this->configureSmtp()) {
-            return back()->withInput()->with('error', 'Skonfiguruj połączenie SMTP w ustawieniach poczty (brak danych logowania).');
+            return back()->withInput()->with('error', __('email.errors.smtp_not_configured'));
         }
 
         // Parse recipients
@@ -221,12 +221,12 @@ class EmailController extends Controller
         // Basic sanity check for valid emails
         foreach (array_merge($toArray, $ccArray) as $email) {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return back()->withInput()->withErrors(['to' => "Nieprawidłowy format adresu e-mail: {$email}"]);
+                return back()->withInput()->withErrors(['to' => __('email.errors.invalid_format', ['email' => $email])]);
             }
         }
 
         if (empty($toArray)) {
-            return back()->withInput()->withErrors(['to' => 'Pole "Do" jest wymagane.']);
+            return back()->withInput()->withErrors(['to' => __('email.errors.to_required')]);
         }
 
 
@@ -257,13 +257,13 @@ class EmailController extends Controller
                 }
             });
 
-            session()->flash('success', 'Reply sent successfully.');
+            session()->flash('success', __('email.messages.reply_sent'));
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('SMTP reply failed', [
                 'uid'   => $uid,
                 'error' => $e->getMessage(),
             ]);
-            session()->flash('error', 'Failed to send reply. Please try again.');
+            session()->flash('error', __('email.errors.reply_send_failed'));
         }
 
         return redirect()->route('emails.show', $uid);
@@ -279,9 +279,9 @@ class EmailController extends Controller
         
         if ($success) {
             Cache::forget('unread_emails_count');
-            session()->flash('success', 'Wiadomość została usunięta.');
+            session()->flash('success', __('email.messages.delete_success'));
         } else {
-            session()->flash('error', 'Wystąpił błąd podczas usuwania wiadomości.');
+            session()->flash('error', __('email.errors.delete_failed'));
         }
 
         return redirect()->route('emails.index');

@@ -29,7 +29,7 @@ const navItems = computed(() => [
         icon: MessageSquare,
     },
     {
-        name: 'Ustawienia Poczty',
+        name: 'settings.nav.email',
         href: '/settings/email',
         icon: Mail,
     },

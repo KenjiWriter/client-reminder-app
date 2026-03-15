@@ -6,6 +6,9 @@ import { route } from 'ziggy-js';
 import { ArrowLeft, AlertCircle, Reply } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import EmailForm from '@/components/Email/EmailForm.vue';
+import { useTranslation } from '@/composables/useTranslation';
+
+const { t } = useTranslation();
 
 interface Email {
     uid: string;
@@ -73,7 +76,7 @@ const iframeSrcdoc = computed(() => {
 </script>
 
 <template>
-    <Head :title="email.subject || 'Email'" />
+    <Head :title="email.subject || t('email.no_subject')" />
 
     <AppShell>
         <template #header-title>
@@ -83,7 +86,7 @@ const iframeSrcdoc = computed(() => {
                         <ArrowLeft class="h-4 w-4" />
                     </Button>
                 </Link>
-                <h1 class="text-xl font-semibold truncate">{{ email.subject || '(brak tematu)' }}</h1>
+                <h1 class="text-xl font-semibold truncate">{{ email.subject || t('email.no_subject') }}</h1>
             </div>
         </template>
 
@@ -111,7 +114,7 @@ const iframeSrcdoc = computed(() => {
                     />
                     <div v-else class="flex flex-col items-center justify-center py-16 text-muted-foreground gap-2">
                         <AlertCircle class="h-8 w-8 opacity-40" />
-                        <p class="text-sm">Brak treści wiadomości.</p>
+                        <p class="text-sm">{{ t('email.no_content') }}</p>
                     </div>
                 </div>
             </div>
@@ -125,7 +128,7 @@ const iframeSrcdoc = computed(() => {
                     @click="replyOpen = true"
                 >
                     <Reply class="h-4 w-4 text-primary flex-shrink-0" />
-                    <span class="text-sm font-medium">Odpowiedz do {{ email.from || email.from_email }}</span>
+                    <span class="text-sm font-medium">{{ t('email.reply_to', { name: email.from || email.from_email }) }}</span>
                 </button>
 
                 <div v-else class="flex flex-col flex-1 min-h-[600px] border-t border-border">

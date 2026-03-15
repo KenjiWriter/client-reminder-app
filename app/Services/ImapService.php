@@ -52,7 +52,7 @@ class ImapService
     {
         $config = $this->getImapConfig();
         if (!$config) {
-            throw new \Exception('Skonfiguruj ustawienia poczty w zakładce Ustawienia');
+            throw new \Exception(__('email.errors.not_configured'));
         }
 
         $client = $this->clientManager->make($config);
@@ -63,7 +63,7 @@ class ImapService
         if (!$folder) {
             $availableFolders = $client->getFolders()->map(fn($f) => $f->name)->toArray();
             \Illuminate\Support\Facades\Log::error("Available IMAP folders: " . implode(', ', $availableFolders));
-            throw new \Exception("Folder '{$folderName}' not found. Available folders are: " . implode(', ', $availableFolders));
+            throw new \Exception(__('email.errors.folder_not_found', ['folder' => $folderName]));
         }
 
         return $folder;
@@ -132,7 +132,7 @@ class ImapService
 
                 $emails[] = [
                     'uid'        => (string) $message->getUid(),
-                    'subject'    => (string) ($message->getSubject() ?? '(no subject)'),
+                    'subject'    => (string) ($message->getSubject() ?? __('email.no_subject')),
                     'snippet'    => $snippet,
                     'from'       => $fromName ?: $fromAddress,
                     'from_email' => $fromAddress,
@@ -186,7 +186,7 @@ class ImapService
             $message = $folder->query()->getMessageByUid($uid);
 
             if ($message === null) {
-                return ['error' => 'Message not found.'];
+                return ['error' => __('email.errors.message_not_found')];
             }
 
             // Mark as read
@@ -242,7 +242,7 @@ class ImapService
 
             return [
                 'uid'        => (string) $message->getUid(),
-                'subject'    => (string) ($message->getSubject() ?? '(no subject)'),
+                'subject'    => (string) ($message->getSubject() ?? __('email.no_subject')),
                 'from'       => $fromName ?: $fromAddress,
                 'from_email' => $fromAddress,
                 'date'       => $dateString,
