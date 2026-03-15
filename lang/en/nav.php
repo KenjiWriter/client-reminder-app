@@ -9,7 +9,7 @@ return [
     'settings'  => 'Settings',
     'statistics'=> 'Site Stats',
     'logout'    => 'Logout',
-    'messages'  => 'Messages',
+    'messages'  => 'SMS Logs',
     'financial' => 'Financial',
     'emails'    => 'Emails',
 ];
