@@ -77,6 +77,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/sms', [\App\Http\Controllers\SettingsController::class, 'editSms'])->name('sms');
         Route::put('/sms', [\App\Http\Controllers\SettingsController::class, 'updateSms'])->name('sms.update');
         Route::get('/appearance', [\App\Http\Controllers\SettingsController::class, 'editAppearance'])->name('appearance');
+        Route::get('/email', [\App\Http\Controllers\SettingsController::class, 'editEmail'])->name('email');
+        Route::put('/email', [\App\Http\Controllers\SettingsController::class, 'updateEmail'])->name('email.update');
         
         // Medical Conditions Management
         Route::get('/medical', [\App\Http\Controllers\MedicalConditionTypeController::class, 'index'])->name('medical');
@@ -119,4 +121,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('admin/leads', \App\Http\Controllers\Admin\LeadController::class)->only(['index', 'update'])->names('admin.leads');
 
     Route::get('/statistics', [\App\Http\Controllers\StatisticsController::class, 'index'])->name('statistics.index');
+
+    // Email (Poczta) – IMAP read / SMTP send, no local DB storage
+    Route::get('/emails', [\App\Http\Controllers\EmailController::class, 'index'])->name('emails.index');
+    Route::get('/emails/create', [\App\Http\Controllers\EmailController::class, 'create'])->name('emails.create');
+    Route::post('/emails', [\App\Http\Controllers\EmailController::class, 'store'])->name('emails.store');
+    Route::get('/emails/{uid}', [\App\Http\Controllers\EmailController::class, 'show'])->name('emails.show');
+    Route::post('/emails/{uid}/reply', [\App\Http\Controllers\EmailController::class, 'reply'])->name('emails.reply');
+    Route::delete('/emails/{uid}', [\App\Http\Controllers\EmailController::class, 'destroy'])->name('emails.destroy');
 });

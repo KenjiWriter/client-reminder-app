@@ -17,7 +17,8 @@
         "laravel/tinker": "^2.10.1",
         "laravel/wayfinder": "^0.1.9",
         "smsapi/php-client": "^3.0",
-        "tightenco/ziggy": "^2.6"
+        "tightenco/ziggy": "^2.6",
+        "webklex/laravel-imap": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

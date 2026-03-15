@@ -11,4 +11,5 @@ return [
     'logout'    => 'Wyloguj',
     'messages'  => 'Wiadomości',
     'financial' => 'Finanse',
+    'emails'    => 'Poczta',
 ];

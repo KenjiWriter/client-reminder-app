@@ -15,6 +15,17 @@ class Setting extends Model
         'sms_send_time',
         'app_name',
         'app_logo',
+        'email_sender_name',
+        'imap_host',
+        'imap_port',
+        'imap_username',
+        'imap_password',
+        'imap_sent_folder',
+        'email_signature',
+        'smtp_host',
+        'smtp_port',
+        'smtp_username',
+        'smtp_password',
     ];
 
     public static function get(string $key, $default = null)

@@ -738,7 +738,7 @@ const onMouseMove = (event: MouseEvent) => {
         
         // Calculate new top (snapped visually for ghost?)
         // Let's keep smooth for ghost, snap for logic
-        let rawTop = dragState.value.initialTop + deltaY;
+        const rawTop = dragState.value.initialTop + deltaY;
         
         // Boundaries (0 to 16 hours * 60 = 960px)
         // 8 AM to 11 PM = 15 hours? grid is 8..23 = 16 slots?

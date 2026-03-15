@@ -3,8 +3,10 @@
 namespace App\Http\Middleware;
 
 use App\Models\Setting;
+use App\Services\ImapService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
 
@@ -71,9 +73,16 @@ class HandleInertiaRequests extends Middleware
             'pendingApprovalsCount' => \App\Models\Appointment::where('status', \App\Models\Appointment::STATUS_PENDING_APPROVAL)
                 ->whereNull('suggested_starts_at')
                 ->count(),
+            'unread_emails_count' => fn () => $request->user()
+                ? Cache::remember('unread_emails_count', 300, function () {
+                    return app(ImapService::class)->getUnreadCount();
+                })
+                : 0,
             'settings' => [
                 'app_name' => $settings?->app_name ?? config('app.name'),
                 'app_logo' => $settings?->app_logo ? Storage::url($settings->app_logo) : null,
+                'imap_sent_folder' => $settings?->imap_sent_folder ?? 'Sent',
+                'email_signature' => $settings?->email_signature ?? '',
             ],
         ];
     }

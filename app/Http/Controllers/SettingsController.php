@@ -139,4 +139,71 @@ class SettingsController extends Controller
 
         return back()->with('success', 'General settings updated successfully.');
     }
+
+    public function editEmail()
+    {
+        $settings = Setting::first();
+
+        return Inertia::render('Settings/Email', [
+            'settings' => $settings ? [
+                'email_sender_name' => $settings->email_sender_name,
+                'imap_host' => $settings->imap_host,
+                'imap_port' => $settings->imap_port,
+                'imap_username' => $settings->imap_username,
+                'imap_sent_folder' => $settings->imap_sent_folder,
+                'email_signature' => $settings->email_signature,
+                // Do not send password to frontend
+                'has_imap_password' => !empty($settings->imap_password),
+                'smtp_host' => $settings->smtp_host,
+                'smtp_port' => $settings->smtp_port,
+                'smtp_username' => $settings->smtp_username,
+                'has_smtp_password' => !empty($settings->smtp_password),
+            ] : null,
+        ]);
+    }
+
+    public function updateEmail(Request $request)
+    {
+        $validated = $request->validate([
+            'email_sender_name' => ['nullable', 'string', 'max:255'],
+            
+            'imap_host' => ['nullable', 'string', 'max:255'],
+            'imap_port' => ['nullable', 'integer', 'min:1', 'max:65535'],
+            'imap_username' => ['nullable', 'string', 'max:255'],
+            'imap_password' => ['nullable', 'string', 'max:255'],
+            'imap_sent_folder' => ['nullable', 'string', 'max:255'],
+            
+            'email_signature' => ['nullable', 'string', 'max:5000'],
+
+            'smtp_host' => ['nullable', 'string', 'max:255'],
+            'smtp_port' => ['nullable', 'integer', 'min:1', 'max:65535'],
+            'smtp_username' => ['nullable', 'string', 'max:255'],
+            'smtp_password' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $settings = Setting::first();
+        if (!$settings) {
+            $settings = Setting::create([
+                'key' => 'email_settings',
+                'value' => null,
+            ]);
+        }
+
+        $updateData = collect($validated)->except(['imap_password', 'smtp_password'])->toArray();
+
+        if (!empty($validated['imap_password'])) {
+            $updateData['imap_password'] = \Illuminate\Support\Facades\Crypt::encryptString($validated['imap_password']);
+        }
+        
+        if (!empty($validated['smtp_password'])) {
+            $updateData['smtp_password'] = \Illuminate\Support\Facades\Crypt::encryptString($validated['smtp_password']);
+        }
+
+        $settings->update($updateData);
+
+        // Immediately forget the cache so the badge syncs with the newly configured inbox
+        \Illuminate\Support\Facades\Cache::forget('unread_emails_count');
+
+        return back()->with('success', 'Ustawienia poczty zostały zapisane.');
+    }
 }

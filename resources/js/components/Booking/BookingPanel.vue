@@ -87,7 +87,7 @@ const calendarDays = computed(() => {
     // I'll implement a simple day picker (next 30 days scrollable horizontally)
     
     const days = [];
-    let d = new Date();
+    const d = new Date();
     for(let i=0; i<30; i++) {
         days.push(addDays(d, i));
     }

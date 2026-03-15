@@ -11,4 +11,5 @@ return [
     'logout'    => 'Logout',
     'messages'  => 'Messages',
     'financial' => 'Financial',
+    'emails'    => 'Emails',
 ];

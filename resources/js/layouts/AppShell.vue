@@ -45,6 +45,7 @@ interface PageProps {
     translations: Record<string, string>;
     sidebarOpen: boolean;
     pendingApprovalsCount: number;
+    unread_emails_count: number;
     settings: {
         app_name: string;
         app_logo: string | null;
@@ -63,8 +64,16 @@ const { t, locale } = useTranslation();
 
 const sidebarOpen = ref(false);
 
+const page = usePage<PageProps>();
+
 const navItems = computed<NavItem[]>(() => [
     { name: 'nav.dashboard', href: route('dashboard'), icon: LayoutDashboard },
+    {
+        name: 'nav.emails',
+        href: route('emails.index'),
+        icon: Inbox,
+        badge: (page.props as any).unread_emails_count,
+    },
     // Leads removed as requested
     {
         name: 'nav.review',
@@ -79,7 +88,6 @@ const navItems = computed<NavItem[]>(() => [
     { name: 'nav.statistics', href: route('statistics.index'), icon: Activity },
 ]);
 
-const page = usePage<PageProps>();
 const currentUrl = computed(() => page.url);
 
 const user = computed(() => page.props.auth?.user);

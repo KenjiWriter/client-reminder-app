@@ -35,6 +35,7 @@
         "@radix-ui/react-switch": "^1.2.6",
         "@tanstack/vue-table": "^8.21.3",
         "@vue/compiler-sfc": "^3.5.26",
+        "@vueup/vue-quill": "^1.0.0-beta.11",
         "@vueuse/core": "^12.8.2",
         "apexcharts": "^5.3.6",
         "class-variance-authority": "^0.7.1",
