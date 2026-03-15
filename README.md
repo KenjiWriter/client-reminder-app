@@ -8,12 +8,14 @@ A small business appointment + SMS reminder system.
   - [Appointment Management](#-appointment-management)
   - [Client Management](#-client-management)
   - [Communication](#-communication)
+  - [Email Client](#-integrated-email-client-klient-poczty)
   - [Medical Conditions Management](#%EF%B8%8F-medical-conditions-management)
   - [App Branding Configuration](#%EF%B8%8F-app-branding-configuration)
 - [Setup](#setup)
 - [Configuration](#configuration)
   - [Queue & Scheduler](#queue--scheduler)
   - [SMS Configuration](#sms-configuration)
+- [Email Module Configuration](#email-module-setup--configuration)
 - [Google Calendar Integration](#google-calendar-integration)
 
 
@@ -64,6 +66,14 @@ A small business appointment + SMS reminder system.
 - **Instant Confirmation**: Automatic SMS sent to client immediately after Appointment Approval or Creation.
 - **SMS Logs**: Full history of sent messages with delivery status
 - **Templates**: Configurable SMS footer and content (via translations)
+
+### 📧 Integrated Email Client (Klient Poczty)
+- **IMAP/SMTP Support**: Full read/send capabilities (optimized for Zoho Mail, provider-agnostic).
+- **Rich-Text Editor**: Compose professional emails using Vue Quill (supports inline images).
+- **Attachments**: Full support for native file attachments.
+- **Threading**: Contextual replies with quoted original message history.
+- **Secure Settings**: Encrypted, database-backed configuration for mail credentials.
+- **Signatures**: Automated HTML email signatures, customizable per environment.
 
 ### ⚕️ Medical Conditions Management
 - **Dynamic System**: Database-driven medical conditions instead of hardcoded fields
@@ -243,6 +253,38 @@ Both commands respect the logic defined in the `AppointmentReminderSender` servi
 3. Jobs are dispatched to the queue
 4. The queue worker sends SMS via the configured provider
 5. `reminder_sent_at` is marked to prevent duplicates (idempotent)
+
+
+## Email Module Setup & Configuration
+
+The Email module requires a few extra steps to initialize the settings and default signature.
+
+### 1. Database Migration
+Run the migrations to create the `email_settings` and `email_signatures` tables:
+```bash
+php artisan migrate
+```
+
+### 2. Seed Default Signature
+Generate the initial HTML signature template in the database:
+```bash
+php artisan db:seed --class=EmailSignatureSeeder
+```
+
+### 3. UI Configuration (No .env required)
+Unlike other modules, IMAP/SMTP credentials are stored securely in the database. 
+**Do not place email credentials in your `.env` file.**
+
+To configure:
+1. Log into the application as an administrator.
+2. Navigate to the **Email** module from the sidebar.
+3. Click the **Settings (Gear icon)** in the top right corner of the email list.
+4. Provide the following details:
+   - **Sender Name**: Your business name or professional alias.
+   - **IMAP/SMTP Hosts**: e.g., `imappro.zoho.eu` and `smtp.zoho.eu`.
+   - **Ports & Security**: Standard ports (993 for IMAP, 465/587 for SMTP).
+   - **Credentials**: Username and app-specific password (if 2FA is enabled).
+   - **Sent Folder Name**: Localized name of your sent folder (e.g., "Wysłane" or "Sent").
 
 
 ## Google Calendar Integration
