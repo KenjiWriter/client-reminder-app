@@ -99,8 +99,11 @@ class EmailController extends Controller
         ]);
 
         if (!$this->configureSmtp()) {
+            Log::error('[EmailController@store] SMTP configuration failed');
             return back()->withInput()->with('error', __('email.errors.smtp_not_configured'));
         }
+
+        Log::info('[EmailController@store] Validated data', ['body_size' => strlen($validated['body'])]);
 
         // Parse recipients
         $toArray = array_filter(array_map('trim', explode(',', $validated['to'])));
@@ -211,8 +214,14 @@ class EmailController extends Controller
         $originalMsgId  = $validated['message_id'] ?? '';
 
         if (!$this->configureSmtp()) {
+            Log::error('[EmailController@reply] SMTP configuration failed');
             return back()->withInput()->with('error', __('email.errors.smtp_not_configured'));
         }
+
+        Log::info('[EmailController@reply] Validated data', [
+            'to' => $validated['to'],
+            'body_size' => strlen($validated['body']),
+        ]);
 
         // Parse recipients
         $toArray = array_filter(array_map('trim', explode(',', $validated['to'])));
@@ -233,6 +242,7 @@ class EmailController extends Controller
 
         try {
             Mail::send([], [], function ($message) use ($request, $validated, $toArray, $ccArray, $replySubject, $originalMsgId) {
+                Log::info('[EmailController@reply] Sending mail closure start');
                 $message->to($toArray)
                     ->subject($replySubject)
                     ->html($validated['body']);
