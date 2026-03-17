@@ -9,6 +9,8 @@ import { useTranslation } from '@/composables/useTranslation';
 
 const { t } = useTranslation();
 
+const quillInstance = ref<any>(null);
+
 import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
@@ -47,6 +49,7 @@ const page = usePage();
  */
 const handleQuillReady = (quill: any) => {
     // console.warn('[EmailForm] handleQuillReady triggered.');
+    quillInstance.value = quill;
     
     // Clear editor completely before injection to avoid appending to existing <p><br></p>
     quill.root.innerHTML = '';
@@ -89,6 +92,9 @@ const handleFileUpload = (e: Event) => {
 };
 
 const submit = () => {
+    if (quillInstance.value) {
+        form.body = quillInstance.value.getHTML();
+    }
     form.post(props.submitUrl, {
         forceFormData: true,
         onSuccess: () => {
