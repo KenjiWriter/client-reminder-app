@@ -20,4 +20,16 @@ export default defineConfig({
             },
         }),
     ],
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'vendor-charts': ['apexcharts', 'vue3-apexcharts'],
+                    'vendor-quill': ['@vueup/vue-quill'],
+                    'vendor-ui': ['lucide-vue-next', '@headlessui/vue', 'reka-ui'],
+                },
+            },
+        },
+        chunkSizeWarningLimit: 1000,
+    },
 });
