@@ -95,6 +95,12 @@ const submit = () => {
     if (quillInstance.value) {
         form.body = quillInstance.value.root.innerHTML;
     }
+    console.log('[EmailForm] Submitting form', { 
+        to: form.to, 
+        subject: form.subject, 
+        body_length: form.body?.length,
+        body_preview: form.body?.substring(0, 100)
+    });
     form.post(props.submitUrl, {
         forceFormData: true,
         onSuccess: () => {

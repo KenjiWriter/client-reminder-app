@@ -123,7 +123,8 @@ class EmailController extends Controller
 
 
         try {
-            Mail::send([], [], function ($message) use ($request, $validated, $toArray, $ccArray) {
+            Log::info('[EmailController@store] Attempting to send email via SMTP');
+            Mail::mailer('smtp')->send([], [], function ($message) use ($request, $validated, $toArray, $ccArray) {
                 $message->to($toArray)
                     ->subject($validated['subject'])
                     ->html($validated['body']);
@@ -241,8 +242,9 @@ class EmailController extends Controller
 
 
         try {
-            Mail::send([], [], function ($message) use ($request, $validated, $toArray, $ccArray, $replySubject, $originalMsgId) {
-                Log::info('[EmailController@reply] Sending mail closure start');
+            Log::info('[EmailController@reply] Attempting to send reply via SMTP');
+            Mail::mailer('smtp')->send([], [], function ($message) use ($request, $validated, $toArray, $ccArray, $replySubject, $originalMsgId) {
+                Log::info('[EmailController@reply] Inside Mail::send closure');
                 $message->to($toArray)
                     ->subject($replySubject)
                     ->html($validated['body']);
