@@ -93,7 +93,7 @@ const handleFileUpload = (e: Event) => {
 
 const submit = () => {
     if (quillInstance.value) {
-        form.body = quillInstance.value.getHTML();
+        form.body = quillInstance.value.root.innerHTML;
     }
     form.post(props.submitUrl, {
         forceFormData: true,
