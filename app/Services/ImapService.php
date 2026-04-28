@@ -379,18 +379,41 @@ class ImapService
     }
 
     /**
-     * Count unseen messages in INBOX. Returns 0 on any failure.
+     * Count unseen messages in INBOX, excluding spam senders. Returns 0 on any failure.
      */
     public function getUnreadCount(): int
     {
         try {
             $folder = $this->getFolderInstance('INBOX');
 
-            return (int) $folder->query()
+            $totalUnseen = (int) $folder->query()
                 ->unseen()
                 ->setFetchFlags(true)
                 ->setFetchBody(false)
                 ->count();
+
+            if ($totalUnseen === 0) {
+                return 0;
+            }
+
+            $spamSenders = \App\Models\SpamSender::pluck('email')->toArray();
+            if (empty($spamSenders)) {
+                return $totalUnseen;
+            }
+
+            $spamUnseenCount = 0;
+            foreach ($spamSenders as $spamEmail) {
+                try {
+                    $spamUnseenCount += (int) $folder->query()
+                        ->unseen()
+                        ->from($spamEmail)
+                        ->setFetchFlags(true)
+                        ->setFetchBody(false)
+                        ->count();
+                } catch (\Throwable $e) {}
+            }
+
+            return max(0, $totalUnseen - $spamUnseenCount);
         } catch (\Throwable $e) {
             Log::warning('IMAP getUnreadCount failed', ['error' => $e->getMessage()]);
 
