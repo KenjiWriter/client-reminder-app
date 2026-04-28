@@ -240,6 +240,24 @@ class ImapService
                 $bodyText = $textPart ? (string) $textPart : '';
             } catch (\Throwable) {}
 
+            $attachmentsArray = [];
+            try {
+                if ($message->hasAttachments()) {
+                    $attachments = $message->getAttachments();
+                    $index = 0;
+                    foreach ($attachments as $attachment) {
+                        $attachmentsArray[] = [
+                            'index' => $index,
+                            'name' => (string) ($attachment->name ?? $attachment->getName() ?? 'attachment'),
+                            'mime' => (string) ($attachment->mime ?? $attachment->getMimeType() ?? 'application/octet-stream'),
+                        ];
+                        $index++;
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Failed to parse attachments', ['error' => $e->getMessage()]);
+            }
+
             return [
                 'uid'        => (string) $message->getUid(),
                 'subject'    => (string) ($message->getSubject() ?? __('email.no_subject')),
@@ -249,6 +267,7 @@ class ImapService
                 'message_id' => $rawMessageId,
                 'body_html'  => $bodyHtml,
                 'body_text'  => $bodyText,
+                'attachments' => $attachmentsArray,
                 'error'      => null,
             ];
         } catch (\Throwable $e) {
@@ -256,6 +275,40 @@ class ImapService
 
             return ['error' => $e->getMessage()];
         }
+    }
+
+    /**
+     * Get content of a specific attachment.
+     */
+    public function getAttachmentContent(string $uid, int $index, string $folderName = 'INBOX'): ?array
+    {
+        try {
+            $folder = $this->getFolderInstance($folderName);
+            $message = $folder->query()->getMessageByUid($uid);
+
+            if ($message === null) {
+                return null;
+            }
+
+            if ($message->hasAttachments()) {
+                $attachments = $message->getAttachments();
+                $i = 0;
+                foreach ($attachments as $attachment) {
+                    if ($i === $index) {
+                        return [
+                            'name' => (string) ($attachment->name ?? $attachment->getName() ?? 'attachment'),
+                            'mime' => (string) ($attachment->mime ?? $attachment->getMimeType() ?? 'application/octet-stream'),
+                            'content' => $attachment->getContent() ?? $attachment->content,
+                        ];
+                    }
+                    $i++;
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error('IMAP getAttachmentContent failed: ' . $e->getMessage());
+        }
+
+        return null;
     }
 
     /**

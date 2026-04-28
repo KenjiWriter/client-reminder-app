@@ -155,11 +155,6 @@ class EmailController extends Controller
         }
     }
 
-    /**
-     * Show a single email and mark it as read.
-     * Clears the unread cache and immediately updates the shared badge count
-     * so the response the user receives already contains the updated badge.
-     */
     public function show(Request $request, string $uid)
     {
         $folder = $request->query('folder', 'INBOX');
@@ -190,6 +185,29 @@ class EmailController extends Controller
         return Inertia::render('Emails/Show', [
             'email' => $result,
             'email_signature' => $settings?->email_signature ?? '',
+        ]);
+    }
+
+    /**
+     * Download or view an attachment inline.
+     */
+    public function downloadAttachment(Request $request, string $uid, int $index)
+    {
+        $folder = $request->query('folder', 'INBOX');
+        $attachment = $this->imapService->getAttachmentContent($uid, $index, $folder);
+
+        if (!$attachment) {
+            abort(404, 'Attachment not found');
+        }
+
+        // To allow playing video inside the browser (or displaying images), we use 'inline'
+        // Files that browsers can't play will still be downloaded natively.
+        $disposition = in_array(explode('/', $attachment['mime'])[0] ?? '', ['image', 'video', 'audio']) ? 'inline' : 'attachment';
+
+        return response()->make($attachment['content'], 200, [
+            'Content-Type' => $attachment['mime'],
+            'Content-Disposition' => $disposition . '; filename="' . rawurlencode(strip_tags($attachment['name'])) . '"',
+            'Cache-Control' => 'private, max-age=31536000',
         ]);
     }
 

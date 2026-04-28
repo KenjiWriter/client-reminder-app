@@ -127,6 +127,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/emails/create', [\App\Http\Controllers\EmailController::class, 'create'])->name('emails.create');
     Route::post('/emails', [\App\Http\Controllers\EmailController::class, 'store'])->name('emails.store');
     Route::get('/emails/{uid}', [\App\Http\Controllers\EmailController::class, 'show'])->name('emails.show');
+    Route::get('/emails/{uid}/attachment/{index}', [\App\Http\Controllers\EmailController::class, 'downloadAttachment'])->name('emails.attachment');
     Route::post('/emails/{uid}/reply', [\App\Http\Controllers\EmailController::class, 'reply'])->name('emails.reply');
     Route::delete('/emails/{uid}', [\App\Http\Controllers\EmailController::class, 'destroy'])->name('emails.destroy');
 });

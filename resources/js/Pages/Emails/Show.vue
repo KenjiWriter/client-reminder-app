@@ -3,7 +3,7 @@ import AppShell from '@/layouts/AppShell.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { route } from 'ziggy-js';
-import { ArrowLeft, AlertCircle, Reply } from 'lucide-vue-next';
+import { ArrowLeft, AlertCircle, Reply, Paperclip, Download, FileAudio, FileVideo, FileImage, FileText } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import EmailForm from '@/components/Email/EmailForm.vue';
 import { useTranslation } from '@/composables/useTranslation';
@@ -19,6 +19,11 @@ interface Email {
     message_id: string;
     body_html: string;
     body_text: string;
+    attachments?: Array<{
+        index: number;
+        name: string;
+        mime: string;
+    }>;
     error: string | null;
 }
 
@@ -104,17 +109,60 @@ const iframeSrcdoc = computed(() => {
 
                 <!-- Body via sandboxed iframe – XSS-safe -->
                 <div class="px-0">
+                    <!-- HTML Body -->
                     <iframe
                         v-if="email.body_html || email.body_text"
                         :srcdoc="iframeSrcdoc"
                         sandbox=""
-                        class="w-full h-[50vh] min-h-[500px] bg-white border border-gray-200 dark:border-gray-700 rounded-b-md"
+                        class="w-full h-[50vh] min-h-[500px] bg-white border-b border-gray-200 dark:border-gray-700"
                         style="display:block;"
                         title="Email content"
                     />
-                    <div v-else class="flex flex-col items-center justify-center py-16 text-muted-foreground gap-2">
+                    <div v-else class="flex flex-col items-center justify-center py-16 text-muted-foreground gap-2 border-b border-border">
                         <AlertCircle class="h-8 w-8 opacity-40" />
                         <p class="text-sm">{{ t('email.no_content') }}</p>
+                    </div>
+                </div>
+
+                <!-- Attachments Section -->
+                <div v-if="email.attachments && email.attachments.length > 0" class="px-6 py-4 bg-muted/20">
+                    <h3 class="text-sm font-semibold flex items-center gap-2 mb-3 text-foreground">
+                        <Paperclip class="h-4 w-4" />
+                        {{ t('email.attachments', 'Załączniki') }} ({{ email.attachments.length }})
+                    </h3>
+                    
+                    <div class="flex flex-col gap-3">
+                        <div v-for="att in email.attachments" :key="att.index" class="flex flex-col gap-2 rounded-lg border bg-background p-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <FileVideo v-if="att.mime.startsWith('video/')" class="h-8 w-8 text-blue-500 flex-shrink-0" />
+                                    <FileImage v-else-if="att.mime.startsWith('image/')" class="h-8 w-8 text-green-500 flex-shrink-0" />
+                                    <FileAudio v-else-if="att.mime.startsWith('audio/')" class="h-8 w-8 text-yellow-500 flex-shrink-0" />
+                                    <FileText v-else-if="att.mime.includes('pdf') || att.mime.includes('text')" class="h-8 w-8 text-red-500 flex-shrink-0" />
+                                    <Paperclip v-else class="h-8 w-8 text-muted-foreground flex-shrink-0" />
+                                    
+                                    <span class="text-sm font-medium truncate" :title="att.name">{{ att.name }}</span>
+                                </div>
+                                <div class="flex items-center gap-2 flex-shrink-0 ml-4">
+                                    <a :href="route('emails.attachment', { uid: email.uid, index: att.index })" target="_blank"
+                                       class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 h-8 px-3 gap-1">
+                                        <Download class="h-4 w-4" />
+                                        <span>{{ t('common.download', 'Pobierz') }}</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- Inline video player for mp4 and webm -->
+                            <div v-if="att.mime.startsWith('video/')" class="mt-2 text-center bg-black/5 rounded overflow-hidden">
+                                <video controls class="max-h-[60vh] max-w-full mx-auto" preload="metadata">
+                                    <source :src="route('emails.attachment', { uid: email.uid, index: att.index })" :type="att.mime">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                            <!-- Inline image preview -->
+                            <div v-if="att.mime.startsWith('image/')" class="mt-2 text-center bg-black/5 rounded overflow-hidden">
+                                <img :src="route('emails.attachment', { uid: email.uid, index: att.index })" :alt="att.name" class="max-h-[60vh] max-w-full mx-auto object-contain">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
