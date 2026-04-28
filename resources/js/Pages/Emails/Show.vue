@@ -3,7 +3,7 @@ import AppShell from '@/layouts/AppShell.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { route } from 'ziggy-js';
-import { ArrowLeft, AlertCircle, Reply, Paperclip, Download, FileAudio, FileVideo, FileImage, FileText } from 'lucide-vue-next';
+import { ArrowLeft, AlertCircle, Reply, Paperclip, Download, FileAudio, FileVideo, FileImage, FileText, Ban, CheckCircle, Loader2 } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import EmailForm from '@/components/Email/EmailForm.vue';
 import { useTranslation } from '@/composables/useTranslation';
@@ -30,9 +30,30 @@ interface Email {
 const props = defineProps<{
     email: Email;
     email_signature?: string;
+    is_spam?: boolean;
 }>();
 
 const replyOpen = ref(false);
+const togglingSpam = ref(false);
+
+const toggleSpam = () => {
+    togglingSpam.value = true;
+    
+    if (props.is_spam) {
+        router.delete(route('emails.spam.destroy'), {
+            data: { email: props.email.from_email },
+            preserveScroll: true,
+            onFinish: () => togglingSpam.value = false,
+        });
+    } else {
+        router.post(route('emails.spam.store'), {
+            email: props.email.from_email
+        }, {
+            preserveScroll: true,
+            onFinish: () => togglingSpam.value = false,
+        });
+    }
+};
 
 // Build the quoted body text for the reply
 const replyInitialData = computed(() => {
@@ -92,6 +113,22 @@ const iframeSrcdoc = computed(() => {
                     </Button>
                 </Link>
                 <h1 class="text-xl font-semibold truncate">{{ email.subject || t('email.no_subject') }}</h1>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    @click="toggleSpam"
+                    class="hidden sm:flex transition-colors"
+                    :class="is_spam ? 'text-green-600 border-green-200 hover:bg-green-50' : 'text-muted-foreground hover:text-red-600 hover:border-red-200 hover:bg-red-50'"
+                    :disabled="togglingSpam"
+                >
+                    <Loader2 v-if="togglingSpam" class="h-4 w-4 mr-2 animate-spin" />
+                    <CheckCircle v-else-if="is_spam" class="h-4 w-4 mr-2" />
+                    <Ban v-else class="h-4 w-4 mr-2" />
+                    {{ is_spam ? 'Przywróć ze spamu' : 'Oznacz jako Spam' }}
+                </Button>
             </div>
         </template>
 

@@ -83,15 +83,64 @@ class ImapService
     public function getFolderMessages(string $folderName = 'INBOX', int $page = 1, int $perPage = 15): array
     {
         try {
-            $folder = $this->getFolderInstance($folderName);
+            $isSpamView = ($folderName === 'SPAM');
+            $realFolderName = $isSpamView ? 'INBOX' : $folderName;
+            $folder = $this->getFolderInstance($realFolderName);
 
-            // Use native webklex pagination (memory-efficient, no full fetch)
-            $paginator = $folder->query()
-                ->all()
-                ->setFetchOrder('desc')
-                ->paginate($perPage, $page);
-
+            $spamSenders = \App\Models\SpamSender::pluck('email')->toArray();
             $emails = [];
+            
+            $currentPage = $page;
+            $lastPage = 1;
+            $total = 0;
+
+            if ($isSpamView) {
+                // For SPAM view, query all spam senders explicitly to get accurate pagination
+                if (empty($spamSenders)) {
+                    return [
+                        'emails'       => [],
+                        'current_page' => 1,
+                        'last_page'    => 1,
+                        'total'        => 0,
+                        'per_page'     => $perPage,
+                        'error'        => null,
+                    ];
+                }
+
+                $queryCollection = collect();
+                foreach ($spamSenders as $spamEmail) {
+                    try {
+                        $messages = $folder->query()->from($spamEmail)->get();
+                        foreach ($messages as $msg) {
+                            $queryCollection->push($msg);
+                        }
+                    } catch (\Throwable) {}
+                }
+
+                // Sort by date desc manually
+                $sortedCollection = $queryCollection->sortByDesc(function ($msg) {
+                    try {
+                        return $msg->getDate() ? \Carbon\Carbon::parse((string)$msg->getDate())->timestamp : 0;
+                    } catch (\Throwable) { return 0; }
+                })->values();
+
+                $total = $sortedCollection->count();
+                $lastPage = max(1, ceil($total / $perPage));
+                
+                // Manual pagination collection extraction
+                $paginator = $sortedCollection->slice(($page - 1) * $perPage, $perPage);
+            } else {
+                // For standard folders like INBOX
+                $paginator = $folder->query()
+                    ->all()
+                    ->setFetchOrder('desc')
+                    ->paginate($perPage, $page);
+                    
+                $currentPage = $paginator->currentPage();
+                $lastPage = $paginator->lastPage();
+                $total = $paginator->total();
+            }
+
             foreach ($paginator as $message) {
                 // Ensure fromAddress is a string by checking the collection and extracting ->mail
                 $fromAddress = '';
@@ -130,10 +179,16 @@ class ImapService
                     $snippet = \Illuminate\Support\Str::limit(strip_tags((string) $textBody), 80);
                 } catch (\Throwable) {}
 
+                // Safe format date and subject earlier for spam check
                 $rawSubject = (string) ($message->getSubject() ?? __('email.no_subject'));
                 $decodedSubject = iconv_mime_decode($rawSubject, 0, 'UTF-8');
                 if ($decodedSubject === false || $decodedSubject === '') {
                     $decodedSubject = $rawSubject;
+                }
+
+                // Check spam dynamically for INBOX
+                if (!$isSpamView && $realFolderName === 'INBOX' && in_array($fromAddress, $spamSenders)) {
+                    continue; // Skip this message
                 }
 
                 $emails[] = [
@@ -158,9 +213,9 @@ class ImapService
 
             return [
                 'emails'       => $emails,
-                'current_page' => $paginator->currentPage(),
-                'last_page'    => $paginator->lastPage(),
-                'total'        => $paginator->total(),
+                'current_page' => $currentPage,
+                'last_page'    => $lastPage,
+                'total'        => $total,
                 'per_page'     => $perPage,
                 'error'        => null,
             ];

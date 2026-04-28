@@ -125,6 +125,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Email (Poczta) – IMAP read / SMTP send, no local DB storage
     Route::get('/emails', [\App\Http\Controllers\EmailController::class, 'index'])->name('emails.index');
     Route::get('/emails/create', [\App\Http\Controllers\EmailController::class, 'create'])->name('emails.create');
+    Route::post('/emails/spam', [\App\Http\Controllers\EmailController::class, 'markAsSpam'])->name('emails.spam.store');
+    Route::delete('/emails/spam', [\App\Http\Controllers\EmailController::class, 'unmarkAsSpam'])->name('emails.spam.destroy');
     Route::post('/emails', [\App\Http\Controllers\EmailController::class, 'store'])->name('emails.store');
     Route::get('/emails/{uid}', [\App\Http\Controllers\EmailController::class, 'show'])->name('emails.show');
     Route::get('/emails/{uid}/attachment/{index}', [\App\Http\Controllers\EmailController::class, 'downloadAttachment'])->name('emails.attachment');

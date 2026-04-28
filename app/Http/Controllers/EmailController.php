@@ -181,10 +181,13 @@ class EmailController extends Controller
             'value' => $settings?->email_signature ?? '(NULL/EMPTY)',
             'settings_id' => $settings?->id,
         ]);
+        
+        $isSpam = \App\Models\SpamSender::where('email', $result['from_email'] ?? '')->exists();
 
         return Inertia::render('Emails/Show', [
             'email' => $result,
             'email_signature' => $settings?->email_signature ?? '',
+            'is_spam' => $isSpam,
         ]);
     }
 
@@ -315,5 +318,39 @@ class EmailController extends Controller
         }
 
         return redirect()->route('emails.index');
+    }
+
+    /**
+     * Add sender to spam blacklist.
+     */
+    public function markAsSpam(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email|max:255',
+        ]);
+
+        \App\Models\SpamSender::firstOrCreate(['email' => $validated['email']]);
+
+        Cache::forget('unread_emails_count');
+        session()->flash('success', 'Adres został oznaczony jako spam.');
+
+        return redirect()->back();
+    }
+
+    /**
+     * Remove sender from spam blacklist.
+     */
+    public function unmarkAsSpam(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email|max:255',
+        ]);
+
+        \App\Models\SpamSender::where('email', $validated['email'])->delete();
+
+        Cache::forget('unread_emails_count');
+        session()->flash('success', 'Adres usunięty ze spamu.');
+
+        return redirect()->back();
     }
 }

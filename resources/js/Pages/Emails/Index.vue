@@ -3,7 +3,7 @@ import AppShell from '@/layouts/AppShell.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { route } from 'ziggy-js';
-import { Inbox, RefreshCw, ChevronLeft, ChevronRight, AlertCircle, Mail, MailOpen, Edit, Trash, Loader2, Send, Settings } from 'lucide-vue-next';
+import { Inbox, RefreshCw, ChevronLeft, ChevronRight, AlertCircle, Mail, MailOpen, Edit, Trash, Loader2, Send, Settings, Ban, CheckCircle } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from '@/composables/useTranslation';
@@ -54,6 +54,27 @@ const deleteEmail = (uid: string) => {
         onFinish: () => deletingId.value = null,
         preserveScroll: true,
     });
+};
+
+const togglingSpamId = ref<string | null>(null);
+
+const toggleSpam = (emailAddress: string, uid: string, isSpamView: boolean) => {
+    togglingSpamId.value = uid;
+    
+    if (isSpamView) {
+        router.delete(route('emails.spam.destroy'), {
+            data: { email: emailAddress },
+            preserveScroll: true,
+            onFinish: () => togglingSpamId.value = null,
+        });
+    } else {
+        router.post(route('emails.spam.store'), {
+            email: emailAddress
+        }, {
+            preserveScroll: true,
+            onFinish: () => togglingSpamId.value = null,
+        });
+    }
 };
 
 const formatDate = (dateStr: string): string => {
@@ -119,6 +140,14 @@ const hasNext = computed(() => props.current_page < props.last_page);
                     :class="activeFolder === sentFolderName ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
                 >
                     <Send class="w-4 h-4" /> {{ t('email.sent') }}
+                </Link>
+                <!-- Spam folder limit view -->
+                <Link
+                    :href="route('emails.index', { folder: 'SPAM' })"
+                    class="pb-3 border-b-2 transition-colors font-medium text-sm flex items-center gap-2"
+                    :class="activeFolder === 'SPAM' ? 'border-primary text-primary text-red-500 border-red-500' : 'border-transparent text-muted-foreground hover:text-red-500'"
+                >
+                    <Ban class="w-4 h-4" /> Spam
                 </Link>
             </div>
 
@@ -200,14 +229,30 @@ const hasNext = computed(() => props.current_page < props.last_page);
                         </div>
                         
                         <!-- Actions -->
-                        <div class="flex-shrink-0 ml-2">
+                        <div class="flex flex-col sm:flex-row flex-shrink-0 ml-2 gap-1 items-center">
+                            <!-- Toggle Spam Action -->
                             <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                class="h-8 w-8 text-muted-foreground hover:text-destructive" 
+                                class="h-8 w-8 z-10" 
+                                :class="activeFolder === 'SPAM' ? 'text-green-600 hover:text-green-700 hover:bg-green-100' : 'text-muted-foreground hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900'"
+                                @click.prevent="toggleSpam(email.from_email, email.uid, activeFolder === 'SPAM')"
+                                :disabled="togglingSpamId === email.uid"
+                                :title="activeFolder === 'SPAM' ? 'Przywróć ze spamu' : 'Oznacz jako Spam'"
+                            >
+                                <Loader2 v-if="togglingSpamId === email.uid" class="h-4 w-4 animate-spin" />
+                                <CheckCircle v-else-if="activeFolder === 'SPAM'" class="h-4 w-4" />
+                                <Ban v-else class="h-4 w-4" />
+                            </Button>
+
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                class="h-8 w-8 text-muted-foreground hover:text-destructive z-10 hidden sm:flex" 
                                 @click.prevent="deleteEmail(email.uid)"
                                 :disabled="deletingId === email.uid"
-                                :class="{ 'opacity-50 cursor-not-allowed hidden sm:flex': deletingId === email.uid }"
+                                :class="{ 'opacity-50 cursor-not-allowed': deletingId === email.uid }"
+                                title="Usuń"
                             >
                                 <Loader2 v-if="deletingId === email.uid" class="h-4 w-4 animate-spin" />
                                 <Trash v-else class="h-4 w-4" />
