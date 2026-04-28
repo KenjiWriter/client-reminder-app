@@ -130,9 +130,15 @@ class ImapService
                     $snippet = \Illuminate\Support\Str::limit(strip_tags((string) $textBody), 80);
                 } catch (\Throwable) {}
 
+                $rawSubject = (string) ($message->getSubject() ?? __('email.no_subject'));
+                $decodedSubject = iconv_mime_decode($rawSubject, 0, 'UTF-8');
+                if ($decodedSubject === false || $decodedSubject === '') {
+                    $decodedSubject = $rawSubject;
+                }
+
                 $emails[] = [
                     'uid'        => (string) $message->getUid(),
-                    'subject'    => (string) ($message->getSubject() ?? __('email.no_subject')),
+                    'subject'    => $decodedSubject,
                     'snippet'    => $snippet,
                     'from'       => $fromName ?: $fromAddress,
                     'from_email' => $fromAddress,
@@ -258,9 +264,15 @@ class ImapService
                 Log::warning('Failed to parse attachments', ['error' => $e->getMessage()]);
             }
 
+            $rawSubject = (string) ($message->getSubject() ?? __('email.no_subject'));
+            $decodedSubject = iconv_mime_decode($rawSubject, 0, 'UTF-8');
+            if ($decodedSubject === false || $decodedSubject === '') {
+                $decodedSubject = $rawSubject;
+            }
+
             return [
                 'uid'        => (string) $message->getUid(),
-                'subject'    => (string) ($message->getSubject() ?? __('email.no_subject')),
+                'subject'    => $decodedSubject,
                 'from'       => $fromName ?: $fromAddress,
                 'from_email' => $fromAddress,
                 'date'       => $dateString,
