@@ -73,10 +73,10 @@ const iframeSrcdoc = computed(() => {
     </style>`;
 
     if (props.email.body_html) {
-        return `<!DOCTYPE html><html><head><meta charset="utf-8">${baseStyle}</head><body>${props.email.body_html}</body></html>`;
+        return `<!DOCTYPE html><html><head><meta charset="utf-8"><base target="_blank">${baseStyle}</head><body>${props.email.body_html}</body></html>`;
     }
     // plain text fallback – wrapped in <pre> for formatting
-    return `<!DOCTYPE html><html><head><meta charset="utf-8">${baseStyle}</head><body><pre>${props.email.body_text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre></body></html>`;
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><base target="_blank">${baseStyle}</head><body><pre>${props.email.body_text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre></body></html>`;
 });
 </script>
 
@@ -113,7 +113,7 @@ const iframeSrcdoc = computed(() => {
                     <iframe
                         v-if="email.body_html || email.body_text"
                         :srcdoc="iframeSrcdoc"
-                        sandbox=""
+                        sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin"
                         class="w-full h-[50vh] min-h-[500px] bg-white border-b border-gray-200 dark:border-gray-700"
                         style="display:block;"
                         title="Email content"

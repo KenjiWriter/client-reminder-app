@@ -82,7 +82,7 @@ const hasNext = computed(() => props.current_page < props.last_page);
             </div>
         </template>
 
-        <div class="flex h-full flex-1 flex-col gap-4 p-4 lg:p-6 overflow-y-auto pb-10">
+        <div class="flex flex-col gap-4 p-4 lg:p-6 pb-12 w-full">
             
             <!-- IMAP Error Banner -->
             <div v-if="imapError" class="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-destructive flex items-start gap-3">
