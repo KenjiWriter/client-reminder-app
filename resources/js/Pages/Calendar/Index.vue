@@ -975,7 +975,7 @@ const syncCalendar = () => {
                                 <Plus class="mr-2 h-4 w-4" /> {{ t('common.newAppointment') }}
                             </Button>
                         </DialogTrigger>
-                        <DialogContent class="sm:max-w-[425px]">
+                        <DialogContent class="sm:max-w-fit min-w-[425px] w-full">
                             <DialogHeader>
                                 <DialogTitle>{{ editingAppointmentId ? t('calendar.editAppointment') : t('calendar.addAppointment') }}</DialogTitle>
                                 <DialogDescription>{{ t('calendar.updateDetails') }}</DialogDescription>
@@ -984,7 +984,7 @@ const syncCalendar = () => {
                             <div class="grid gap-2">
                                 <Label for="service">{{ t('appointments.service') || 'Usługa' }}</Label>
                                 <Select v-model="form.service_id">
-                                    <SelectTrigger>
+                                    <SelectTrigger class="min-w-full">
                                         <SelectValue placeholder="Wybierz usługę (opcjonalnie)" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -1071,7 +1071,7 @@ const syncCalendar = () => {
                         <div class="grid gap-2">
                              <Label>{{ t('calendar.payment.method') }}</Label>
                              <Select v-model="form.payment_method">
-                                <SelectTrigger>
+                                <SelectTrigger class="min-w-full">
                                     <SelectValue :placeholder="t('calendar.payment.selectMethod')" />
                                 </SelectTrigger>
                                 <SelectContent>
