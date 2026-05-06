@@ -1320,6 +1320,10 @@ const syncCalendar = () => {
                                     </span>
                                 </div>
 
+                                <div v-if="event.note" class="text-event-upcoming-dot/80 text-[10px] mt-1 line-clamp-2 pointer-events-none italic">
+                                    {{ event.note }}
+                                </div>
+
                                 <!-- Bottom Resize Handle -->
                                 <div 
                                     class="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 hover:bg-primary/20 z-50 rounded-b-md"
