@@ -52,8 +52,12 @@ const isSubmitting = ref(false);
 const submittedSuccess = ref(false);
 
 // Formatting Helpers
-const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(amount);
+const formatCurrency = (amount: number, maxAmount: number | null = null) => {
+    const formatter = new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' });
+    if (maxAmount) {
+        return `${formatter.format(amount)} – ${formatter.format(maxAmount)}`;
+    }
+    return formatter.format(amount);
 };
 
 const formatDuration = (minutes: number) => {

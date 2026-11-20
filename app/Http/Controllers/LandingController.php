@@ -9,7 +9,7 @@ class LandingController extends Controller
     public function index()
     {
         $services = \App\Models\Service::where('is_active', true)
-            ->select('id', 'name', 'category', 'description', 'duration_minutes', 'price') // added category and price
+            ->select('id', 'name', 'category', 'description', 'duration_minutes', 'price', 'max_price')
             ->get()
             ->groupBy('category');
 

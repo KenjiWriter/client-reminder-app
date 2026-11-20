@@ -1,15 +1,39 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
-import { Button } from '@/components/ui/button';
+import { Head } from '@inertiajs/vue3';
 import BookingPanel from '@/components/Booking/BookingPanel.vue';
-import { ChevronDown } from 'lucide-vue-next';
+import { MapPin, Menu, Phone, X } from 'lucide-vue-next';
 
-const props = defineProps<{
+defineProps<{
     services: Record<string, any[]>;
 }>();
 
+const phoneDisplay = '793 173 748';
+const phoneHref = 'tel:+48793173748';
+const email = 'kontakt@face-modeling.pl';
+const shortAddress = 'Emilianów 8A · okolice Żyrardowa';
+const street = 'Emilianów 8A';
+const cityLine = '96-330 Puszcza Mariańska';
+const mapsQuery = 'Emilianów 8A, 96-330 Puszcza Mariańska';
+const mapsEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(mapsQuery)}&z=15&output=embed`;
+const mapsDirections = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapsQuery)}`;
+
+const menuOpen = ref(false);
+
 const initialClientData = ref<{ full_name?: string; phone?: string; email?: string }>({});
+
+const aboutParagraphs = [
+    'Nazywam się Emilia Wiśniewska. Od kilku lat zajmuję się masażem twarzy i ciała. W Emilianowie prowadzę kameralny gabinet Face Modeling. Mam wykształcenie w zakresie masażu. Stale się rozwijam i uczę. Uwielbiam pracę z ludźmi, a terapia manualna jest dla mnie powołaniem.',
+    'Każdą wizytę zaczynam od rozmowy. Chcę wiedzieć, co Ci dokucza, kiedy najbardziej to odczuwasz i czego potrzebujesz tego dnia. Tak wygląda u mnie podejście holistyczne. Gdy czujesz napięcie w żuchwie, pytam również o sen i stres. Podczas masażu twarzy zwracam uwagę na szyję i kark oraz na to, czy możesz wygodnie oprzeć głowę i rozluźnić barki.',
+    'W pracy z bólem i napięciem łączę masaż z technikami powięziowymi i korzystam z elementów osteopatii. W zależności od potrzeb sięgam też po kapilaroterapię, czyli pracę z bańkami, lub kinesiotaping, czyli oklejanie elastycznymi taśmami. Wykonuję również drenaż limfatyczny twarzy i ciała. Jeśli przychodzisz po intensywnym tygodniu i potrzebujesz wyciszenia, wybieram spokojniejsze tempo i łagodniejszy dotyk.',
+    'Ważne jest dla mnie również to, jak czujesz się po powrocie do domu. Możesz do mnie napisać, opowiedzieć, co zmieniło się od wizyty, albo dopytać o ruch czy automasaż, który Ci pokazałam. Tak rozumiem dotyk, uważność i troskę o Ciebie.',
+];
+
+const nav = [
+    { id: 'o-mnie', label: 'O mnie' },
+    { id: 'oferta', label: 'Oferta i ceny' },
+    { id: 'kontakt', label: 'Kontakt' },
+];
 
 onMounted(() => {
     const params = new URLSearchParams(window.location.search);
@@ -19,19 +43,19 @@ onMounted(() => {
             phone: params.get('client_phone') || '',
             email: params.get('client_email') || '',
         };
-        
-        // Auto-scroll to booking if hash is present
-        if (window.location.hash === '#booking') {
-            document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
-        }
+    }
+
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+        requestAnimationFrame(() => scrollToSection(hash));
     }
 });
 
-const scrollToBooking = () => {
-    document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
+const scrollToSection = (id: string) => {
+    menuOpen.value = false;
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 };
 
-// Pricing Section Helpers
 const formatDuration = (minutes: number) => {
     if (minutes >= 60) {
         const h = Math.floor(minutes / 60);
@@ -40,10 +64,11 @@ const formatDuration = (minutes: number) => {
     }
     return `${minutes} min`;
 };
+
 const formatCurrency = (amount: number, maxAmount: number | null = null) => {
     const formatter = new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' });
     if (maxAmount) {
-        return `${formatter.format(amount)} - ${formatter.format(maxAmount)}`;
+        return `${formatter.format(amount)} – ${formatter.format(maxAmount)}`;
     }
     return formatter.format(amount);
 };
@@ -51,161 +76,284 @@ const formatCurrency = (amount: number, maxAmount: number | null = null) => {
 
 <template>
     <Head>
-        <title>Emilia Wiśniewska - Face Modeling & Body Therapy</title>
-        <meta name="description" content="Terapie manualne twarzy i ciała. Odzyskaj spokój i naturalne piękno." />
+        <title>Face Modeling — Emilia Wiśniewska</title>
+        <meta
+            name="description"
+            content="Masaż i terapie manualne twarzy i ciała. Emilianów 8A, okolice Żyrardowa. Dotyk, uważność i troska o Ciebie."
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Outfit:wght@300;400;500;600&display=swap"
+            rel="stylesheet"
+        />
     </Head>
 
-    <div class="min-h-screen bg-[#FDFBF7] text-[#2C2C2C] font-sans selection:bg-[#EDE5D8]">
-        
-        <!-- Hero Section -->
-        <section class="relative min-h-screen flex flex-col justify-center items-center text-center px-4 overflow-hidden">
-            <!-- Hero Background Image -->
-            <div class="absolute inset-0 z-0">
-                <img 
-                    src="/img/background.jpg" 
-                    alt="Background" 
-                    class="w-full h-full object-cover"
-                />
-                <!-- Overlay to ensure text readability -->
-                <div class="absolute inset-0 bg-white/40"></div>
-            </div>
+    <div class="fm-sans min-h-screen bg-[#F7F1E8] text-[#3C2418] antialiased">
+        <header class="sticky top-0 z-40 border-b border-[#F3E6D4]/10 bg-[#2C1612]/95 text-[#F6EBDD] backdrop-blur-md">
+            <div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-3.5 md:px-8">
+                <a href="#start" class="flex items-center gap-3" @click.prevent="scrollToSection('start')">
+                    <img src="/img/landing/logo-mark-light.png" alt="" class="h-12 w-12 shrink-0" />
+                    <span class="leading-tight">
+                        <span class="fm-serif block text-[1.35rem] font-medium tracking-tight">Face Modeling</span>
+                        <span class="block text-[0.62rem] font-medium uppercase tracking-[0.28em] text-[#E4C89A]">Emilia Wiśniewska</span>
+                    </span>
+                </a>
 
-            <div class="relative z-10 space-y-8 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                <p class="text-xs md:text-sm uppercase tracking-[0.3em] text-[#8A8A8A]">Holistyczna Praca z Ciałem</p>
-                <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif text-[#1A1A1A] leading-tight">
-                    Emilia Wiśniewska
-                </h1>
-                <p class="text-xl md:text-2xl font-light text-[#5A5A5A] max-w-2xl mx-auto leading-relaxed">
-                    Face Modeling. Terapia Czaszkowo-Krzyżowa. <br class="hidden md:block" />
-                    Powrót do równowagi.
-                </p>
-                
-                <div class="pt-8">
-                    <Button 
-                        @click="scrollToBooking" 
-                        size="lg" 
-                        class="bg-[#1A1A1A] text-white hover:bg-[#333] rounded-full px-10 py-7 text-lg uppercase tracking-widest transition-all hover:scale-105 duration-300 shadow-xl"
+                <nav class="hidden items-center gap-8 md:flex">
+                    <button
+                        v-for="item in nav"
+                        :key="item.id"
+                        type="button"
+                        class="text-sm tracking-wide text-[#F6EBDD]/90 transition hover:text-[#E4C89A]"
+                        @click="scrollToSection(item.id)"
                     >
-                        Umów sesję
-                    </Button>
-                </div>
+                        {{ item.label }}
+                    </button>
+                </nav>
+
+                <button
+                    type="button"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-md text-[#F6EBDD] md:hidden"
+                    :aria-expanded="menuOpen"
+                    aria-label="Menu"
+                    @click="menuOpen = !menuOpen"
+                >
+                    <X v-if="menuOpen" class="h-5 w-5" />
+                    <Menu v-else class="h-5 w-5" />
+                </button>
             </div>
 
-            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce duration-[2000ms] text-[#8A8A8A]">
-                <ChevronDown class="w-6 h-6" />
+            <div v-if="menuOpen" class="border-t border-[#F3E6D4]/10 px-5 py-3 md:hidden">
+                <button
+                    v-for="item in nav"
+                    :key="item.id"
+                    type="button"
+                    class="block w-full py-3 text-left text-base text-[#F6EBDD]"
+                    @click="scrollToSection(item.id)"
+                >
+                    {{ item.label }}
+                </button>
             </div>
-        </section>
+        </header>
 
-        <!-- "Dla kogo" Section -->
-        <section class="py-24 md:py-32 px-4 bg-white">
-            <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-                <div class="space-y-6">
-                    <h2 class="text-sm uppercase tracking-[0.2em] text-[#8A8A8A] mb-2">Dla kogo jest ta praca?</h2>
-                    <h3 class="text-3xl md:text-4xl font-serif mb-6">Gdy Twoje ciało mówi "dość"</h3>
-                    <p class="text-[#5A5A5A] leading-loose">
-                        Moje terapie są dla osób, które czują, że stres zapisał się w ich twarzy i ciele. 
-                        Dla tych, którzy szukają naturalnych metod odmładzania, ale także głębokiego relaksu i uwolnienia od napięć.
-                    </p>
-                </div>
-                <ul class="space-y-4">
-                    <li v-for="item in ['Przewlekłe napięcie mięśniowe', 'Bruksizm i zaciskanie szczęki', 'Obrzęki i zmęczona twarz', 'Migreny i bóle głowy', 'Potrzeba głębokiego wyciszenia']" 
-                        :key="item"
-                        class="flex items-center space-x-4 p-4 border-b border-[#F0F0F0]"
-                    >
-                        <span class="w-2 h-2 rounded-full bg-[#D4C3A3]"></span>
-                        <span class="text-lg text-[#333]">{{ item }}</span>
-                    </li>
-                </ul>
-            </div>
-        </section>
+        <main>
+            <section id="start" class="relative overflow-hidden bg-[#2C1612] text-[#F6EBDD]">
+                <div class="grid lg:min-h-[calc(100vh-5.25rem)] lg:grid-cols-2">
+                    <div class="relative z-10 flex flex-col justify-center px-5 pb-28 pt-12 sm:px-8 lg:py-16 lg:pb-36 lg:pl-[max(2rem,calc((100vw-72rem)/2))] lg:pr-16">
+                        <h1 class="fm-serif max-w-xl text-[2.7rem] font-medium leading-[1.05] sm:text-6xl lg:text-[4.15rem]">
+                            Dotyk, uważność<br />i troska o Ciebie.
+                        </h1>
+                        <p class="mt-6 max-w-md text-lg font-medium leading-snug text-[#F6EBDD] sm:text-xl">
+                            Masaż i terapie manualne twarzy i ciała
+                        </p>
+                        <p class="mt-5 max-w-md text-[1.02rem] font-light leading-relaxed text-[#E7D5C4]">
+                            Czujesz napięcie w karku, plecach lub żuchwie? A może potrzebujesz chwili odpoczynku?
+                            Na początku wizyty pytam, co Ci dokucza i czego potrzebujesz. Do tego dobieram masaż.
+                        </p>
 
-        <!-- "Jak wygląda sesja" Section -->
-        <section class="py-24 md:py-32 px-4 bg-[#F5F2EB]">
-            <div class="max-w-5xl mx-auto space-y-16">
-                <div class="text-center space-y-4">
-                    <h2 class="text-3xl md:text-4xl font-serif">Jak wygląda sesja?</h2>
-                    <p class="text-[#8A8A8A] max-w-xl mx-auto">To nie tylko zabieg, to proces przywracania harmonii.</p>
-                </div>
+                        <p class="mt-8 flex items-center gap-2 text-sm text-[#E4C89A]">
+                            <MapPin class="h-4 w-4 shrink-0" />
+                            {{ shortAddress }}
+                        </p>
 
-                <div class="grid md:grid-cols-3 gap-8 md:gap-12">
-                     <div class="space-y-4 text-center">
-                        <div class="w-16 h-16 rounded-full bg-[#E0D8CC] flex items-center justify-center mx-auto text-xl font-serif">I</div>
-                        <h4 class="text-xl font-medium">Konsultacja</h4>
-                        <p class="text-[#666] text-sm leading-relaxed">Rozmawiamy o Twoich potrzebach, dolegliwościach i oczekiwaniach. Analizuję anatomię Twojej twarzy i postawę ciała.</p>
-                     </div>
-                     <div class="space-y-4 text-center">
-                        <div class="w-16 h-16 rounded-full bg-[#E0D8CC] flex items-center justify-center mx-auto text-xl font-serif">II</div>
-                        <h4 class="text-xl font-medium">Terapia Manualna</h4>
-                        <p class="text-[#666] text-sm leading-relaxed">Praca na tkankach głębokich, powięziach i mięśniach. Wykorzystuję techniki masażu transbukalnego, kobido i osteopatii estetycznej.</p>
-                     </div>
-                     <div class="space-y-4 text-center">
-                        <div class="w-16 h-16 rounded-full bg-[#E0D8CC] flex items-center justify-center mx-auto text-xl font-serif">III</div>
-                        <h4 class="text-xl font-medium">Integracja</h4>
-                        <p class="text-[#666] text-sm leading-relaxed">Czas na wyciszenie i integrację zmian w ciele. Zalecenia do domu i plan dalszej terapii.</p>
-                     </div>
-                </div>
-            </div>
-        </section>
+                        <div class="mt-5 flex flex-col items-start gap-4">
+                            <a
+                                :href="phoneHref"
+                                class="inline-flex items-center justify-center rounded-md bg-[#F3E6D4] px-7 py-3.5 text-[0.95rem] font-medium tracking-wide text-[#2C1612] transition hover:bg-[#E7D3B5]"
+                            >
+                                Zadzwoń i umów wizytę
+                            </a>
+                            <a :href="phoneHref" class="fm-serif inline-flex items-center gap-2.5 text-2xl text-[#F6EBDD] hover:text-[#E4C89A]">
+                                <Phone class="h-5 w-5" />
+                                {{ phoneDisplay }}
+                            </a>
+                            <button
+                                type="button"
+                                class="text-sm text-[#E7D5C4]/80 underline decoration-[#E4C89A]/40 underline-offset-4 hover:text-[#F6EBDD]"
+                                @click="scrollToSection('booking')"
+                            >
+                                lub umów wizytę online
+                            </button>
+                        </div>
+                    </div>
 
-    <!-- Cennik (Full Menu) Section -->
-    <section class="py-24 px-4 bg-white">
-        <div class="max-w-4xl mx-auto">
-            <h2 class="text-3xl md:text-4xl font-serif text-center mb-16">Cennik Usług</h2>
-            
-            <div v-for="(categoryServices, categoryName) in services" :key="categoryName" class="mb-12 last:mb-0">
-                <h3 class="text-xl uppercase tracking-widest text-[#8A8A8A] border-b border-[#F0F0F0] pb-4 mb-8">{{ categoryName || 'Pozostałe' }}</h3>
-                <div class="space-y-8">
-                    <div v-for="service in categoryServices" :key="service.id" class="flex flex-col md:flex-row md:items-baseline justify-between gap-4 group cursor-default">
-                            <div class="flex-1">
-                                <div class="flex items-baseline justify-between">
-                                    <h4 class="text-xl font-medium text-[#1A1A1A] group-hover:text-[#D4C3A3] transition-colors">{{ service.name }}</h4>
-                                    <span class="md:hidden text-lg font-serif">{{ formatCurrency(Number(service.price), service.max_price ? Number(service.max_price) : null) }}</span>
-                                </div>
-                                <p class="text-[#888] text-sm mt-2 max-w-xl">{{ service.description }}</p>
-                                <p class="text-xs text-[#AAA] mt-1">{{ formatDuration(service.duration_minutes) }}</p>
-                            </div>
-                            <div class="hidden md:block w-32 text-right">
-                                <span class="text-xl font-serif text-[#1A1A1A]">{{ formatCurrency(Number(service.price), service.max_price ? Number(service.max_price) : null) }}</span>
-                            </div>
+                    <div class="relative min-h-[58vw] sm:min-h-[420px] lg:min-h-full">
+                        <img
+                            src="/img/landing/hero-hands.jpg"
+                            alt="Dłonie podczas masażu twarzy i ciała"
+                            class="absolute inset-0 h-full w-full object-cover object-[center_20%]"
+                        />
+                        <div class="pointer-events-none absolute inset-y-0 left-0 hidden w-24 bg-gradient-to-r from-[#2C1612] to-transparent lg:block"></div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
 
-        <!-- Booking Section -->
-        <section id="booking" class="py-24 px-4 bg-[#1A1A1A] text-white">
-            <div class="max-w-4xl mx-auto text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-serif mb-4">Rezerwacja Online</h2>
-                <p class="text-white/60">Wybierz dogodny termin i zadbaj o siebie. Rezerwacja zajmie Ci mniej niż minutę.</p>
+                <svg class="absolute bottom-0 left-0 w-full text-[#E4C89A]" viewBox="0 0 1440 140" preserveAspectRatio="none" aria-hidden="true">
+                    <path
+                        fill="currentColor"
+                        fill-opacity="0.55"
+                        d="M0,78 C240,120 420,40 720,72 C1020,104 1200,36 1440,70 L1440,140 L0,140 Z"
+                    />
+                    <path fill="#F7F1E8" d="M0,98 C260,132 480,64 760,92 C1040,120 1240,70 1440,96 L1440,140 L0,140 Z" />
+                </svg>
+            </section>
+
+            <section id="o-mnie" class="scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
+                <div class="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2 lg:gap-16">
+                    <img
+                        src="/img/landing/about.jpg"
+                        alt="Emilia Wiśniewska podczas terapii manualnej"
+                        class="aspect-[4/5] w-full object-cover object-center shadow-sm"
+                    />
+                    <div>
+                        <h2 class="fm-serif text-5xl font-medium">O mnie</h2>
+                        <div class="mt-3 h-px w-16 bg-[#C4A574]"></div>
+                        <div class="mt-6 space-y-4 text-[1.02rem] font-light leading-relaxed text-[#4A3428]">
+                            <p v-for="(paragraph, index) in aboutParagraphs" :key="index">{{ paragraph }}</p>
+                        </div>
+                        <p class="fm-serif mt-8 text-2xl italic text-[#3C2418]">Emilia Wiśniewska</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="oferta" class="scroll-mt-24 bg-[#F3EBE0] px-5 py-20 md:px-8 md:py-28">
+                <div class="mx-auto max-w-3xl">
+                    <h2 class="fm-serif text-center text-5xl font-medium">Oferta i ceny</h2>
+                    <p class="mx-auto mt-4 max-w-xl text-center font-light leading-relaxed text-[#6A5344]">
+                        Dobieram masaż do tego, co dokucza tego dnia. Czas i cenę widzisz przy każdej usłudze.
+                    </p>
+
+                    <div v-if="Object.keys(services).length === 0" class="mt-12 text-center text-[#6A5344]">
+                        Cennik pojawi się wkrótce. Zadzwoń, a opowiem, co mogę dla Ciebie zrobić.
+                    </div>
+
+                    <div v-for="(categoryServices, categoryName) in services" :key="categoryName" class="mt-14">
+                        <h3 class="border-b border-[#3C2418]/15 pb-3 text-xs font-medium uppercase tracking-[0.22em] text-[#8A6A52]">
+                            {{ categoryName || 'Usługi' }}
+                        </h3>
+                        <div class="mt-6 space-y-7">
+                            <div v-for="service in categoryServices" :key="service.id" class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8">
+                                <div class="min-w-0">
+                                    <h4 class="text-lg font-medium">{{ service.name }}</h4>
+                                    <p v-if="service.description" class="mt-1 max-w-xl text-sm font-light leading-relaxed text-[#6A5344]">
+                                        {{ service.description }}
+                                    </p>
+                                    <p class="mt-1 text-xs tracking-wide text-[#8A6A52]">{{ formatDuration(service.duration_minutes) }}</p>
+                                </div>
+                                <p class="fm-serif shrink-0 text-xl">
+                                    {{ formatCurrency(Number(service.price), service.max_price ? Number(service.max_price) : null) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-14 text-center">
+                        <button
+                            type="button"
+                            class="inline-flex rounded-md bg-[#3C2418] px-7 py-3.5 text-sm font-medium tracking-wide text-[#F6EBDD] transition hover:bg-[#2C1612]"
+                            @click="scrollToSection('booking')"
+                        >
+                            Umów wizytę
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="booking" class="scroll-mt-24 bg-[#2C1612] px-5 py-20 text-[#F6EBDD] md:px-8 md:py-28">
+                <div class="mx-auto mb-12 max-w-3xl text-center">
+                    <h2 class="fm-serif text-5xl font-medium">Rezerwacja online</h2>
+                    <p class="mt-4 font-light text-[#E7D5C4]">
+                        Wybierz usługę i termin. Potwierdzenie dostaniesz, gdy przyjmę wizytę.
+                    </p>
+                </div>
+                <BookingPanel :services="services" :initial-client-data="initialClientData" class="border-[#F3E6D4]/15 bg-[#3A1E18]" />
+            </section>
+
+            <section id="kontakt" class="scroll-mt-24 px-5 py-20 md:px-8 md:py-28">
+                <div class="mx-auto grid max-w-6xl items-start gap-12 lg:grid-cols-2">
+                    <div>
+                        <h2 class="fm-serif text-5xl font-medium">Kontakt i dojazd</h2>
+                        <div class="mt-3 h-px w-16 bg-[#C4A574]"></div>
+                        <p class="mt-6 max-w-md font-light leading-relaxed text-[#4A3428]">
+                            Gabinet jest kameralny. Najprościej zadzwonić — powiem, jak dojechać i co zabrać ze sobą na wizytę.
+                        </p>
+
+                        <address class="mt-8 space-y-1 text-lg not-italic leading-relaxed">
+                            <p class="fm-serif text-2xl">Emilia Wiśniewska</p>
+                            <p>Face Modeling</p>
+                            <p class="pt-3">{{ street }}</p>
+                            <p>{{ cityLine }}</p>
+                            <p class="text-[#6A5344]">okolice Żyrardowa</p>
+                        </address>
+
+                        <div class="mt-6 space-y-2">
+                            <a :href="phoneHref" class="flex items-center gap-2 text-lg hover:text-[#8A6A52]">
+                                <Phone class="h-4 w-4" />
+                                {{ phoneDisplay }}
+                            </a>
+                            <a :href="`mailto:${email}`" class="block text-[#4A3428] hover:text-[#8A6A52]">{{ email }}</a>
+                        </div>
+
+                        <a
+                            :href="mapsDirections"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="mt-8 inline-flex rounded-md bg-[#3C2418] px-7 py-3.5 text-sm font-medium tracking-wide text-[#F6EBDD] transition hover:bg-[#2C1612]"
+                        >
+                            Wyznacz trasę
+                        </a>
+
+                        <div class="mt-8 flex gap-3">
+                            <a
+                                href="https://www.instagram.com/facemodeling.expert"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#3C2418]/20 hover:bg-[#3C2418] hover:text-[#F6EBDD]"
+                                aria-label="Instagram"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                            </a>
+                            <a
+                                href="https://www.facebook.com/profile.php?id=100064131938944"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#3C2418]/20 hover:bg-[#3C2418] hover:text-[#F6EBDD]"
+                                aria-label="Facebook"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="overflow-hidden rounded-lg border border-[#3C2418]/10 bg-white shadow-sm">
+                        <iframe
+                            :src="mapsEmbed"
+                            title="Mapa dojazdu do gabinetu Face Modeling, Emilianów 8A"
+                            class="h-[420px] w-full border-0"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                        ></iframe>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="bg-[#2C1612] px-5 py-8 text-center text-xs text-[#F6EBDD]/45">
+            <div class="mb-3 space-x-4">
+                <a href="/regulamin" class="hover:text-[#F6EBDD]/80">Regulamin</a>
+                <a href="/polityka-prywatnosci" class="hover:text-[#F6EBDD]/80">Polityka prywatności</a>
             </div>
-            
-            <BookingPanel :services="services" :initial-client-data="initialClientData" class="bg-[#222] text-white border-white/10" />
-            
-            <div class="text-center mt-12 space-y-2">
-                 <p class="text-sm text-white/40">Masz pytania? Zadzwoń lub napisz.</p>
-                 <p class="text-lg">+48 793 173 748 &bull; kontakt@face-modeling.pl</p>
-                 <div class="flex justify-center gap-6 mt-6">
-                     <!-- Instagram -->
-                     <a href="https://www.instagram.com/facemodeling.expert?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="w-12 h-12 bg-[#1A1A1A] border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all hover:scale-110 group">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-                     </a>
-                     <!-- Facebook -->
-                     <a href="https://www.facebook.com/profile.php?id=100064131938944" target="_blank" class="w-12 h-12 bg-[#1A1A1A] border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all hover:scale-110 group">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                     </a>
-                 </div>
-            </div>
-        </section>
-        
-        <footer class="py-8 bg-[#111] text-white/20 text-center text-xs">
-            <div class="mb-2 space-x-4">
-                <a href="/regulamin" class="hover:text-white/40 transition-colors">Regulamin</a>
-                <a href="/polityka-prywatnosci" class="hover:text-white/40 transition-colors">Polityka Prywatności</a>
-            </div>
-            &copy; {{ new Date().getFullYear() }} Emilia Wiśniewska. Wszelkie prawa zastrzeżone.
+            <p>&copy; {{ new Date().getFullYear() }} Emilia Wiśniewska. Wszelkie prawa zastrzeżone.</p>
         </footer>
     </div>
 </template>
 
+<style>
+.fm-sans {
+    font-family: Outfit, "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+}
 
+.fm-serif {
+    font-family: "Cormorant Garamond", "Times New Roman", serif;
+}
+</style>
