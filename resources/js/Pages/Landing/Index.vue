@@ -87,14 +87,13 @@ const formatCurrency = (amount: number, maxAmount: number | null = null) => {
     </Head>
 
     <div class="fm-sans min-h-screen bg-[#F7F1E8] text-[#3C2418] antialiased">
-        <header class="sticky top-0 z-40 border-b border-[#3C2418]/10 bg-[#F6F0E6]/95 text-[#3C2418] backdrop-blur-md lg:border-[#F3E6D4]/10 lg:bg-[#2C1612]/95 lg:text-[#F6EBDD]">
+        <header class="sticky top-0 z-40 border-b border-[#F3E6D4]/10 bg-[#2C1612]/95 text-[#F6EBDD] backdrop-blur-md">
             <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-2.5 sm:px-5 lg:px-8 lg:py-3.5">
                 <a href="#start" class="flex min-w-0 items-center gap-2 lg:gap-3" @click.prevent="scrollToSection('start')">
-                    <img src="/img/landing/logo-mark.png" alt="" class="h-9 w-9 shrink-0 lg:hidden" />
-                    <img src="/img/landing/logo-mark-light.png" alt="" class="hidden h-12 w-12 shrink-0 lg:block" />
+                    <img src="/img/landing/logo-mark-light.png" alt="" class="h-9 w-9 shrink-0 lg:h-12 lg:w-12" />
                     <span class="min-w-0 leading-tight">
                         <span class="fm-serif block truncate text-[1.05rem] font-medium tracking-tight sm:text-xl lg:text-[1.35rem]">Face Modeling</span>
-                        <span class="block truncate text-[0.48rem] font-medium uppercase tracking-[0.16em] text-[#8A6A52] sm:text-[0.62rem] sm:tracking-[0.22em] lg:tracking-[0.28em] lg:text-[#E4C89A]">Emilia Wiśniewska</span>
+                        <span class="block truncate text-[0.48rem] font-medium uppercase tracking-[0.16em] text-[#E4C89A] sm:text-[0.62rem] sm:tracking-[0.22em] lg:tracking-[0.28em]">Emilia Wiśniewska</span>
                     </span>
                 </a>
 
@@ -103,7 +102,7 @@ const formatCurrency = (amount: number, maxAmount: number | null = null) => {
                         v-for="item in nav"
                         :key="item.id"
                         type="button"
-                        class="text-[11px] tracking-wide text-[#3C2418] transition hover:text-[#8A6A52] sm:text-sm lg:text-[#F6EBDD]/90 lg:hover:text-[#E4C89A]"
+                        class="text-[11px] tracking-wide text-[#F6EBDD]/90 transition hover:text-[#E4C89A] sm:text-sm"
                         @click="scrollToSection(item.id)"
                     >
                         {{ item.label }}
@@ -113,21 +112,21 @@ const formatCurrency = (amount: number, maxAmount: number | null = null) => {
         </header>
 
         <main>
-            <section id="start" class="relative overflow-hidden bg-[#F6F0E6] text-[#3C2418] lg:bg-[#2C1612] lg:text-[#F6EBDD]">
+            <section id="start" class="relative overflow-hidden bg-[#2C1612] text-[#F6EBDD]">
                 <div class="grid grid-cols-2 pb-12 lg:min-h-[calc(100vh-5.25rem)] lg:pb-0">
                     <div class="relative z-10 flex flex-col justify-center px-3 py-4 pb-8 sm:px-6 sm:py-8 lg:py-16 lg:pb-36 lg:pl-[max(2rem,calc((100vw-72rem)/2))] lg:pr-16">
                         <h1 class="fm-serif max-w-xl text-[1.35rem] font-medium leading-[1.05] min-[420px]:text-[1.55rem] sm:text-[2.4rem] lg:text-[4.15rem]">
                             Dotyk, uważność<br />i troska o Ciebie.
                         </h1>
-                        <p class="mt-3 max-w-md text-[0.78rem] font-semibold leading-snug sm:mt-5 sm:text-base lg:mt-6 lg:text-xl lg:font-medium lg:text-[#F6EBDD]">
+                        <p class="mt-3 max-w-md text-[0.78rem] font-semibold leading-snug text-[#F6EBDD] sm:mt-5 sm:text-base lg:mt-6 lg:text-xl lg:font-medium">
                             Masaż i terapie manualne twarzy i ciała
                         </p>
-                        <p class="mt-2 max-w-md text-[0.68rem] font-light leading-snug text-[#5C4636] sm:mt-4 sm:text-sm sm:leading-relaxed lg:mt-5 lg:text-[1.02rem] lg:text-[#E7D5C4]">
+                        <p class="mt-2 max-w-md text-[0.68rem] font-light leading-snug text-[#E7D5C4] sm:mt-4 sm:text-sm sm:leading-relaxed lg:mt-5 lg:text-[1.02rem]">
                             Czujesz napięcie w karku, plecach lub żuchwie? A może potrzebujesz chwili odpoczynku?
                             Na początku wizyty pytam, co Ci dokucza i czego potrzebujesz. Do tego dobieram masaż.
                         </p>
 
-                        <p class="mt-3 flex items-start gap-1.5 text-[0.65rem] text-[#3C2418] sm:mt-6 sm:items-center sm:gap-2 sm:text-sm lg:mt-8 lg:text-[#E4C89A]">
+                        <p class="mt-3 flex items-start gap-1.5 text-[0.65rem] text-[#E4C89A] sm:mt-6 sm:items-center sm:gap-2 sm:text-sm lg:mt-8">
                             <MapPin class="mt-0.5 h-3.5 w-3.5 shrink-0 sm:mt-0 sm:h-4 sm:w-4" />
                             {{ shortAddress }}
                         </p>
@@ -135,17 +134,17 @@ const formatCurrency = (amount: number, maxAmount: number | null = null) => {
                         <div class="mt-3 flex flex-col items-start gap-2.5 sm:mt-5 sm:gap-4">
                             <a
                                 :href="phoneHref"
-                                class="inline-flex items-center justify-center rounded-md bg-[#3C2418] px-3 py-2.5 text-center text-[0.72rem] font-medium tracking-wide text-[#F6EBDD] transition hover:bg-[#2C1612] sm:px-5 sm:text-sm lg:bg-[#F3E6D4] lg:px-7 lg:py-3.5 lg:text-[0.95rem] lg:text-[#2C1612] lg:hover:bg-[#E7D3B5]"
+                                class="inline-flex items-center justify-center rounded-md bg-[#F3E6D4] px-3 py-2.5 text-center text-[0.72rem] font-medium tracking-wide text-[#2C1612] transition hover:bg-[#E7D3B5] sm:px-5 sm:text-sm lg:px-7 lg:py-3.5 lg:text-[0.95rem]"
                             >
                                 Zadzwoń i umów wizytę
                             </a>
-                            <a :href="phoneHref" class="fm-serif inline-flex items-center gap-1.5 text-lg text-[#3C2418] hover:text-[#8A6A52] sm:gap-2.5 sm:text-2xl lg:text-[#F6EBDD] lg:hover:text-[#E4C89A]">
+                            <a :href="phoneHref" class="fm-serif inline-flex items-center gap-1.5 text-lg text-[#F6EBDD] hover:text-[#E4C89A] sm:gap-2.5 sm:text-2xl">
                                 <Phone class="h-4 w-4 sm:h-5 sm:w-5" />
                                 {{ phoneDisplay }}
                             </a>
                             <button
                                 type="button"
-                                class="hidden text-sm text-[#E7D5C4]/80 underline decoration-[#E4C89A]/40 underline-offset-4 hover:text-[#F6EBDD] lg:inline"
+                                class="text-[0.65rem] text-[#E7D5C4]/80 underline decoration-[#E4C89A]/40 underline-offset-4 hover:text-[#F6EBDD] sm:text-sm"
                                 @click="scrollToSection('booking')"
                             >
                                 lub umów wizytę online
