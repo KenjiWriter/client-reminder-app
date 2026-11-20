@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import BookingPanel from '@/components/Booking/BookingPanel.vue';
-import { MapPin, Menu, Phone, X } from 'lucide-vue-next';
+import { MapPin, Phone } from 'lucide-vue-next';
 
 defineProps<{
     services: Record<string, any[]>;
@@ -17,8 +17,6 @@ const cityLine = '96-330 Puszcza Mariańska';
 const mapsQuery = 'Emilianów 8A, 96-330 Puszcza Mariańska';
 const mapsEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(mapsQuery)}&z=15&output=embed`;
 const mapsDirections = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapsQuery)}`;
-
-const menuOpen = ref(false);
 
 const initialClientData = ref<{ full_name?: string; phone?: string; email?: string }>({});
 
@@ -52,7 +50,6 @@ onMounted(() => {
 });
 
 const scrollToSection = (id: string) => {
-    menuOpen.value = false;
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 };
 
@@ -90,87 +87,65 @@ const formatCurrency = (amount: number, maxAmount: number | null = null) => {
     </Head>
 
     <div class="fm-sans min-h-screen bg-[#F7F1E8] text-[#3C2418] antialiased">
-        <header class="sticky top-0 z-40 border-b border-[#F3E6D4]/10 bg-[#2C1612]/95 text-[#F6EBDD] backdrop-blur-md">
-            <div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-3.5 md:px-8">
-                <a href="#start" class="flex items-center gap-3" @click.prevent="scrollToSection('start')">
-                    <img src="/img/landing/logo-mark-light.png" alt="" class="h-12 w-12 shrink-0" />
-                    <span class="leading-tight">
-                        <span class="fm-serif block text-[1.35rem] font-medium tracking-tight">Face Modeling</span>
-                        <span class="block text-[0.62rem] font-medium uppercase tracking-[0.28em] text-[#E4C89A]">Emilia Wiśniewska</span>
+        <header class="sticky top-0 z-40 border-b border-[#3C2418]/10 bg-[#F6F0E6]/95 text-[#3C2418] backdrop-blur-md lg:border-[#F3E6D4]/10 lg:bg-[#2C1612]/95 lg:text-[#F6EBDD]">
+            <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-2.5 sm:px-5 lg:px-8 lg:py-3.5">
+                <a href="#start" class="flex min-w-0 items-center gap-2 lg:gap-3" @click.prevent="scrollToSection('start')">
+                    <img src="/img/landing/logo-mark.png" alt="" class="h-9 w-9 shrink-0 lg:hidden" />
+                    <img src="/img/landing/logo-mark-light.png" alt="" class="hidden h-12 w-12 shrink-0 lg:block" />
+                    <span class="min-w-0 leading-tight">
+                        <span class="fm-serif block truncate text-[1.05rem] font-medium tracking-tight sm:text-xl lg:text-[1.35rem]">Face Modeling</span>
+                        <span class="block truncate text-[0.48rem] font-medium uppercase tracking-[0.16em] text-[#8A6A52] sm:text-[0.62rem] sm:tracking-[0.22em] lg:tracking-[0.28em] lg:text-[#E4C89A]">Emilia Wiśniewska</span>
                     </span>
                 </a>
 
-                <nav class="hidden items-center gap-8 md:flex">
+                <nav class="flex shrink-0 items-center gap-2.5 sm:gap-5 lg:gap-8">
                     <button
                         v-for="item in nav"
                         :key="item.id"
                         type="button"
-                        class="text-sm tracking-wide text-[#F6EBDD]/90 transition hover:text-[#E4C89A]"
+                        class="text-[11px] tracking-wide text-[#3C2418] transition hover:text-[#8A6A52] sm:text-sm lg:text-[#F6EBDD]/90 lg:hover:text-[#E4C89A]"
                         @click="scrollToSection(item.id)"
                     >
                         {{ item.label }}
                     </button>
                 </nav>
-
-                <button
-                    type="button"
-                    class="inline-flex h-10 w-10 items-center justify-center rounded-md text-[#F6EBDD] md:hidden"
-                    :aria-expanded="menuOpen"
-                    aria-label="Menu"
-                    @click="menuOpen = !menuOpen"
-                >
-                    <X v-if="menuOpen" class="h-5 w-5" />
-                    <Menu v-else class="h-5 w-5" />
-                </button>
-            </div>
-
-            <div v-if="menuOpen" class="border-t border-[#F3E6D4]/10 px-5 py-3 md:hidden">
-                <button
-                    v-for="item in nav"
-                    :key="item.id"
-                    type="button"
-                    class="block w-full py-3 text-left text-base text-[#F6EBDD]"
-                    @click="scrollToSection(item.id)"
-                >
-                    {{ item.label }}
-                </button>
             </div>
         </header>
 
         <main>
-            <section id="start" class="relative overflow-hidden bg-[#2C1612] text-[#F6EBDD]">
-                <div class="grid pb-16 lg:min-h-[calc(100vh-5.25rem)] lg:grid-cols-2 lg:pb-0">
-                    <div class="relative z-10 flex flex-col justify-center px-5 pb-8 pt-10 sm:px-8 lg:py-16 lg:pb-36 lg:pl-[max(2rem,calc((100vw-72rem)/2))] lg:pr-16">
-                        <h1 class="fm-serif max-w-xl text-[2.7rem] font-medium leading-[1.05] sm:text-6xl lg:text-[4.15rem]">
+            <section id="start" class="relative overflow-hidden bg-[#F6F0E6] text-[#3C2418] lg:bg-[#2C1612] lg:text-[#F6EBDD]">
+                <div class="grid grid-cols-2 pb-12 lg:min-h-[calc(100vh-5.25rem)] lg:pb-0">
+                    <div class="relative z-10 flex flex-col justify-center px-3 py-4 pb-8 sm:px-6 sm:py-8 lg:py-16 lg:pb-36 lg:pl-[max(2rem,calc((100vw-72rem)/2))] lg:pr-16">
+                        <h1 class="fm-serif max-w-xl text-[1.35rem] font-medium leading-[1.05] min-[420px]:text-[1.55rem] sm:text-[2.4rem] lg:text-[4.15rem]">
                             Dotyk, uważność<br />i troska o Ciebie.
                         </h1>
-                        <p class="mt-6 max-w-md text-lg font-medium leading-snug text-[#F6EBDD] sm:text-xl">
+                        <p class="mt-3 max-w-md text-[0.78rem] font-semibold leading-snug sm:mt-5 sm:text-base lg:mt-6 lg:text-xl lg:font-medium lg:text-[#F6EBDD]">
                             Masaż i terapie manualne twarzy i ciała
                         </p>
-                        <p class="mt-5 max-w-md text-[1.02rem] font-light leading-relaxed text-[#E7D5C4]">
+                        <p class="mt-2 max-w-md text-[0.68rem] font-light leading-snug text-[#5C4636] sm:mt-4 sm:text-sm sm:leading-relaxed lg:mt-5 lg:text-[1.02rem] lg:text-[#E7D5C4]">
                             Czujesz napięcie w karku, plecach lub żuchwie? A może potrzebujesz chwili odpoczynku?
                             Na początku wizyty pytam, co Ci dokucza i czego potrzebujesz. Do tego dobieram masaż.
                         </p>
 
-                        <p class="mt-8 flex items-center gap-2 text-sm text-[#E4C89A]">
-                            <MapPin class="h-4 w-4 shrink-0" />
+                        <p class="mt-3 flex items-start gap-1.5 text-[0.65rem] text-[#3C2418] sm:mt-6 sm:items-center sm:gap-2 sm:text-sm lg:mt-8 lg:text-[#E4C89A]">
+                            <MapPin class="mt-0.5 h-3.5 w-3.5 shrink-0 sm:mt-0 sm:h-4 sm:w-4" />
                             {{ shortAddress }}
                         </p>
 
-                        <div class="mt-5 flex flex-col items-start gap-4">
+                        <div class="mt-3 flex flex-col items-start gap-2.5 sm:mt-5 sm:gap-4">
                             <a
                                 :href="phoneHref"
-                                class="inline-flex items-center justify-center rounded-md bg-[#F3E6D4] px-7 py-3.5 text-[0.95rem] font-medium tracking-wide text-[#2C1612] transition hover:bg-[#E7D3B5]"
+                                class="inline-flex items-center justify-center rounded-md bg-[#3C2418] px-3 py-2.5 text-center text-[0.72rem] font-medium tracking-wide text-[#F6EBDD] transition hover:bg-[#2C1612] sm:px-5 sm:text-sm lg:bg-[#F3E6D4] lg:px-7 lg:py-3.5 lg:text-[0.95rem] lg:text-[#2C1612] lg:hover:bg-[#E7D3B5]"
                             >
                                 Zadzwoń i umów wizytę
                             </a>
-                            <a :href="phoneHref" class="fm-serif inline-flex items-center gap-2.5 text-2xl text-[#F6EBDD] hover:text-[#E4C89A]">
-                                <Phone class="h-5 w-5" />
+                            <a :href="phoneHref" class="fm-serif inline-flex items-center gap-1.5 text-lg text-[#3C2418] hover:text-[#8A6A52] sm:gap-2.5 sm:text-2xl lg:text-[#F6EBDD] lg:hover:text-[#E4C89A]">
+                                <Phone class="h-4 w-4 sm:h-5 sm:w-5" />
                                 {{ phoneDisplay }}
                             </a>
                             <button
                                 type="button"
-                                class="text-sm text-[#E7D5C4]/80 underline decoration-[#E4C89A]/40 underline-offset-4 hover:text-[#F6EBDD]"
+                                class="hidden text-sm text-[#E7D5C4]/80 underline decoration-[#E4C89A]/40 underline-offset-4 hover:text-[#F6EBDD] lg:inline"
                                 @click="scrollToSection('booking')"
                             >
                                 lub umów wizytę online
@@ -178,13 +153,12 @@ const formatCurrency = (amount: number, maxAmount: number | null = null) => {
                         </div>
                     </div>
 
-                    <div class="relative h-[104vw] max-h-[520px] sm:h-[460px] lg:h-auto lg:max-h-none lg:min-h-full">
+                    <div class="relative min-h-full">
                         <img
                             src="/img/landing/hero-hands.jpg"
                             alt="Dłonie podczas masażu twarzy i ciała"
-                            class="absolute inset-0 h-full w-full object-cover object-[center_68%] sm:object-[center_55%] lg:object-[center_28%]"
+                            class="absolute inset-0 h-full w-full object-cover object-[center_62%] lg:object-[center_28%]"
                         />
-                        <div class="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#2C1612] to-transparent lg:hidden"></div>
                         <div class="pointer-events-none absolute inset-y-0 left-0 hidden w-24 bg-gradient-to-r from-[#2C1612] to-transparent lg:block"></div>
                     </div>
                 </div>
