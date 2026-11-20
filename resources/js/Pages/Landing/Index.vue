@@ -139,8 +139,8 @@ const formatCurrency = (amount: number, maxAmount: number | null = null) => {
 
         <main>
             <section id="start" class="relative overflow-hidden bg-[#2C1612] text-[#F6EBDD]">
-                <div class="grid lg:min-h-[calc(100vh-5.25rem)] lg:grid-cols-2">
-                    <div class="relative z-10 flex flex-col justify-center px-5 pb-28 pt-12 sm:px-8 lg:py-16 lg:pb-36 lg:pl-[max(2rem,calc((100vw-72rem)/2))] lg:pr-16">
+                <div class="grid pb-16 lg:min-h-[calc(100vh-5.25rem)] lg:grid-cols-2 lg:pb-0">
+                    <div class="relative z-10 flex flex-col justify-center px-5 pb-8 pt-10 sm:px-8 lg:py-16 lg:pb-36 lg:pl-[max(2rem,calc((100vw-72rem)/2))] lg:pr-16">
                         <h1 class="fm-serif max-w-xl text-[2.7rem] font-medium leading-[1.05] sm:text-6xl lg:text-[4.15rem]">
                             Dotyk, uważność<br />i troska o Ciebie.
                         </h1>
@@ -178,12 +178,13 @@ const formatCurrency = (amount: number, maxAmount: number | null = null) => {
                         </div>
                     </div>
 
-                    <div class="relative min-h-[58vw] sm:min-h-[420px] lg:min-h-full">
+                    <div class="relative h-[104vw] max-h-[520px] sm:h-[460px] lg:h-auto lg:max-h-none lg:min-h-full">
                         <img
                             src="/img/landing/hero-hands.jpg"
                             alt="Dłonie podczas masażu twarzy i ciała"
-                            class="absolute inset-0 h-full w-full object-cover object-[center_20%]"
+                            class="absolute inset-0 h-full w-full object-cover object-[center_68%] sm:object-[center_55%] lg:object-[center_28%]"
                         />
+                        <div class="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#2C1612] to-transparent lg:hidden"></div>
                         <div class="pointer-events-none absolute inset-y-0 left-0 hidden w-24 bg-gradient-to-r from-[#2C1612] to-transparent lg:block"></div>
                     </div>
                 </div>
